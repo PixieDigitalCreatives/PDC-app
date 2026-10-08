@@ -1,0 +1,93 @@
+// PDC design tokens — single source of truth.
+// Every colour is a CSS custom property so the whole site can switch between the
+// dark and light themes at runtime (values live in index.scss under [data-theme]).
+
+// Colour with transparency, theme-safe: alpha(var(--fg), 0.12)
+@function alpha($color, $amount) {
+  @return color-mix(in srgb, #{$color} #{$amount * 100%}, transparent);
+}
+
+// Surfaces
+$black: var(--bg);          // page background
+$black-2: var(--bg-2);      // alternate section background
+$ink: var(--surface);       // raised surface (cards)
+$ink-2: var(--surface-2);   // hovered surface
+$white: var(--fg);          // primary type
+
+// Accents: peach (primary), pink, purple
+$accent: var(--accent);
+$gold: var(--accent);
+$blue: var(--accent);
+$pink: var(--accent-2);
+$violet: var(--accent-2);
+$rose: var(--accent-3);
+$navy: var(--accent-3);
+$cream: var(--fg);
+$midnight: var(--on-accent); // type on accent fills
+
+// Type tones
+$chrome: var(--fg-2);
+$chrome-2: var(--fg-3);
+$chrome-3: var(--fg-4);
+$chrome-gradient: var(--grad-chrome);
+$accent-gradient: var(--grad-accent);
+$emphasis-gradient: var(--grad-text);
+
+$shadow-tint: var(--shadow);
+
+$white-72: alpha($white, 0.72);
+$white-48: alpha($white, 0.48);
+$white-24: alpha($white, 0.24);
+$white-12: alpha($white, 0.12);
+$white-08: alpha($white, 0.08);
+
+// Type: Poppins throughout (display, text, labels), Caveat for handwritten notes
+$font-display: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+$font-body: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+$font-mono: 'Poppins', 'Segoe UI', system-ui, sans-serif;
+$font-hand: 'Caveat', 'Segoe Print', cursive;
+
+$fs-hero: clamp(3.6rem, 10.2vw, 10rem);
+$fs-section: clamp(2.8rem, 7vw, 8rem);
+$fs-title: clamp(2rem, 4.4vw, 4.5rem);
+$fs-lead: clamp(1.15rem, 1.6vw, 1.5rem);
+$fs-body: clamp(1.0625rem, 1.2vw, 1.25rem);
+$fs-meta: 0.75rem;
+
+// Spacing scale (8pt based)
+$space-1: 0.5rem;
+$space-2: 1rem;
+$space-3: 1.5rem;
+$space-4: 2rem;
+$space-5: 3rem;
+$space-6: 4.5rem;
+$space-7: 7rem;
+$space-8: 11rem;
+$gutter: clamp(1.25rem, 4vw, 4rem);
+$gutter-neg: calc(-1 * clamp(1.25rem, 4vw, 4rem));
+$gutter-2: calc(2 * clamp(1.25rem, 4vw, 4rem));
+$section-pad: clamp(6rem, 14vw, 14rem);
+
+// Motion
+$ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+$ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
+$ease-smooth: cubic-bezier(0.45, 0, 0.15, 1);
+$dur-fast: 0.25s;
+$dur-base: 0.5s;
+$dur-slow: 0.9s;
+
+// Breakpoints
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1440px;
+
+// Z-index
+$z-base: 1;
+$z-nav: 100;
+$z-menu: 200;
+$z-modal: 500;
+$z-curtain: 900;
+$z-grain: 940;
+$z-cursor: 950;
+$z-preloader: 1000;

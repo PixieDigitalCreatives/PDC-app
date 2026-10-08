@@ -1,0 +1,9 @@
+@use './abstracts' as *;
+
+// Portfolio page shell. The page itself is built from src/sections/PortfolioStory (portfoliostory.scss).
+.portfolio-page {
+  background: $black;
+  min-height: 100vh;
+  // `clip` (not `hidden`) so nothing here becomes a scroll container
+  overflow-x: clip;
+}

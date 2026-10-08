@@ -1,0 +1,12 @@
+The 3D images in this folder are from the "3dicons" set by Vijay Verma (realvjy):
+https://3dicons.co  -  https://github.com/realvjy/3dicons
+Style: gradient, angle: dynamic. Licensed CC0 1.0 (public domain dedication): free for personal and
+commercial use, no attribution required. https://creativecommons.org/publicdomain/zero/1.0/
+
+File -> original icon:
+web=computer, app=mobile, crm=notebook, social=thumb-up, content=file-text, wordpress=color-palette,
+stack=cube, edit=scissor, shoot=video-camera, handling=megaphone, search=rocket, ai=magic-trick,
+answer=chat-bubble, ads=target, reach=chart, idea=bulb
+
+Source URL pattern:
+https://3dicons.sgp1.cdn.digitaloceanspaces.com/v1/dynamic/gradient/<icon>-dynamic-gradient.png

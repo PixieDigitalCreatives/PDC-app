@@ -1,0 +1,69 @@
+@use './abstracts' as *;
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: $z-preloader;
+  background: $black;
+  color: $white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+
+  &__inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: $gutter;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  &__meta {
+    @include meta;
+    color: $white-48;
+  }
+
+  &__word {
+    @include display(clamp(7rem, 26vw, 30rem));
+    display: flex;
+    gap: 0.02em;
+    line-height: 0.82;
+  }
+
+  &__mask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.06em;
+
+    > span { display: block; will-change: transform; }
+  }
+
+  &__foot {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  &__count {
+    @include meta;
+    color: $white;
+    min-width: 3ch;
+  }
+
+  &__rule {
+    flex: 1;
+    height: 1px;
+    background: $white-12;
+    overflow: hidden;
+
+    > span {
+      display: block;
+      height: 100%;
+      background: $accent;
+      transform-origin: left center;
+    }
+  }
+}

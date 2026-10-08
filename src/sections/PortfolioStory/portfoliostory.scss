@@ -1,0 +1,610 @@
+@use '../../styles/abstracts' as *;
+
+// ======================================================================
+// Portfolio — hero with a wall of the real work, a filter bar,
+// case-study posters (or a typographic index), and the CTA.
+// ======================================================================
+
+:root,
+[data-theme='dark'] {
+  --pf-spot: rgba(181, 124, 246, 0.14);
+  --pf-shadow: 0 34px 70px -40px rgba(0, 0, 0, 0.85);
+}
+[data-theme='light'] {
+  --pf-spot: rgba(238, 111, 160, 0.1);
+  --pf-shadow: 0 26px 56px -32px rgba(107, 58, 90, 0.38);
+}
+
+// ---------------- Hero ----------------
+.pf-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  padding: 124px $gutter 110px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+
+  &__bg, &__spot { position: absolute; pointer-events: none; }
+  &__bg { inset: -10% 0 0; z-index: -3; }
+  &__spot { inset: 0; z-index: -2; }
+
+  &__inner {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: 3rem;
+  }
+  &.has-wall &__inner {
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    @include down($bp-lg) { grid-template-columns: 1fr; gap: 2.5rem; }
+  }
+
+  &__title {
+    margin: 1.5rem 0 1.4rem;
+    font-size: clamp(2.5rem, 5.4vw, 5.4rem);
+    font-weight: 700;
+    line-height: 1.04;
+    letter-spacing: -0.047em;
+    color: $white;
+  }
+  &__lead {
+    max-width: 44ch;
+    font-size: clamp(1rem, 1.25vw, 1.15rem);
+    line-height: 1.7;
+    color: $chrome-2;
+  }
+  &__ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 2rem; }
+
+  // The wall bleeds off the right edge and fades at the top and bottom
+  &__visual {
+    position: relative;
+    height: clamp(460px, 74vh, 700px);
+    margin-right: calc(-1 * #{$gutter});
+    mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%), linear-gradient(to right, transparent 0, #000 18%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%), linear-gradient(to right, transparent 0, #000 18%);
+    mask-composite: intersect;
+    -webkit-mask-composite: source-in;
+
+    @include down($bp-lg) {
+      height: 400px;
+      margin-right: 0;
+      mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%), linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, #000 84%, transparent 100%), linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%);
+    }
+  }
+}
+
+.pf-wall {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+
+  &__tilt {
+    position: absolute;
+    inset: -12% -8% -12% 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    transform: rotate(-8deg);
+  }
+}
+
+.pf-col {
+  overflow: hidden;
+
+  &__track {
+    display: grid;
+    animation: pf-col var(--dur, 40s) linear infinite;
+    animation-direction: var(--dir, normal);
+    will-change: transform;
+  }
+  &__set {
+    display: grid;
+    gap: 14px;
+    padding-bottom: 14px; // so the two copies loop without a jump
+  }
+
+  @include hover-device {
+    &:hover .pf-col__track { animation-play-state: paused; }
+  }
+}
+@keyframes pf-col { to { transform: translateY(-50%); } }
+
+.pf-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid $white-12;
+  box-shadow: var(--pf-shadow);
+  transition: border-color $dur-fast linear;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    transition: transform 1.1s $ease-out;
+  }
+
+  &__label {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 28px 12px 10px;
+    display: grid;
+    gap: 1px;
+    text-align: left;
+    color: #fff;
+    background: linear-gradient(to top, rgba(8, 4, 14, 0.85), transparent);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity $dur-base linear, transform $dur-base $ease-out;
+    b { font-size: 0.78rem; font-weight: 600; letter-spacing: -0.01em; }
+    em { font-style: normal; font-size: 0.64rem; opacity: 0.8; }
+  }
+
+  @include hover-device {
+    &:hover { border-color: alpha(var(--accent-2), 0.6); }
+    &:hover img { transform: scale(1.06); }
+    &:hover .pf-frame__label { opacity: 1; transform: none; }
+  }
+}
+
+.pf-cats {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 2.25rem;
+}
+.pf-cat {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid $white-12;
+  background: alpha($white, 0.04);
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: $white;
+  transition: border-color $dur-fast linear, background $dur-fast linear, transform $dur-base $ease-out;
+
+  b { @include meta; font-size: 0.62rem; color: var(--accent-2); }
+
+  @include hover-device {
+    &:hover { border-color: alpha(var(--accent-2), 0.55); background: alpha(var(--accent-2), 0.1); transform: translateY(-3px); }
+  }
+}
+
+// ---------------- Work (controls + posters / index) ----------------
+.pf-work { position: relative; padding-bottom: clamp(3rem, 6vw, 5rem); }
+
+.pf-controls {
+  @include container;
+  max-width: 1440px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-block: 10px;
+
+  @include down($bp-lg) { flex-direction: column; align-items: stretch; }
+
+  &__bar {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: var(--glass);
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    border: 1px solid $white-08;
+    box-shadow: var(--pf-shadow);
+
+    @include down($bp-lg) { flex-wrap: wrap; border-radius: 26px; padding: 10px; }
+  }
+  &__count {
+    @include meta;
+    font-size: 0.66rem;
+    color: $chrome-3;
+    font-variant-numeric: tabular-nums;
+    padding-right: 4px;
+    @include down($bp-lg) { display: none; }
+  }
+}
+
+.pf-filters {
+  display: flex;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+  @include down($bp-lg) { flex: 1 1 100%; }
+}
+.pf-filter {
+  position: relative;
+  flex: none;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: $chrome-2;
+  transition: color $dur-fast linear;
+
+  &:hover { color: $white; }
+  &.is-active { color: var(--btn-fg); }
+  &__pill { position: absolute; inset: 0; border-radius: 999px; background: var(--btn-bg); }
+  &__text { position: relative; z-index: 1; }
+}
+
+.pf-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  flex: 0 1 230px;
+  min-width: 150px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid $white-12;
+  background: alpha($white, 0.04);
+  color: $chrome-2;
+  transition: border-color $dur-fast linear;
+
+  svg { flex: none; font-size: 18px; }
+  input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    font: inherit;
+    font-size: 0.86rem;
+    color: $white;
+    &::placeholder { color: $chrome-3; }
+  }
+  &:focus-within { border-color: alpha(var(--accent-2), 0.6); }
+  &__clear { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: $chrome-2; &:hover { color: $white; } }
+
+  @include down($bp-lg) { flex: 1 1 0; min-width: 0; }
+}
+
+.pf-views {
+  display: flex;
+  flex: none;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid $white-12;
+}
+.pf-view {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: $chrome-2;
+  transition: color $dur-fast linear;
+
+  svg { position: relative; z-index: 1; font-size: 16px; }
+  // labels only when there is room; the icons carry it otherwise
+  &__text { position: relative; z-index: 1; @media (max-width: 1279px) { display: none; } }
+  &__pill { position: absolute; inset: 0; border-radius: 999px; background: var(--btn-bg); }
+  &:hover { color: $white; }
+  &.is-active { color: var(--btn-fg); }
+}
+
+.pf-work__body {
+  @include container;
+  max-width: 1440px;
+  padding-top: clamp(2.5rem, 6vw, 5rem);
+}
+
+.pf-empty {
+  display: grid;
+  justify-items: center;
+  gap: 1.25rem;
+  padding: clamp(3rem, 8vw, 5rem) 2rem;
+  text-align: center;
+  border-radius: 28px;
+  background: var(--surface);
+  border: 1px solid $white-08;
+  color: $chrome-2;
+}
+
+// ---------------- Posters ----------------
+.pf-posters {
+  list-style: none;
+  display: grid;
+  gap: clamp(4rem, 14vh, 9rem);
+}
+
+.pf-poster {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: center;
+
+  @include down($bp-lg) { display: block; }
+
+  &__num {
+    position: absolute;
+    z-index: 0;
+    top: -10%;
+    left: -1%;
+    font-size: clamp(9rem, 20vw, 20rem);
+    font-weight: 800;
+    line-height: 0.8;
+    letter-spacing: -0.07em;
+    color: transparent;
+    -webkit-text-stroke: 1px alpha($white, 0.1);
+    pointer-events: none;
+    user-select: none;
+    will-change: transform;
+
+    @include down($bp-lg) { display: none; }
+  }
+  &.is-flipped &__num { left: auto; right: -1%; }
+
+  // Screenshot in a browser frame
+  &__media {
+    position: relative;
+    z-index: 1;
+    grid-column: 1 / 9;
+    grid-row: 1;
+    display: block;
+    overflow: hidden;
+    border-radius: 28px;
+    background: var(--surface-2);
+    border: 1px solid $white-12;
+    box-shadow: var(--pf-shadow);
+    text-align: left;
+    width: 100%;
+  }
+  &.is-flipped &__media { grid-column: 5 / 13; }
+
+  &__bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 18px;
+    background: alpha($white, 0.04);
+    border-bottom: 1px solid $white-08;
+    i { width: 9px; height: 9px; border-radius: 50%; background: $white-12; }
+    i:nth-child(1) { background: #ff6b6b; opacity: 0.75; }
+    i:nth-child(2) { background: #ffc857; opacity: 0.75; }
+    i:nth-child(3) { background: #4cd27c; opacity: 0.75; }
+    em {
+      margin-left: 14px;
+      padding: 3px 14px;
+      border-radius: 999px;
+      font-style: normal;
+      font-size: 0.7rem;
+      color: $chrome-3;
+      background: alpha($white, 0.05);
+    }
+  }
+  &__shot {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 16 / 9.2;
+
+    img {
+      position: absolute;
+      left: 0;
+      top: -6%;
+      width: 100%;
+      height: 112%;
+      object-fit: cover;
+      object-position: top center;
+      will-change: transform;
+    }
+  }
+  &__hover {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--btn-fg);
+    background: var(--btn-bg);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity $dur-base linear, transform $dur-base $ease-out;
+  }
+  @include hover-device {
+    &__media:hover &__hover { opacity: 1; transform: none; }
+    &__media:hover .pf-poster__shot img { filter: saturate(1.1) brightness(1.04); }
+  }
+
+  // Glass panel over the edge of the screenshot
+  &__info {
+    position: relative;
+    z-index: 2;
+    grid-column: 7 / 13;
+    grid-row: 1;
+    align-self: end;
+    margin-bottom: -2.5rem;
+    display: grid;
+    gap: 0.9rem;
+    padding: clamp(1.4rem, 2.4vw, 2.3rem);
+    border-radius: 28px;
+    background: var(--glass);
+    backdrop-filter: blur(22px) saturate(1.3);
+    -webkit-backdrop-filter: blur(22px) saturate(1.3);
+    border: 1px solid $white-12;
+    box-shadow: var(--pf-shadow), inset 0 1px 0 alpha($white, 0.06);
+    will-change: transform;
+
+    @include down($bp-lg) { margin: -2rem 0.75rem 0; }
+  }
+  &.is-flipped &__info { grid-column: 1 / 7; }
+
+  &__meta { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+  &__count { @include meta; font-size: 0.66rem; color: $chrome-3; font-variant-numeric: tabular-nums; b { color: $white; } }
+  &__cat {
+    @include meta;
+    font-size: 0.62rem;
+    padding: 6px 12px;
+    border-radius: 999px;
+    color: var(--accent-2);
+    border: 1px solid alpha(var(--accent-2), 0.35);
+    background: alpha(var(--accent-2), 0.08);
+  }
+  &__year { @include meta; font-size: 0.62rem; color: $chrome-3; }
+
+  &__title {
+    font-size: clamp(2rem, 3.8vw, 3.6rem);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.048em;
+    color: $white;
+  }
+  &__type { font-size: 1rem; font-weight: 500; color: $chrome; }
+  &__desc {
+    font-size: 0.93rem;
+    line-height: 1.65;
+    color: $chrome-2;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  &__tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    li { font-size: 0.76rem; padding: 6px 12px; border-radius: 999px; color: $chrome-2; border: 1px solid $white-12; }
+  }
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 0.4rem;
+    @include down($bp-lg) { .btn-primary, .btn-secondary { padding: 12px 20px; } }
+  }
+}
+
+// ---------------- Index ----------------
+.pf-index {
+  list-style: none;
+  border-top: 1px solid $white-12;
+}
+
+.pf-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4ch minmax(0, 1fr) auto auto 52px;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 3rem);
+  width: 100%;
+  padding-block: clamp(1.1rem, 2.6vw, 2rem);
+  border-bottom: 1px solid $white-12;
+  text-align: left;
+  color: $white;
+  transition: opacity 0.45s linear;
+
+  &__n { @include meta; font-size: 0.7rem; color: $chrome-3; font-variant-numeric: tabular-nums; }
+  &__t {
+    font-size: clamp(2.2rem, 6.2vw, 6rem);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.055em;
+    transition: transform 0.7s $ease-out;
+  }
+  &__thumb { display: none; }
+  &__c { font-size: 0.92rem; color: $chrome-2; white-space: nowrap; }
+  &__y { @include meta; font-size: 0.7rem; color: $chrome-3; }
+  &__a {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid $white-12;
+    font-size: 20px;
+    transition: background $dur-base linear, color $dur-base linear, transform 0.6s $ease-out, border-color $dur-base linear;
+  }
+
+  &.is-hover &__t {
+    transform: translateX(clamp(0.75rem, 2vw, 2rem));
+    background: var(--grad-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  &.is-hover &__a { background: var(--btn-bg); color: var(--btn-fg); border-color: transparent; transform: rotate(45deg); }
+
+  @include down($bp-lg) {
+    grid-template-columns: 3ch minmax(0, 1fr) 88px;
+    grid-template-areas: 'n t thumb' 'n c thumb';
+    row-gap: 4px;
+    &__n { grid-area: n; align-self: start; padding-top: 0.5rem; }
+    &__t { grid-area: t; font-size: clamp(1.8rem, 8vw, 2.6rem); }
+    &__c { grid-area: c; }
+    &__y, &__a { display: none; }
+    &__thumb {
+      grid-area: thumb;
+      display: block;
+      width: 88px;
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 14px;
+      img { width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+    }
+  }
+}
+.pf-index.has-hover .pf-row:not(.is-hover) { opacity: 0.26; }
+
+// Floating preview that follows the cursor (portalled to <body>)
+.pf-preview {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: $z-cursor - 5;
+  width: clamp(260px, 26vw, 380px);
+  aspect-ratio: 4 / 3;
+  margin: -150px 0 0 36px;
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid $white-12;
+  background: var(--surface-2);
+  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+  }
+}
+
+@include reduced-motion {
+  .pf-col__track { animation: none !important; }
+}

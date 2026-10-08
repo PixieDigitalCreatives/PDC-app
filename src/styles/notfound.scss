@@ -1,0 +1,44 @@
+@use './abstracts' as *;
+
+.nf {
+  min-height: 100dvh;
+  display: grid;
+  align-items: center;
+  padding-block: 9rem 6rem;
+
+  &__inner { display: grid; gap: 1.75rem; justify-items: start; }
+
+  &__title {
+    @include display(clamp(3.6rem, 11vw, 10rem));
+    color: $white;
+    line-height: 0.9;
+
+    em {
+      background: $emphasis-gradient;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      padding-right: 0.08em;
+    }
+  }
+
+  &__text { font-size: $fs-lead; color: $chrome-2; max-width: 44ch; line-height: 1.5; }
+
+  &__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 2rem; margin-top: 0.5rem; }
+
+  &__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+
+    a {
+      @include meta;
+      color: $chrome-2;
+      padding-bottom: 4px;
+      border-bottom: 1px solid transparent;
+      transition: color $dur-fast $ease-out, border-color $dur-fast $ease-out;
+
+      @include hover-device { &:hover { color: $gold; border-color: $gold; } }
+    }
+  }
+}

@@ -1,0 +1,86 @@
+@use './abstracts' as *;
+
+// A 3D service object: floats over a glow and a ground shadow, with a few twinkling stars.
+// `--ta` (set by the card's tone class) tints the glow; falls back to the theme glow.
+
+.art {
+  --spark: #fff;
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  &__glow {
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--ta, var(--glow-1)), transparent);
+    filter: blur(30px);
+    opacity: 0.5;
+    animation: pg-breathe 5s ease-in-out infinite;
+  }
+
+  // Soft shadow on the "floor"; it shrinks as the object floats up
+  &__ground {
+    position: absolute;
+    left: 24%;
+    right: 24%;
+    bottom: 7%;
+    height: 7%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, alpha(var(--shadow), 0.55), transparent);
+    filter: blur(5px);
+    animation: art-ground 6s ease-in-out infinite alternate;
+  }
+
+  &__float {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    animation: art-float 6s ease-in-out infinite alternate;
+  }
+
+  &__img {
+    width: min(100%, 340px);
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: contain;
+    filter: drop-shadow(0 20px 22px alpha(var(--shadow), 0.45));
+    user-select: none;
+    will-change: transform;
+  }
+
+  &__spark {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 14px;
+    height: 14px;
+    background: var(--spark);
+    clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+    opacity: 0;
+    scale: var(--s);
+  }
+  &.is-live &__spark { animation: art-twinkle 3.4s ease-in-out infinite; animation-delay: var(--d); }
+}
+
+[data-theme='light'] .art { --spark: var(--accent-2); }
+
+@keyframes art-float {
+  from { translate: 0 0; rotate: -1.6deg; }
+  to { translate: 0 -12px; rotate: 1.6deg; }
+}
+@keyframes art-ground {
+  from { transform: scaleX(1); opacity: 0.9; }
+  to { transform: scaleX(0.82); opacity: 0.6; }
+}
+@keyframes art-twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(45deg); }
+}
+
+@include reduced-motion {
+  .art__glow, .art__ground, .art__float, .art__spark { animation: none !important; }
+  .art__spark { opacity: 0.8; }
+}

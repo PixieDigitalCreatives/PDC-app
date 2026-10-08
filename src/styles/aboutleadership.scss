@@ -1,0 +1,309 @@
+@use './abstracts' as *;
+
+// Leadership — scroll-driven 3D coverflow (desktop) and portrait reveals (phones).
+
+@property --ld-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.ld { position: relative; }
+
+// ---------------- Pinned stage ----------------
+.ld-track { position: relative; }
+
+.ld-stage {
+  @include container;
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  max-width: 1440px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  padding-top: 104px;
+  padding-bottom: 2rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+// Giant outlined first name of whoever is at the front
+.ld-ghost {
+  position: absolute;
+  right: -2%;
+  bottom: -6%;
+  z-index: -1;
+  font-size: clamp(8rem, 22vw, 22rem);
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1px alpha($white, 0.07);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.ld-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.ld-index {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid $white-08;
+  background: alpha($white, 0.03);
+
+  &__item {
+    position: relative;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: $chrome-2;
+    transition: color $dur-fast linear;
+    &:hover, &.is-active { color: var(--btn-fg); }
+    &:not(.is-active):hover { color: $white; }
+  }
+  &__pill { position: absolute; inset: 0; border-radius: 999px; background: var(--btn-bg); }
+  &__text { position: relative; z-index: 1; font-variant-numeric: tabular-nums; }
+}
+
+.ld-body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  align-items: center;
+  gap: 2rem;
+  min-height: 0;
+}
+
+// ---------------- Details (left) ----------------
+.ld-info { position: relative; z-index: 2; }
+
+.ld-details {
+  display: grid;
+  gap: 1rem;
+  max-width: 520px;
+  &__meta { display: flex; align-items: center; gap: 12px; }
+}
+
+.ld-count { @include meta; color: $chrome-3; b { color: $white; } }
+
+.ld-badge {
+  @include meta;
+  font-size: 0.62rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: var(--accent-2);
+  border: 1px solid alpha(var(--accent-2), 0.35);
+  background: alpha(var(--accent-2), 0.08);
+
+  &--photo {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    z-index: 2;
+    color: var(--btn-fg);
+    background: var(--btn-bg);
+    border-color: transparent;
+  }
+}
+
+.ld-name {
+  font-size: clamp(2.6rem, 4.8vw, 4.6rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  color: $white;
+  perspective: 600px;
+
+  &__word { display: inline-block; white-space: nowrap; margin-right: 0.24em; &:last-child { margin-right: 0; } }
+  &__mask { display: inline-block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; vertical-align: bottom; }
+  &__char { display: inline-block; transform-origin: 50% 100%; will-change: transform; }
+}
+
+.ld-role {
+  @include meta;
+  font-size: 0.72rem;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  width: fit-content;
+}
+
+.ld-bio {
+  max-width: 48ch;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: $chrome-2;
+}
+
+.ld-socials {
+  display: flex;
+  gap: 10px;
+  margin-top: 0.25rem;
+
+  a {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid $white-12;
+    color: $white;
+    font-size: 0.95rem;
+    transition: background $dur-base $ease-out, color $dur-base $ease-out, border-color $dur-base $ease-out, transform $dur-base $ease-out;
+
+    &:hover { background: var(--btn-bg); color: var(--btn-fg); border-color: transparent; transform: translateY(-3px); }
+  }
+}
+
+// ---------------- 3D arc (right) ----------------
+.ld-scene {
+  position: relative;
+  height: 100%;
+  min-height: 440px;
+  perspective: 1800px;
+  perspective-origin: 50% 42%;
+}
+
+.ld-floor {
+  position: absolute;
+  left: 50%;
+  bottom: 5%;
+  width: 440px;
+  height: 90px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, alpha(var(--glow-1), 0.75), alpha(var(--glow-2), 0.25) 60%, transparent);
+  filter: blur(14px);
+  pointer-events: none;
+}
+
+.ld-ring {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.ld-slot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 280px;
+  height: 380px;
+  margin: -200px 0 0 -140px;
+  transform-style: preserve-3d;
+}
+
+.ld-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid $white-08;
+  box-shadow: 0 40px 80px -40px alpha($shadow-tint, 0.9);
+  will-change: filter, opacity;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 18%;
+    transition: transform 1.2s $ease-out;
+  }
+
+  // Spinning gradient edge, only on the leader at the front
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    padding: 2px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--ld-angle), var(--accent-3), var(--accent-2), var(--accent), var(--accent-3));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.6s linear;
+    animation: ld-spin 4s linear infinite;
+    pointer-events: none;
+  }
+
+  &.is-active::before { opacity: 1; }
+  &.is-active { box-shadow: 0 50px 90px -40px alpha(var(--glow-1), 0.7); }
+
+  @include hover-device {
+    &:hover img { transform: scale(1.06); }
+  }
+}
+
+.ld-card__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(8, 5, 12, 0.85) 0%, rgba(8, 5, 12, 0.2) 40%, transparent 60%);
+  pointer-events: none;
+}
+
+.ld-card__label {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 16px;
+  display: grid;
+  gap: 2px;
+  text-align: left;
+  b { font-size: 1.15rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+  span { @include meta; font-size: 0.6rem; color: #f2a7b8; }
+}
+
+@keyframes ld-spin { to { --ld-angle: 360deg; } }
+
+// ---------------- Phones / reduced motion ----------------
+.ld-stacked {
+  @include container;
+  padding-block: clamp(4.5rem, 10vw, 7rem) 2rem;
+
+  &__list { display: grid; gap: 3.5rem; margin-top: 2.5rem; }
+}
+
+.ld-item {
+  display: grid;
+  gap: 1rem;
+
+  @include up($bp-md) {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 2.5rem;
+  }
+
+  &__photo {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    max-height: 70vh;
+    border-radius: 24px;
+    overflow: hidden;
+    background: var(--surface-2);
+    img { width: 100%; height: 100%; object-fit: cover; object-position: center 18%; }
+  }
+
+  .ld-name { margin: 0.6rem 0 0.75rem; font-size: clamp(2.4rem, 11vw, 3.6rem); }
+  .ld-role { margin-bottom: 0.75rem; }
+  .ld-bio { margin-bottom: 1rem; }
+}
+
+@include reduced-motion {
+  .ld-card::before { animation: none; }
+}

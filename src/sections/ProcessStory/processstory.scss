@@ -1,0 +1,443 @@
+@use '../../styles/abstracts' as *;
+
+// ======================================================================
+// Process — a map (hero route), then a pinned journey: seven phases travel
+// past left to right. Vertical timeline on phones.
+// ======================================================================
+
+:root,
+[data-theme='dark'] {
+  --pr-spot: rgba(181, 124, 246, 0.14);
+  --pr-shadow: 0 34px 70px -40px rgba(0, 0, 0, 0.85);
+}
+[data-theme='light'] {
+  --pr-spot: rgba(238, 111, 160, 0.1);
+  --pr-shadow: 0 26px 56px -32px rgba(107, 58, 90, 0.38);
+}
+
+.pr-tone-0 { --ta: var(--accent-3); }
+.pr-tone-1 { --ta: var(--accent-2); }
+.pr-tone-2 { --ta: var(--accent); }
+.pr-tone-3 { --ta: var(--accent-3); }
+[data-theme='dark'] {
+  .pr-tone-0 { --tone-bg: linear-gradient(140deg, #6a3bd1, #4b2a99); --tone-fg: #fff; }
+  .pr-tone-1 { --tone-bg: linear-gradient(140deg, #d14b8f, #9a2f66); --tone-fg: #fff; }
+  .pr-tone-2 { --tone-bg: linear-gradient(140deg, #e07a52, #b0502f); --tone-fg: #fff; }
+  .pr-tone-3 { --tone-bg: linear-gradient(140deg, #8c44c9, #5e2f97); --tone-fg: #fff; }
+}
+[data-theme='light'] {
+  .pr-tone-0 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
+  .pr-tone-1 { --tone-bg: #ffe8ef; --tone-fg: #d64f8a; }
+  .pr-tone-2 { --tone-bg: #ffede6; --tone-fg: #e0663f; }
+  .pr-tone-3 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
+}
+
+.pr-meta { @include meta; font-size: 0.66rem; color: var(--accent-2); }
+
+.pr-tile {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  font-size: 24px;
+  background: var(--tone-bg);
+  color: var(--tone-fg);
+}
+
+// ---------------- Hero ----------------
+.pr-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  padding: 118px $gutter 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+
+  &__bg, &__spot { position: absolute; pointer-events: none; }
+  &__bg { inset: -10% 0 0; z-index: -3; }
+  &__spot { inset: 0; z-index: -2; }
+
+  &__inner {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    display: grid;
+    gap: clamp(1.5rem, 4vh, 3rem);
+  }
+
+  // Title on the left, lead and buttons on the right
+  &__copy {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+    grid-template-areas: 'badge badge' 'title lead' 'title ctas' 'phases phases';
+    column-gap: clamp(2rem, 5vw, 5rem);
+    align-items: end;
+
+    .pg-badge { grid-area: badge; justify-self: start; }
+
+    @include down($bp-lg) {
+      grid-template-columns: 1fr;
+      grid-template-areas: 'badge' 'title' 'lead' 'ctas' 'phases';
+    }
+  }
+
+  &__title {
+    grid-area: title;
+    margin: 1.4rem 0 0;
+    font-size: clamp(2.6rem, 6.2vw, 6.2rem);
+    font-weight: 700;
+    line-height: 1.03;
+    letter-spacing: -0.047em;
+    color: $white;
+    @include down($bp-lg) { margin-bottom: 1.4rem; }
+  }
+  &__lead {
+    grid-area: lead;
+    max-width: 40ch;
+    font-size: clamp(1rem, 1.25vw, 1.15rem);
+    line-height: 1.7;
+    color: $chrome-2;
+    padding-top: 1.4rem;
+  }
+  &__ctas { grid-area: ctas; display: flex; flex-wrap: wrap; gap: 14px; margin-top: 1.6rem; }
+}
+
+// Phones: a list of the phases instead of the route
+.pr-phases {
+  grid-area: phases;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2rem;
+  @include up($bp-lg) { display: none; }
+
+  button {
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid $white-12;
+    background: alpha($white, 0.04);
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: $white;
+    b { @include meta; font-size: 0.62rem; color: var(--accent-2); margin-right: 4px; }
+  }
+}
+
+// ---------------- Route (hero) ----------------
+.pr-route {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 200;
+
+  &__svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  &__base { fill: none; stroke: alpha($white, 0.16); stroke-width: 1.5; stroke-dasharray: 2 8; stroke-linecap: round; }
+  &__line { fill: none; stroke-width: 2.4; stroke-linecap: round; }
+  &__traveller {
+    fill: var(--accent-2);
+    stroke: #fff;
+    stroke-width: 2;
+    filter: drop-shadow(0 0 8px var(--accent-2)) drop-shadow(0 0 18px var(--accent));
+  }
+}
+
+.pr-stop {
+  position: absolute;
+  translate: -50% -50%; // `translate`, not `transform`: framer owns transform for the pop-in
+  display: grid;
+  place-items: center;
+
+  &__dot {
+    display: block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent-2);
+    box-shadow: 0 0 0 6px alpha(var(--accent-2), 0.14);
+    transition: background $dur-fast linear, box-shadow $dur-base $ease-out;
+  }
+  &__label {
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+    white-space: nowrap;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: $white;
+    b { @include meta; font-size: 0.6rem; color: var(--accent-2); margin-right: 7px; }
+  }
+  &.is-low &__label { top: calc(100% + 14px); }
+  &.is-high &__label { bottom: calc(100% + 14px); }
+
+  @include hover-device {
+    &:hover &__dot { background: var(--accent-2); box-shadow: 0 0 0 10px alpha(var(--accent-2), 0.2); }
+  }
+}
+
+// ---------------- Journey (pinned) ----------------
+.pr-journey { position: relative; }
+.pr-track { position: relative; }
+
+.pr-stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr); // otherwise the column grows to the whole row of panels
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: 96px 0 22px;
+  isolation: isolate;
+
+  &__waves { position: absolute; inset: 8% 0 0; z-index: -1; pointer-events: none; }
+  &__ghost {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -46%;
+    z-index: -1;
+    font-size: min(64vh, 44vw);
+    font-weight: 800;
+    line-height: 0.8;
+    letter-spacing: -0.06em;
+    color: transparent;
+    -webkit-text-stroke: 1px alpha($white, 0.07);
+    pointer-events: none;
+    user-select: none;
+  }
+}
+
+// Progress rail with one stop per phase
+.pr-rail {
+  position: relative;
+  height: 56px;
+  margin-inline: clamp(64px, 8vw, 140px);
+
+  &__track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 7px;
+    height: 1px;
+    background: $white-12;
+    i { position: absolute; inset: 0; background: var(--grad-accent); transform-origin: left; transform: scaleX(0); }
+  }
+  &__comet {
+    position: absolute;
+    top: -5px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    translate: -50% 0;
+    background: var(--accent-2);
+    box-shadow: 0 0 0 5px alpha(var(--accent-2), 0.22), 0 0 22px 4px var(--accent-2);
+  }
+  &__node {
+    position: absolute;
+    top: 0;
+    translate: -50% 0;
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+
+    i {
+      display: block;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1px solid $white-24;
+      transition: transform $dur-base $ease-out, background $dur-base linear, box-shadow $dur-base linear;
+    }
+    span {
+      @include meta;
+      font-size: 0.62rem;
+      white-space: nowrap;
+      color: $chrome-3;
+      transition: color $dur-base linear;
+      b { opacity: 0.7; margin-right: 4px; font-weight: 600; }
+    }
+
+    &.is-on i { background: var(--grad-accent); border-color: transparent; }
+    &.is-active i { transform: scale(1.4); box-shadow: 0 0 0 6px alpha(var(--accent-2), 0.16); }
+    &.is-active span, &:hover span { color: $white; }
+  }
+}
+
+.pr-view {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr); // the row's % padding resolves against this width, not the row's own
+  align-items: center;
+  min-height: 0;
+}
+
+.pr-row {
+  --pw: min(960px, 70vw);
+  display: flex;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 6rem);
+  width: max-content;
+  padding-inline: calc((100% - var(--pw)) / 2);
+  will-change: transform;
+}
+
+.pr-panel {
+  position: relative;
+  flex: none;
+  width: var(--pw);
+  height: min(560px, 66vh);
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+  padding: clamp(1.4rem, 2.8vw, 2.6rem);
+  border-radius: 32px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--surface);
+  border: 1px solid $white-08;
+  box-shadow: var(--pr-shadow), inset 0 1px 0 alpha($white, 0.06);
+  transition: border-color 0.6s linear;
+  will-change: transform, opacity;
+
+  &.is-active { border-color: alpha(var(--ta), 0.55); }
+
+  &__glow {
+    position: absolute;
+    z-index: -1;
+    width: 70%;
+    aspect-ratio: 1;
+    left: -18%;
+    bottom: -50%;
+    border-radius: 50%;
+    background: var(--ta);
+    filter: blur(90px);
+    opacity: 0.2;
+    pointer-events: none;
+    transition: opacity 0.8s linear;
+  }
+  &.is-active &__glow { opacity: 0.42; }
+
+  &__num {
+    position: absolute;
+    z-index: -1;
+    right: 3%;
+    top: -9%;
+    font-size: clamp(9rem, 16vw, 16rem);
+    font-weight: 800;
+    line-height: 0.8;
+    letter-spacing: -0.07em;
+    color: transparent;
+    -webkit-text-stroke: 1px alpha($white, 0.12);
+    pointer-events: none;
+    user-select: none;
+    will-change: transform;
+  }
+
+  &__main { display: flex; flex-direction: column; justify-content: center; gap: 0.85rem; min-width: 0; }
+  &__top { display: flex; align-items: center; gap: 14px; }
+  &__title {
+    font-size: clamp(1.7rem, 2.9vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.045em;
+    color: $white;
+  }
+  &__tagline { font-family: $font-hand; font-size: clamp(1.3rem, 1.9vw, 1.8rem); line-height: 1.15; color: $chrome; }
+  &__desc { font-size: 0.95rem; line-height: 1.65; color: $chrome-2; }
+}
+
+.pr-deliver {
+  align-self: center;
+  padding: 1.3rem 1.4rem;
+  border-radius: 20px;
+  background: alpha(var(--bg-2), 0.6);
+  border: 1px solid $white-08;
+
+  &__head { @include meta; font-size: 0.64rem; color: var(--accent-2); margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid $white-08; }
+  ul { list-style: none; display: grid; gap: 0.8rem; }
+  li { display: flex; align-items: center; gap: 12px; font-size: 0.92rem; line-height: 1.35; color: $chrome; }
+}
+
+.pr-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-inline: clamp(64px, 8vw, 140px);
+  @include meta;
+  font-size: 0.66rem;
+  color: $chrome-3;
+
+  &__count { font-variant-numeric: tabular-nums; b { color: $white; font-size: 1.3rem; letter-spacing: -0.03em; } }
+}
+
+// ---------------- Stacked (phones / reduced motion) ----------------
+.pr-stack {
+  @include container;
+  max-width: 900px;
+  padding-block: clamp(4.5rem, 12vw, 7rem) 2rem;
+
+  &__body { position: relative; margin-top: 2.5rem; padding-left: 30px; }
+  &__rail {
+    position: absolute;
+    left: 6px;
+    top: 14px;
+    bottom: 14px;
+    width: 1px;
+    background: $white-12;
+    i { position: absolute; inset: 0; background: var(--grad-accent); transform-origin: top; }
+  }
+  ol { list-style: none; display: grid; gap: 1.5rem; }
+}
+
+.pr-card {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: -30px;
+    top: 30px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--grad-accent);
+    box-shadow: 0 0 0 6px alpha(var(--accent-2), 0.16);
+  }
+  > div {
+    position: relative;
+    display: grid;
+    gap: 0.85rem;
+    overflow: hidden;
+    padding: 1.5rem;
+    border-radius: 24px;
+    background: var(--surface);
+    border: 1px solid $white-08;
+    box-shadow: var(--pr-shadow);
+  }
+  &__num {
+    position: absolute;
+    top: -6px;
+    right: 14px;
+    font-size: 6.5rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.07em;
+    color: transparent;
+    -webkit-text-stroke: 1px alpha($white, 0.12);
+    pointer-events: none;
+  }
+  .pr-panel__top, .pr-panel__title, .pr-panel__tagline, .pr-panel__desc, .pr-deliver { position: relative; }
+  .pr-panel__title { font-size: clamp(1.6rem, 6.4vw, 2.2rem); font-weight: 700; line-height: 1.08; letter-spacing: -0.045em; color: $white; }
+  .pr-panel__tagline { font-family: $font-hand; font-size: 1.4rem; line-height: 1.15; color: $chrome; }
+  .pr-panel__desc { font-size: 0.95rem; line-height: 1.65; color: $chrome-2; }
+  .pr-deliver { margin-top: 0.4rem; }
+}
+
+@include reduced-motion {
+  .pr-panel, .pr-panel__glow { transition: none; }
+}

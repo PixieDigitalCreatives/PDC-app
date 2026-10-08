@@ -1,0 +1,2 @@
+/api/*  https://pdc-api-6e15.onrender.com/api/:splat  200!
+/*      /index.html                                    200

@@ -1,0 +1,47 @@
+@use './abstracts' as *;
+
+.pdc-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: $z-cursor;
+  pointer-events: none;
+  transition: opacity $dur-fast linear;
+
+  &.is-hidden { opacity: 0; }
+
+  &__ring {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    border-radius: 50%;
+    background: $white;
+    mix-blend-mode: difference;
+    transition: transform $dur-base $ease-out, background $dur-base $ease-out;
+  }
+
+  &__label {
+    @include meta;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translate(-50%, -50%);
+    color: $black;
+    font-size: 0.66rem;
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity $dur-fast linear;
+  }
+
+  &.is-link &__ring { transform: scale(2.6); }
+
+  &.is-label &__ring {
+    transform: scale(6.4);
+    background: $accent;
+    mix-blend-mode: normal;
+  }
+  &.is-label &__label { opacity: 1; }
+}

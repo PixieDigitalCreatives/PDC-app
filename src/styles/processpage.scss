@@ -1,0 +1,9 @@
+@use './abstracts' as *;
+
+// Process page shell. The page itself is built from src/sections/ProcessStory (processstory.scss).
+.process-page {
+  background: $black;
+  min-height: 100vh;
+  // `clip` (not `hidden`) so the pinned journey keeps working
+  overflow-x: clip;
+}

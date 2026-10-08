@@ -1,0 +1,1030 @@
+@use '../../styles/abstracts' as *;
+
+// ======================================================================
+// Home — story chapters. All colours come from the theme tokens, plus a
+// few story-only tones defined here per theme.
+// ======================================================================
+
+:root,
+[data-theme='dark'] {
+  --spot: rgba(181, 124, 246, 0.12);
+  --cta-bg: linear-gradient(110deg, #1c0b22 0%, #4a1640 55%, #2a1446 100%);
+  --cta-glow: rgba(242, 141, 178, 0.38);
+  --arrow-bg: rgba(255, 255, 255, 0.08);
+  --arrow-fg: #ffffff;
+  --card-shadow: 0 30px 60px -36px rgba(0, 0, 0, 0.8);
+  --glow-strength: 0.55;
+}
+
+[data-theme='light'] {
+  --spot: rgba(238, 111, 160, 0.09);
+  --cta-bg: linear-gradient(110deg, #fde3ec 0%, #fde9df 55%, #f1e3fd 100%);
+  --cta-glow: rgba(255, 255, 255, 0.85);
+  --arrow-bg: #111018;
+  --arrow-fg: #ffffff;
+  --card-shadow: 0 22px 48px -28px rgba(107, 58, 90, 0.35);
+  --glow-strength: 0.75;
+}
+
+// Icon-tile tones (stats + service cards)
+[data-theme='dark'] {
+  .st-tone-0 { --tone-bg: linear-gradient(140deg, #6a3bd1, #4b2a99); --tone-fg: #fff; }
+  .st-tone-1 { --tone-bg: linear-gradient(140deg, #7d4ae0, #5a35b5); --tone-fg: #fff; }
+  .st-tone-2 { --tone-bg: linear-gradient(140deg, #8c44c9, #5e2f97); --tone-fg: #fff; }
+  .st-tone-3 { --tone-bg: linear-gradient(140deg, #d14b8f, #9a2f66); --tone-fg: #fff; }
+  .st-tone-4 { --tone-bg: linear-gradient(140deg, #e07a52, #b0502f); --tone-fg: #fff; }
+  .st-tone-5 { --tone-bg: linear-gradient(140deg, #7a4bd6, #5631a8); --tone-fg: #fff; }
+  .st-stats .st-tone-0 { --tone-bg: #3b2421; --tone-fg: #f7b19e; }
+  .st-stats .st-tone-1 { --tone-bg: #2e2346; --tone-fg: #c4a6ff; }
+  .st-stats .st-tone-2 { --tone-bg: #3e1f33; --tone-fg: #f28db2; }
+  .st-stats .st-tone-3 { --tone-bg: #2e2346; --tone-fg: #c4a6ff; }
+}
+[data-theme='light'] {
+  .st-tone-0 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
+  .st-tone-1 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
+  .st-tone-2 { --tone-bg: #fdebf4; --tone-fg: #d64f8a; }
+  .st-tone-3 { --tone-bg: #ffe8ef; --tone-fg: #d64f8a; }
+  .st-tone-4 { --tone-bg: #ffede6; --tone-fg: #e0663f; }
+  .st-tone-5 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
+  .st-stats .st-tone-0 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
+  .st-stats .st-tone-1 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
+  .st-stats .st-tone-2 { --tone-bg: #ffede6; --tone-fg: #e0663f; }
+  .st-stats .st-tone-3 { --tone-bg: #ffe8ef; --tone-fg: #d64f8a; }
+}
+
+.home-wrapper { background: $black; }
+
+// ---------------- Shared ----------------
+.silk { display: block; width: 100%; height: 100%; overflow: visible; }
+
+.st-label {
+  @include meta;
+  display: block;
+  color: var(--accent-2);
+  margin-bottom: 0.9rem;
+}
+
+.st-title {
+  font-size: clamp(2rem, 3.6vw, 3.1rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+  color: $white;
+}
+
+.st-section {
+  @include container;
+  max-width: 1440px;
+  padding-block: clamp(4.5rem, 9vw, 8rem) clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.st-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+
+  &__aside {
+    max-width: 430px;
+    p { color: $chrome-2; font-size: 0.98rem; line-height: 1.7; }
+  }
+}
+
+.st-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--accent);
+  svg { transition: transform $dur-base $ease-out; }
+  &:hover svg { transform: translateX(5px); }
+}
+
+.st-shimmer {
+  background-size: 220% 100%;
+  animation: st-shimmer 6s ease-in-out infinite alternate;
+}
+@keyframes st-shimmer {
+  from { background-position: 0% 50%; }
+  to { background-position: 100% 50%; }
+}
+
+// ---------------- Hero ----------------
+.st-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  padding: 128px $gutter 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+
+  &__bg, &__spot, &__waves { position: absolute; pointer-events: none; }
+  &__bg { inset: -10% 0 0; z-index: -3; }
+  &__spot { inset: 0; z-index: -2; }
+  &__waves {
+    left: 0;
+    right: 0;
+    bottom: -2%;
+    height: 82%;
+    z-index: -1;
+  }
+
+  &__inner {
+    position: relative;
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    align-items: center;
+    gap: 2rem;
+
+    @include down($bp-lg) { grid-template-columns: 1fr; gap: 3.5rem; }
+  }
+
+  &__title {
+    margin: 1.4rem 0 1.25rem;
+    font-size: clamp(3rem, 6vw, 6.2rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.045em;
+    color: $white;
+  }
+
+  &__lead {
+    max-width: 44ch;
+    font-size: clamp(1rem, 1.25vw, 1.15rem);
+    line-height: 1.7;
+    color: $chrome-2;
+  }
+
+  &__ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 2rem; }
+
+  &__visual {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: clamp(320px, 42vw, 560px);
+  }
+}
+
+.st-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+
+  &--a {
+    width: 44vw; aspect-ratio: 1;
+    right: 2%; top: 6%;
+    background: var(--glow-1);
+    opacity: var(--glow-strength);
+    animation: st-drift 16s ease-in-out infinite alternate;
+  }
+  &--b {
+    width: 34vw; aspect-ratio: 1;
+    right: 18%; bottom: -8%;
+    background: var(--glow-2);
+    opacity: calc(var(--glow-strength) * 0.6);
+    animation: st-drift 20s ease-in-out -6s infinite alternate-reverse;
+  }
+  &--c {
+    width: 30vw; aspect-ratio: 1;
+    left: -10%; bottom: 4%;
+    background: var(--glow-3);
+    opacity: calc(var(--glow-strength) * 0.35);
+    animation: st-drift 24s ease-in-out -10s infinite alternate;
+  }
+}
+@keyframes st-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-4%, 6%, 0) scale(1.08); }
+  100% { transform: translate3d(5%, -3%, 0) scale(0.95); }
+}
+
+.st-badge {
+  @include meta;
+  font-size: 0.66rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  color: var(--accent-2);
+  border: 1px solid alpha(var(--accent-2), 0.35);
+  background: alpha(var(--accent-2), 0.08);
+
+  b { opacity: 0.6; font-weight: 600; }
+  i {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 0 0 alpha(var(--accent-2), 0.6);
+    animation: st-pulse 2.2s ease-out infinite;
+  }
+}
+@keyframes st-pulse {
+  0% { box-shadow: 0 0 0 0 alpha(var(--accent-2), 0.55); }
+  100% { box-shadow: 0 0 0 10px transparent; }
+}
+
+.st-proof {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 2.25rem;
+
+  &__stack {
+    display: flex;
+    img {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2.5px solid var(--bg);
+      background: var(--surface-2);
+      &:not(:first-child) { margin-left: -12px; }
+    }
+  }
+  &__text {
+    display: grid;
+    line-height: 1.2;
+    b { color: $white; font-size: 1.05rem; font-weight: 700; }
+    span { color: $chrome-2; font-size: 0.8rem; }
+  }
+}
+
+// Chrome logo
+.chrome-logo {
+  position: relative;
+  width: min(640px, 92%); // the PDC-only logo is wider and shorter than the full lockup
+  margin-right: 8%;
+
+  &__glow {
+    position: absolute;
+    inset: 12% 8% 22%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--glow-1), transparent);
+    filter: blur(40px);
+    opacity: calc(var(--glow-strength) * 0.9);
+    animation: st-breathe 5s ease-in-out infinite;
+  }
+  &__tilt { position: relative; transform-style: preserve-3d; }
+  &__float { position: relative; }
+  &__img {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 30px 50px alpha(var(--glow-1), 0.35));
+    user-select: none;
+  }
+  &__sheen {
+    position: absolute;
+    inset: 0;
+    -webkit-mask: url('/brand/secondary-1200.webp') center / contain no-repeat;
+    mask: url('/brand/secondary-1200.webp') center / contain no-repeat;
+    background: linear-gradient(110deg, transparent 38%, rgba(255, 255, 255, 0.85) 50%, transparent 62%);
+    background-size: 260% 100%;
+    mix-blend-mode: screen;
+    animation: st-sheen 6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  &__reflection {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: -10%;
+    transform: scaleY(-1);
+    opacity: 0.14;
+    filter: blur(2px);
+    -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 42%);
+    mask-image: linear-gradient(to top, #000 0%, transparent 42%);
+    pointer-events: none;
+    user-select: none;
+  }
+}
+@keyframes st-sheen {
+  0%, 30% { background-position: 130% 0; }
+  70%, 100% { background-position: -30% 0; }
+}
+@keyframes st-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.st-notes {
+  position: absolute;
+  right: -3%;
+  top: -4%;
+  display: grid;
+  justify-items: center;
+  font-family: $font-hand;
+  font-size: clamp(1.4rem, 2.1vw, 2.1rem);
+  font-weight: 500;
+  line-height: 1;
+  color: $chrome;
+  transform: rotate(10deg);
+
+  &__word { display: block; }
+  &__arrow {
+    width: 60px;
+    height: 80px;
+    margin: 4px 60px 0 0;
+    color: $chrome-2;
+    transform: rotate(-12deg);
+  }
+
+  @include down($bp-lg) { right: 2%; top: -22%; font-size: 1.3rem; }
+}
+
+.st-scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 118px;
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  color: $chrome-3;
+
+  span { @include meta; font-size: 0.62rem; }
+  i {
+    position: relative;
+    width: 1px;
+    height: 40px;
+    background: $white-12;
+    overflow: hidden;
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--grad-accent);
+      animation: st-scroll-line 2s $ease-in-out infinite;
+    }
+  }
+  @include down($bp-lg) { display: none; }
+}
+@keyframes st-scroll-line {
+  0% { transform: translateY(-100%); }
+  60%, 100% { transform: translateY(100%); }
+}
+
+// ---------------- Stats ----------------
+.st-stats {
+  position: relative;
+  z-index: 3;
+  margin-top: -100px;
+  padding-inline: $gutter;
+
+  &__bar {
+    max-width: 1440px;
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding: 24px 32px;
+    border-radius: 22px;
+    background: var(--glass);
+    backdrop-filter: blur(22px) saturate(1.3);
+    -webkit-backdrop-filter: blur(22px) saturate(1.3);
+    border: 1px solid $white-08;
+    box-shadow: var(--card-shadow), inset 0 1px 0 alpha($white, 0.06);
+
+    @include down($bp-lg) { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 1.25rem; padding: 22px; }
+  }
+}
+
+.st-stat {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-left: 28px;
+  border-left: 1px solid $white-08;
+
+  &:first-child { padding-left: 0; border-left: 0; }
+  @include down($bp-lg) { &:nth-child(odd) { padding-left: 0; border-left: 0; } }
+
+  &__tile {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    font-size: 22px;
+    background: var(--tone-bg);
+    color: var(--tone-fg);
+  }
+  &__text { display: grid; line-height: 1.2; }
+  &__num { font-size: clamp(1.5rem, 2.2vw, 1.95rem); font-weight: 600; letter-spacing: -0.02em; color: $white; }
+  &__label { font-size: 0.82rem; color: $chrome-2; }
+}
+
+// ---------------- Journey (pinned story) ----------------
+.st-journey { position: relative; }
+.st-journey__track { position: relative; }
+
+.st-journey__stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 108px $gutter 40px;
+}
+
+.st-journey__waves {
+  position: absolute;
+  inset: 8% 0 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.st-journey__ghost {
+  position: absolute;
+  right: 3%;
+  bottom: -8%;
+  font-size: 42vh;
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  color: transparent;
+  -webkit-text-stroke: 1px alpha($white, 0.07);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.st-journey__head {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+
+  .st-label { margin: 0; }
+}
+.st-journey__intro { color: $chrome-2; font-size: 0.95rem; }
+.st-journey__count { @include meta; color: $chrome-3; b { color: $white; } }
+
+.st-journey__body {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 4rem;
+}
+
+.st-journey__num { @include meta; display: block; color: var(--accent); }
+
+.st-journey__word {
+  font-family: $font-hand;
+  font-size: clamp(4.5rem, 10vw, 9.5rem);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  margin: 0.4rem 0 0.8rem;
+  span { padding-right: 0.08em; }
+}
+
+.st-journey__title {
+  font-size: clamp(1.7rem, 2.8vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  color: $white;
+}
+
+.st-journey__text {
+  margin-top: 1rem;
+  max-width: 46ch;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: $chrome-2;
+}
+
+.st-journey__chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 1.75rem;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid $white-12;
+    background: alpha($white, 0.04);
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: $white;
+    svg { color: var(--accent-2); font-size: 1rem; }
+  }
+}
+
+.st-journey__visual {
+  display: grid;
+  place-items: center;
+  perspective: 1400px;
+}
+
+.st-orb-card {
+  position: relative;
+  width: min(440px, 100%);
+  aspect-ratio: 1;
+  border-radius: 32px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(160deg, alpha($ink-2, 0.92), alpha($ink, 0.6));
+  border: 1px solid $white-08;
+  box-shadow: var(--card-shadow), inset 0 1px 0 alpha($white, 0.06);
+  backdrop-filter: blur(12px);
+  transform-style: preserve-3d;
+
+  &__glow {
+    position: absolute;
+    inset: 18%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--glow-1), transparent);
+    filter: blur(40px);
+    opacity: var(--glow-strength);
+    animation: st-breathe 4s ease-in-out infinite;
+  }
+  &__art { position: relative; width: 72%; aspect-ratio: 1; color: $chrome; }
+  &__tag { @include meta; position: absolute; left: 24px; bottom: 20px; color: $chrome-3; }
+}
+
+.st-rail {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1440px;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding-top: 0;
+
+  &__track {
+    position: absolute;
+    top: 6px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: $white-12;
+  }
+  &__fill {
+    position: absolute;
+    inset: 0;
+    background: var(--grad-accent);
+    transform-origin: left;
+  }
+  &__node {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: 12px;
+    text-align: left;
+
+    i {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1px solid $white-24;
+      transition: transform $dur-base $ease-out, background $dur-base linear, box-shadow $dur-base linear;
+    }
+    span { @include meta; font-size: 0.64rem; color: $chrome-3; transition: color $dur-base linear; }
+
+    &.is-on i { background: var(--grad-accent); border-color: transparent; }
+    &.is-active i { transform: scale(1.45); box-shadow: 0 0 0 6px alpha(var(--accent-2), 0.16); }
+    &.is-active span, &:hover span { color: $white; }
+  }
+}
+
+// Stacked (mobile / reduced motion)
+.st-journey__stacked {
+  @include container;
+  padding-block: clamp(5rem, 12vw, 7rem) 2rem;
+
+  ol { list-style: none; display: grid; gap: 3.5rem; margin-top: 2.5rem; }
+  .st-journey__word { font-size: clamp(3.6rem, 18vw, 5.5rem); }
+}
+
+// ---------------- Services (pinned "deal") ----------------
+.st-services__track { position: relative; height: 250svh; }
+
+.st-services__stage {
+  @include container;
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  max-width: 1440px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 72px;
+  isolation: isolate;
+
+  .st-head { margin-bottom: clamp(1.75rem, 3.5vw, 2.75rem); }
+}
+
+.st-services__glow {
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  width: min(900px, 80vw);
+  height: 420px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--glow-1), transparent 72%);
+  filter: blur(50px);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.st-services__count {
+  @include meta;
+  align-self: flex-end;
+  margin-top: 1.5rem;
+  font-size: 0.64rem;
+  color: $chrome-3;
+  font-variant-numeric: tabular-nums;
+}
+
+.st-services__grid {
+  position: relative;
+  list-style: none;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr;
+
+  @include up($bp-sm) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  @include up($bp-md) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @include up(1200px) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+
+.st-services__cell {
+  position: relative;
+  transform-style: preserve-3d;
+  transform-origin: 50% 100%; // the hand fans from its base
+  will-change: transform;
+}
+
+.st-service {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid $white-08;
+  box-shadow: var(--card-shadow);
+  transition: border-color $dur-base $ease-out, box-shadow $dur-base $ease-out !important;
+
+  @include hover-device {
+    &:hover { border-color: alpha(var(--accent-2), 0.4); }
+    &:hover .st-service__tile { transform: rotate(-8deg) scale(1.1); }
+    &:hover .st-service__arrow { background: var(--btn-bg); color: var(--btn-fg); }
+    &:hover .st-service__arrow svg { transform: translateX(3px); }
+  }
+
+  &__link {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    min-height: 236px;
+    padding: 22px;
+  }
+  &__tile {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    font-size: 20px;
+    background: var(--tone-bg);
+    color: var(--tone-fg);
+    transform: scale(0.7);
+    opacity: 0.35;
+    transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s linear;
+
+    // Outline icons draw their own strokes when the card lands (paths are normalised to length 1).
+    svg path {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset 1.1s $ease-out 0.15s;
+    }
+  }
+  &__title { font-size: 1rem; font-weight: 600; line-height: 1.3; color: $white; }
+  &__desc {
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: $chrome-2;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  &__arrow {
+    margin-top: auto;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: alpha($white, 0.07);
+    color: $white;
+    font-size: 14px;
+    transition: background $dur-base $ease-out, color $dur-base $ease-out;
+    svg { transition: transform $dur-base $ease-out; }
+  }
+}
+
+.st-service {
+  // Light sweep that crosses the card once as it lands
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: linear-gradient(115deg, transparent 35%, alpha($white, 0.16) 50%, transparent 65%);
+    transform: translateX(-130%);
+  }
+
+  &.is-on {
+    &::before { animation: st-card-sweep 1.3s $ease-out 0.05s both; }
+    .st-service__tile { transform: scale(1); opacity: 1; }
+    .st-service__tile svg path { stroke-dashoffset: 0; }
+    .st-service__arrow::after { animation: st-ring 1.2s $ease-out 0.35s both; }
+  }
+
+  &__arrow { position: relative; }
+  &__arrow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid var(--accent-2);
+    opacity: 0;
+  }
+
+  // Hover comes last so it wins over the landed state
+  @include hover-device {
+    &.is-on:hover .st-service__tile { transform: rotate(-8deg) scale(1.1); }
+  }
+}
+
+@keyframes st-card-sweep {
+  to { transform: translateX(130%); }
+}
+@keyframes st-ring {
+  0% { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.9); }
+}
+
+// ---------------- Work (stacking cards) ----------------
+.st-work__intro { padding-bottom: 0; }
+.st-head--work { align-items: center; margin-bottom: 0; }
+.st-work__titlebar { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem 2rem; }
+
+.st-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.st-filter {
+  position: relative;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid $white-12;
+  background: alpha($white, 0.03);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: $chrome-2;
+  transition: color $dur-fast linear, border-color $dur-fast linear;
+
+  &:hover { color: $white; border-color: $white-24; }
+  &.is-active { color: var(--btn-fg); border-color: transparent; }
+
+  &__pill { position: absolute; inset: -1px; border-radius: 999px; background: var(--btn-bg); }
+  &__text { position: relative; z-index: 1; }
+}
+
+// Each slot is a full-screen sticky frame: the card pins, the next card slides over it.
+.st-stack { position: relative; padding-bottom: 6vh; }
+
+.st-stack__slot {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 84px $gutter 0;
+}
+
+.st-stack__card {
+  --peek: 26px;
+  position: relative;
+  top: calc(var(--i) * var(--peek) - 2vh); // later cards sit lower, so the deck's edges peek out above
+  width: 100%;
+  max-width: 1280px;
+  height: min(70vh, 600px);
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+  padding: clamp(1.25rem, 2.6vw, 2.25rem);
+  border-radius: 28px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--surface);
+  border: 1px solid $white-08;
+  box-shadow: 0 -18px 50px -30px alpha($shadow-tint, 0.9), var(--card-shadow), inset 0 1px 0 alpha($white, 0.06);
+  transform-origin: 50% 0;
+  will-change: transform;
+
+  @include down($bp-lg) {
+    --peek: 16px;
+    height: min(78vh, 640px);
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 1.25rem;
+    padding: 1.1rem;
+  }
+}
+
+// Each card glows in its own tone (reuses the service tile tones)
+.st-stack__glow {
+  position: absolute;
+  z-index: -1;
+  width: 60%;
+  aspect-ratio: 1;
+  left: -18%;
+  bottom: -40%;
+  border-radius: 50%;
+  background: var(--tone-bg, var(--glow-1));
+  filter: blur(90px);
+  opacity: 0.32;
+  pointer-events: none;
+}
+
+.st-stack__info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+  min-width: 0;
+  padding: clamp(0rem, 1.5vw, 1rem);
+
+  @include down($bp-lg) { order: 2; gap: 0.6rem; padding: 0 0.25rem 0.25rem; }
+}
+
+.st-stack__meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.st-stack__count { @include meta; color: $chrome-3; b { color: $white; } }
+.st-stack__cat {
+  @include meta;
+  font-size: 0.62rem;
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: var(--accent-2);
+  border: 1px solid alpha(var(--accent-2), 0.35);
+  background: alpha(var(--accent-2), 0.08);
+}
+
+.st-stack__title {
+  font-size: clamp(2rem, 4.2vw, 3.8rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  color: $white;
+}
+.st-stack__type { font-size: 1.02rem; font-weight: 500; color: $chrome; }
+.st-stack__desc {
+  max-width: 44ch;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: $chrome-2;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.st-stack__tags {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  li { font-size: 0.78rem; padding: 6px 12px; border-radius: 999px; border: 1px solid $white-12; color: $chrome-2; }
+}
+.st-stack__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 0.75rem;
+  @include down($bp-lg) { margin-top: 0.25rem; .btn-primary, .btn-secondary { padding: 12px 20px; } }
+}
+
+// Screenshot in a light browser frame
+.st-stack__media {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid $white-08;
+  text-align: left;
+
+  @include down($bp-lg) { order: 1; }
+
+  @include hover-device {
+    &:hover .st-stack__shot img { transform: scale(1.05); }
+  }
+}
+.st-stack__browser {
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px;
+  background: alpha($white, 0.04);
+  border-bottom: 1px solid $white-08;
+  i { width: 9px; height: 9px; border-radius: 50%; background: $white-12; }
+  i:nth-child(1) { background: #ff6b6b; opacity: 0.75; }
+  i:nth-child(2) { background: #ffc857; opacity: 0.75; }
+  i:nth-child(3) { background: #4cd27c; opacity: 0.75; }
+}
+.st-stack__shot {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    transition: transform 1.2s $ease-out;
+  }
+}
+
+// Buried cards fade toward the page colour
+.st-stack__dim {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+}
+
+// ---------------- Team (shared AboutLeadership) sits on the story canvas ----------------
+.home-wrapper .about { background: transparent; }
+
+// ---------------- CTA band ----------------
+.st-cta {
+  @include container;
+  max-width: 1440px;
+  padding-block: clamp(3rem, 6vw, 5rem) clamp(4rem, 7vw, 6rem);
+
+  &__band {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 28px;
+    background: var(--cta-bg);
+    border: 1px solid $white-08;
+    padding: clamp(2.5rem, 5vw, 4.25rem) clamp(1.75rem, 5vw, 4.5rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 2rem;
+
+    @include down($bp-lg) { grid-template-columns: 1fr; }
+  }
+  &__waves { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  &__glow { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  &__title {
+    font-size: clamp(1.9rem, 2.9vw, 2.7rem);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+    color: $white;
+  }
+  &__text { max-width: 44ch; font-size: 0.95rem; line-height: 1.7; color: $chrome-2; }
+}
+
+@include reduced-motion {
+  .st-glow, .chrome-logo__glow, .chrome-logo__sheen, .st-orb-card__glow, .st-shimmer, .st-badge i { animation: none !important; }
+}

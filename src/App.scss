@@ -1,0 +1,19 @@
+@use './styles/abstracts' as *;
+
+.route-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: $z-curtain;
+  background: $ink;
+  display: flex;
+  align-items: flex-end;
+  padding: $gutter;
+  pointer-events: none;
+  will-change: transform;
+
+  &__mark {
+    @include display(clamp(5rem, 18vw, 18rem));
+    color: $white;
+    line-height: 0.8;
+  }
+}

@@ -1,0 +1,9 @@
+@use './abstracts' as *;
+
+// Services page shell. The page itself is built from src/sections/ServicesStory (servicesstory.scss).
+.services-page {
+  background: $black;
+  min-height: 100vh;
+  // `clip` (not `hidden`) so the sticky chapter index keeps working
+  overflow-x: clip;
+}

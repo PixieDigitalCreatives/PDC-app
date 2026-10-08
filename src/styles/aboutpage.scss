@@ -1,0 +1,12 @@
+@use './abstracts' as *;
+
+// About page shell. The page itself is built from src/sections/AboutStory (aboutstory.scss).
+.about-page {
+  background: $black;
+  min-height: 100vh;
+  // `clip` (not `hidden`) so the pinned scenes keep working
+  overflow-x: clip;
+
+  // The leadership ring sits on the page canvas
+  .ld { background: transparent; }
+}

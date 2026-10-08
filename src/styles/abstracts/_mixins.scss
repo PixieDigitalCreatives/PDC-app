@@ -1,0 +1,49 @@
+@use 'tokens' as *;
+
+@mixin up($bp) {
+  @media (min-width: $bp) { @content; }
+}
+@mixin down($bp) {
+  @media (max-width: $bp - 1px) { @content; }
+}
+@mixin hover-device {
+  @media (hover: hover) and (pointer: fine) { @content; }
+}
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) { @content; }
+}
+
+@mixin display($size: $fs-section) {
+  font-family: $font-display;
+  font-size: $size;
+  font-weight: 600;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  text-transform: none;
+}
+
+@mixin meta {
+  font-family: $font-mono;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@mixin container {
+  width: 100%;
+  padding-inline: $gutter;
+  margin-inline: auto;
+  max-width: 1520px;
+}
+
+@mixin hairline($side: bottom, $color: $white-12) {
+  border-#{$side}: 1px solid $color;
+}
+
+@mixin focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+}

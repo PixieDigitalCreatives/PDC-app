@@ -1,0 +1,47 @@
+@use './abstracts' as *;
+
+.theme-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 64px;
+  height: 34px;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid $white-12;
+  background: alpha($white, 0.04);
+  flex-shrink: 0;
+  transition: border-color $dur-fast linear, background $dur-fast linear;
+
+  &.is-light { justify-content: flex-end; }
+
+  @include hover-device {
+    &:hover { border-color: $white-24; }
+  }
+
+  &__track {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    color: $chrome-3;
+    font-size: 13px;
+  }
+
+  &__thumb {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    box-shadow: 0 4px 14px -4px var(--btn-glow);
+  }
+
+  &__icon { display: grid; place-items: center; font-size: 14px; }
+}

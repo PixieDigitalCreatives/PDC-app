@@ -1,0 +1,60 @@
+@use './abstracts' as *;
+
+.sv {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  color: $chrome;
+
+  .sv__art * {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  [data-acc] { stroke: var(--acc); }
+
+  // Draw-in: every shape starts undrawn and draws when the visual becomes active.
+  .d {
+    stroke-dasharray: 1.02;
+    stroke-dashoffset: 1.02;
+    transition: stroke-dashoffset 1.4s $ease-in-out;
+  }
+
+  .lbl {
+    @include meta;
+    fill: $chrome-2 !important;
+    stroke: none !important;
+    font-size: 11px;
+    opacity: 0;
+    transition: opacity $dur-slow $ease-out 0.6s;
+  }
+
+  .layer { transition: transform 1.2s $ease-out; }
+}
+
+// parent state hook: .is-active (services scene) or .is-live (stacked list, set by IntersectionObserver)
+.is-active .sv .d,
+.sv.is-live .d { stroke-dashoffset: 0; }
+
+.is-active .sv .lbl,
+.sv.is-live .lbl { opacity: 1; }
+
+// Website Development: design / motion / development layers separate to show the three disciplines
+.sv--web {
+  .l1 { transform: translate(0, 0); }
+  .l2 { transform: translate(0, 0); }
+  .l3 { transform: translate(0, 0); }
+}
+.is-active .sv--web, .sv--web.is-live {
+  .l1 { transform: translate(-26px, -34px); }
+  .l2 { transform: translate(0, 0); }
+  .l3 { transform: translate(26px, 34px); }
+}
+
+@include reduced-motion {
+  .sv .d { stroke-dashoffset: 0 !important; transition: none; }
+  .sv .lbl { opacity: 1 !important; }
+}
