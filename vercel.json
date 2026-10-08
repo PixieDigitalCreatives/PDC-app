@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://pdc-api-6e15.onrender.com/api/:path*"
+      "destination": "https://pdc-app-vm0t.onrender.com/api/:path*"
     },
     {
       "source": "/uploads/:path*",
-      "destination": "https://pdc-api-6e15.onrender.com/uploads/:path*"
+      "destination": "https://pdc-app-vm0t.onrender.com/uploads/:path*"
     },
     {
       "source": "/(.*)",
