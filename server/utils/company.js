@@ -3,7 +3,7 @@
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SOCIALS = ["instagram", "linkedin", "twitter", "facebook"];
-const FIELDS = { name: 80, shortName: 20, email: 254, phone: 120, address: 200, tagline: 120, description: 600, website: 120 };
+const FIELDS = { name: 80, shortName: 20, email: 254, phone: 120, address: 200, tagline: 120, description: 600, website: 120, services: 300, digitalPresence: 200 };
 const LABELS = { name: "Studio name", email: "Email", instagram: "Instagram", linkedin: "LinkedIn", twitter: "Twitter / X", facebook: "Facebook" };
 
 const text = (value, max) => (typeof value === "string" ? value.trim().slice(0, max) : "");

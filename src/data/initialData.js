@@ -177,7 +177,7 @@ export const defaultCompanyInfo = {
   email: "info@pixiedigitalcreatives.com",
   phone: "+91 97089 76946, +91 88253 10738",
   website: "pixiedigitalcreatives.com",
-  services: "Web Design & Development, UI/UX Design, Landing Pages, Custom Digital Solutions",
+  services: "Website Development • App Development • CRM • Social Media • SEO • Ads",
   digitalPresence: "Serving businesses through digital-first solutions",
   socials: {
     instagram: "https://www.instagram.com/pixiedigitalcreatives/",

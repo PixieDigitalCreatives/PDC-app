@@ -19,9 +19,18 @@ import "../styles/contactpage.scss";
 
 const ContactPage = () => {
   const { companyInfo, services } = useCms();
-  const { selectedCountry, countries, selectCountryByCode, getBudgetRanges } = useCurrency();
+  const { selectedCountry, getBudgetRanges } = useCurrency();
 
   const budgetOptions = getBudgetRanges();
+
+  const rawPhone = companyInfo?.phone || "+91 97089 76946, +91 88253 10738";
+  const phoneList = rawPhone.split(",").map((p) => p.trim()).filter(Boolean);
+  const rawWebsite = companyInfo?.website || "pixiedigitalcreatives.com";
+  const websiteUrl = rawWebsite.startsWith("http") ? rawWebsite : `https://${rawWebsite}`;
+  const websiteDisplay = rawWebsite.replace(/^https?:\/\//i, "").replace(/\/$/, "");
+  const servicesDisplay = companyInfo?.services || "Website Development • App Development • CRM • Social Media • SEO • Ads";
+  const digitalPresenceDisplay = companyInfo?.digitalPresence || "Serving businesses through digital-first solutions";
+  const descriptionDisplay = companyInfo?.description || "We help businesses turn ideas into premium digital experiences through thoughtful design, modern development, and custom digital solutions.";
 
   const [formData, setFormData] = useState({
     name: "",
@@ -110,7 +119,7 @@ const ContactPage = () => {
               <TiltCard tilt={3} className="contact-info-card glass-panel">
                 <h2 className="info-card-title">Studio details</h2>
                 <p className="info-card-desc">
-                  We help businesses turn ideas into premium digital experiences through thoughtful design, modern development, and custom digital solutions.
+                  {descriptionDisplay}
                 </p>
 
                 <div className="info-items-list">
@@ -129,9 +138,14 @@ const ContactPage = () => {
                     <div>
                       <span className="info-lbl">PHONE NUMBER</span>
                       <div className="info-phone-links">
-                        <a href="tel:+919708976946" className="info-val">+91 97089 76946</a>
-                        <span className="phone-sep">, </span>
-                        <a href="tel:+918825310738" className="info-val">+91 88253 10738</a>
+                        {phoneList.map((ph, idx) => (
+                          <React.Fragment key={ph}>
+                            {idx > 0 && <span className="phone-sep">, </span>}
+                            <a href={`tel:${ph.replace(/\s+/g, "")}`} className="info-val">
+                              {ph}
+                            </a>
+                          </React.Fragment>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -141,12 +155,12 @@ const ContactPage = () => {
                     <div>
                       <span className="info-lbl">WEBSITE</span>
                       <a
-                        href="https://www.pixiedigitalcreatives.com"
+                        href={websiteUrl}
                         target="_blank"
                         rel="noreferrer"
                         className="info-val"
                       >
-                        pixiedigitalcreatives.com
+                        {websiteDisplay}
                       </a>
                     </div>
                   </div>
@@ -156,7 +170,7 @@ const ContactPage = () => {
                     <div>
                       <span className="info-lbl">SERVICES</span>
                       <span className="info-val services-tags">
-                        Website Development • App Development • CRM • Social Media • SEO • Ads
+                        {servicesDisplay}
                       </span>
                     </div>
                   </div>
@@ -166,7 +180,7 @@ const ContactPage = () => {
                     <div>
                       <span className="info-lbl">DIGITAL PRESENCE</span>
                       <span className="info-val">
-                        Serving businesses through digital-first solutions
+                        {digitalPresenceDisplay}
                       </span>
                     </div>
                   </div>

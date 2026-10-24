@@ -384,12 +384,12 @@ export const CmsProvider = ({ children }) => {
   const saveCompanyInfo = async (info) => {
     const token = getAuthToken();
     if (!token) return { ok: false, error: "Please log in again to save." };
-    const { name, shortName, email, phone, address, tagline, description, website, socials } = info;
+    const { name, shortName, email, phone, address, tagline, description, website, services, digitalPresence, socials } = info;
     try {
       const res = await fetch("/api/cms/company", {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name, shortName, email, phone, address, tagline, description, website, socials }),
+        body: JSON.stringify({ name, shortName, email, phone, address, tagline, description, website, services, digitalPresence, socials }),
       });
       let data = null;
       try {

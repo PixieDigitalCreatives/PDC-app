@@ -927,12 +927,34 @@ const Admin = () => {
                 </div>
 
                 <div className="form-group">
-                  <label>Description</label>
+                  <label>Description (Studio Details)</label>
                   <textarea
                     rows="3"
                     value={company.description || ""}
                     onChange={(e) => editCompany({ description: e.target.value })}
+                    placeholder="We help businesses turn ideas into premium digital experiences..."
                   ></textarea>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Services Lineup</label>
+                    <input
+                      type="text"
+                      value={company.services || ""}
+                      onChange={(e) => editCompany({ services: e.target.value })}
+                      placeholder="Website Development • App Development • CRM • Social Media • SEO • Ads"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Digital Presence Tagline</label>
+                    <input
+                      type="text"
+                      value={company.digitalPresence || ""}
+                      onChange={(e) => editCompany({ digitalPresence: e.target.value })}
+                      placeholder="Serving businesses through digital-first solutions"
+                    />
+                  </div>
                 </div>
 
                 <div className="socials-subhead">Official Social Profiles</div>
