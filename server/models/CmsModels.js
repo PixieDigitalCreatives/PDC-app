@@ -41,6 +41,7 @@ const companySchema = new mongoose.Schema({
   email: { type: String, default: "info@pixiedigitalcreatives.com" },
   phone: { type: String, default: "+1 (555) 019-2834" },
   address: { type: String, default: "Digital Studio Worldwide & Remote" },
+  website: { type: String, default: "pixiedigitalcreatives.com" },
   tagline: { type: String, default: "Creative. Strategic. Impactful." },
   description: { type: String, default: "We craft digital experiences that inspire, engage, and drive real business results." },
   socials: {
@@ -51,7 +52,44 @@ const companySchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
+// Pricing page (/pricing): one document holding every service section and its plans.
+// Cleaned and validated in server/utils/pricing.js before it is saved.
+const pricePlanSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  price: {
+    from: Number,
+    to: Number,
+    plus: Boolean,
+    fixed: Boolean,
+    unit: String,
+  },
+  confirmed: { type: Boolean, default: true },
+  fit: String,
+  details: [String],
+  tag: String,
+  featured: Boolean,
+  review: String,
+}, { _id: false });
+
+const priceCategorySchema = new mongoose.Schema({
+  slug: { type: String, required: true },
+  number: String,
+  title: { type: String, required: true },
+  kicker: String,
+  blurb: String,
+  layout: { type: String, enum: ["tiers", "rates", "duo"], default: "tiers" },
+  note: String,
+  services: [String],
+  plans: [pricePlanSchema],
+}, { _id: false });
+
+const pricingSchema = new mongoose.Schema({
+  categories: [priceCategorySchema],
+  budgetRanges: [String],
+}, { timestamps: true });
+
 export const Portfolio = mongoose.model("Portfolio", portfolioSchema);
 export const Team = mongoose.model("Team", teamSchema);
 export const Stat = mongoose.model("Stat", statSchema);
 export const Company = mongoose.model("Company", companySchema);
+export const Pricing = mongoose.model("Pricing", pricingSchema);

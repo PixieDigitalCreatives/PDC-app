@@ -17,14 +17,32 @@ import { lockScroll, unlockScroll } from "../animations/lenis";
 import { EASE, EASE_IN_OUT } from "../animations/variants";
 import "../styles/navbar.scss";
 
+// Related pages share one entry with a dropdown; the first child is the group's main page.
 const navLinks = [
   { name: "Home", path: "/" },
-  { name: "Services", path: "/services" },
+  {
+    name: "Services",
+    children: [
+      { name: "All services", path: "/services", note: "Everything we do" },
+      { name: "Pricing", path: "/pricing", note: "Plans and price ranges" },
+      { name: "Process", path: "/process", note: "How a project runs" },
+    ],
+  },
   { name: "Portfolio", path: "/portfolio" },
-  { name: "About", path: "/about" },
-  { name: "Process", path: "/process" },
+  {
+    name: "About",
+    children: [
+      { name: "About us", path: "/about", note: "Our story and team" },
+      { name: "Company Profile", path: "/company-profile", note: "Who we are, page by page" },
+      { name: "Brochure", path: "/brochure", note: "Our brochure, page by page" },
+    ],
+  },
   { name: "Contact", path: "/contact" },
 ];
+
+const keyOf = (link) => link.path || link.name;
+const isActive = (link, pathname) =>
+  link.children ? link.children.some((c) => c.path === pathname) : link.path === pathname;
 
 const homeSections = [
   { id: "hero", label: "Intro" },
@@ -73,7 +91,9 @@ const Navbar = () => {
   const [hidden, setHidden] = useState(false);
   const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
   const [hoverPath, setHoverPath] = useState(null);
+  const [menu, setMenu] = useState(null); // name of the open dropdown group
   const dropdownRef = useRef(null);
+  const navRef = useRef(null);
 
   const { setIsContactModalOpen, companyInfo } = useCms();
   const { selectedCountry, countries, setSelectedCountry } = useCurrency();
@@ -109,10 +129,12 @@ const Navbar = () => {
       if (e.key === "Escape") {
         setOpen(false);
         setCountryDropdownOpen(false);
+        setMenu(null);
       }
     };
     const onDown = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setCountryDropdownOpen(false);
+      if (navRef.current && !navRef.current.contains(e.target)) setMenu(null);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onDown);
@@ -141,24 +163,95 @@ const Navbar = () => {
             </Link>
           </div>
 
-          <nav className="navbar-center" aria-label="Primary">
+          <nav className="navbar-center" aria-label="Primary" ref={navRef}>
             {/* The pill follows the hovered link and settles back on the current page. */}
             <ul className="nav-list" onMouseLeave={() => setHoverPath(null)}>
               {navLinks.map((link) => {
-                const active = location.pathname === link.path;
-                const pillHere = (hoverPath ?? location.pathname) === link.path;
+                const key = keyOf(link);
+                const active = isActive(link, location.pathname);
+                const current = navLinks.find((l) => isActive(l, location.pathname));
+                const pillHere = (hoverPath ?? (current && keyOf(current))) === key;
+                const pill = pillHere && <motion.span layoutId="nav-pill" className="nav-pill" transition={PILL_SPRING} />;
+
+                if (!link.children) {
+                  return (
+                    <li key={key} className="nav-item">
+                      <Link
+                        to={link.path}
+                        className={`nav-link ${active ? "active" : ""}`}
+                        aria-current={active ? "page" : undefined}
+                        onMouseEnter={() => setHoverPath(key)}
+                        onFocus={() => setHoverPath(key)}
+                      >
+                        {pill}
+                        <span className="nav-link__text">{link.name}</span>
+                      </Link>
+                    </li>
+                  );
+                }
+
+                // A group opens on hover (mouse) or on click / tap, and closes when the pointer or focus leaves.
+                const isOpen = menu === link.name;
+                const menuId = `nav-menu-${link.name.toLowerCase()}`;
                 return (
-                  <li key={link.path} className="nav-item">
-                    <Link
-                      to={link.path}
+                  <li
+                    key={key}
+                    className="nav-item nav-item--menu"
+                    onPointerEnter={(e) => {
+                      if (e.pointerType !== "mouse") return;
+                      setHoverPath(key);
+                      setMenu(link.name);
+                    }}
+                    onPointerLeave={(e) => {
+                      if (e.pointerType === "mouse") setMenu(null);
+                    }}
+                    onBlur={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget)) setMenu(null);
+                    }}
+                  >
+                    <button
+                      type="button"
                       className={`nav-link ${active ? "active" : ""}`}
-                      aria-current={active ? "page" : undefined}
-                      onMouseEnter={() => setHoverPath(link.path)}
-                      onFocus={() => setHoverPath(link.path)}
+                      aria-expanded={isOpen}
+                      aria-controls={menuId}
+                      onClick={() => setMenu(isOpen ? null : link.name)}
+                      onFocus={() => setHoverPath(key)}
                     >
-                      {pillHere && <motion.span layoutId="nav-pill" className="nav-pill" transition={PILL_SPRING} />}
+                      {pill}
                       <span className="nav-link__text">{link.name}</span>
-                    </Link>
+                      <HiOutlineChevronDown className={`nav-link__chev ${isOpen ? "open" : ""}`} aria-hidden="true" />
+                    </button>
+                    <AnimatePresence>
+                      {isOpen && (
+                        <motion.div
+                          id={menuId}
+                          className="nav-menu"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 6 }}
+                          transition={{ duration: 0.22, ease: EASE }}
+                        >
+                          <ul className="nav-menu__list">
+                            {link.children.map((c) => {
+                              const here = location.pathname === c.path;
+                              return (
+                                <li key={c.path}>
+                                  <Link
+                                    to={c.path}
+                                    className={`nav-menu__item ${here ? "active" : ""}`}
+                                    aria-current={here ? "page" : undefined}
+                                    onClick={() => setMenu(null)}
+                                  >
+                                    <span className="nav-menu__name">{c.name}</span>
+                                    <span className="nav-menu__note">{c.note}</span>
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </li>
                 );
               })}
@@ -248,25 +341,44 @@ const Navbar = () => {
             </div>
 
             <nav className="mobile-menu__links" aria-label="Mobile">
-              {navLinks.map((link, idx) => (
-                <div className="mobile-menu__mask" key={link.path}>
-                  <motion.div
-                    initial={{ y: "110%" }}
-                    animate={{ y: "0%" }}
-                    exit={{ y: "110%" }}
-                    transition={{ duration: 0.8, ease: EASE, delay: 0.25 + idx * 0.06 }}
-                  >
-                    <Link
-                      to={link.path}
-                      onClick={() => setOpen(false)}
-                      className={`mobile-menu__link ${location.pathname === link.path ? "active" : ""}`}
+              {navLinks.map((link, idx) => {
+                // A group shows its main page big and the other pages of the group underneath.
+                const to = link.path || link.children[0].path;
+                const subs = link.children ? link.children.slice(1) : [];
+                return (
+                  <div className="mobile-menu__mask" key={keyOf(link)}>
+                    <motion.div
+                      initial={{ y: "110%" }}
+                      animate={{ y: "0%" }}
+                      exit={{ y: "110%" }}
+                      transition={{ duration: 0.8, ease: EASE, delay: 0.25 + idx * 0.06 }}
                     >
-                      <span className="num">0{idx + 1}</span>
-                      <span className="txt">{link.name}</span>
-                    </Link>
-                  </motion.div>
-                </div>
-              ))}
+                      <Link
+                        to={to}
+                        onClick={() => setOpen(false)}
+                        className={`mobile-menu__link ${location.pathname === to ? "active" : ""}`}
+                      >
+                        <span className="num">0{idx + 1}</span>
+                        <span className="txt">{link.name}</span>
+                      </Link>
+                      {subs.length > 0 && (
+                        <div className="mobile-menu__subs">
+                          {subs.map((c) => (
+                            <Link
+                              key={c.path}
+                              to={c.path}
+                              onClick={() => setOpen(false)}
+                              className={`mobile-menu__sub ${location.pathname === c.path ? "active" : ""}`}
+                            >
+                              {c.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </motion.div>
+                  </div>
+                );
+              })}
             </nav>
 
             <motion.div

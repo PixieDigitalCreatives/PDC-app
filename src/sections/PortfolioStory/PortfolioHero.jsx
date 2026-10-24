@@ -126,9 +126,6 @@ const PortfolioHero = ({ projects, categories, onPickCategory, onOpen, openConta
 
       <div className="pf-hero__inner">
         <motion.div className="pf-hero__copy" style={fx({ y: copyY, opacity: copyO })}>
-          <motion.span className="pg-badge" {...enter(0.1)}>
-            <i /> Selected work {projects.length > 0 && <span className="pg-badge__more"><b>•</b> {pad(projects.length)} {projects.length === 1 ? "project" : "projects"}</span>}
-          </motion.span>
 
           <h1 className="pf-hero__title" aria-label="Work that speaks for itself.">
             <KineticLine text="Work that speaks" from={4} ready={ready} />

@@ -28,6 +28,14 @@ const PORT = process.env.PORT || 5000;
 // 1 = trust the single proxy in front of this server; override with TRUST_PROXY_HOPS if the chain differs.
 app.set("trust proxy", Number(process.env.TRUST_PROXY_HOPS ?? 1));
 
+if (!process.env.JWT_SECRET) {
+  console.warn(
+    process.env.NODE_ENV === "production"
+      ? "❌ JWT_SECRET is not set: admin login is disabled until it is."
+      : "⚠️  JWT_SECRET is not set: using a development-only secret."
+  );
+}
+
 // 1. Connect MongoDB
 await connectDb();
 
@@ -96,6 +104,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 // 9. API Routes
 app.use("/api/auth/login", loginLimiter);
+app.use("/api/auth/change-password", loginLimiter); // it checks the current password too
 app.use("/api/auth", authRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/cms", cmsRoutes);

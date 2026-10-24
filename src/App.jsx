@@ -7,10 +7,12 @@ import { ThemeProvider } from "./context/ThemeContext";
 import Preloader from "./components/Preloader";
 import Home from "./pages/Home";
 const ServicesPage = lazy(() => import("./pages/ServicesPage"));
+const PricingPage = lazy(() => import("./pages/PricingPage"));
 const PortfolioPage = lazy(() => import("./pages/PortfolioPage"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
 const ProcessPage = lazy(() => import("./pages/ProcessPage"));
 const ContactPage = lazy(() => import("./pages/ContactPage"));
+const BookViewPage = lazy(() => import("./pages/BookViewPage"));
 const Admin = lazy(() => import("./pages/Admin"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 import Cursor from "./components/cursor/Cursor";
@@ -59,9 +61,12 @@ const AnimatedRoutes = () => {
       <Routes location={displayLocation}>
         <Route path="/" element={<Home />} />
         <Route path="/services" element={<ServicesPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/process" element={<ProcessPage />} />
+        <Route path="/brochure" element={<BookViewPage key="brochure" bookId="brochure" />} />
+        <Route path="/company-profile" element={<BookViewPage key="company-profile" bookId="companyProfile" />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<NotFoundPage />} />

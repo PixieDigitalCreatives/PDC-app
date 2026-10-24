@@ -67,7 +67,7 @@ const esc = (value) =>
 // Header values must stay on one line
 const oneLine = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
 
-export const sendInquiryEmail = async ({ name, email, country, service, budget, message }) => {
+export const sendInquiryEmail = async ({ name, business, email, phone, country, service, budget, message }) => {
   if (!transporter) {
     console.warn("Mailer not configured — skipping email.");
     return { sent: false, reason: "Mailer not configured" };
@@ -75,7 +75,9 @@ export const sendInquiryEmail = async ({ name, email, country, service, budget, 
 
   const safe = {
     name: esc(name),
+    business: esc(business),
     email: esc(email),
+    phone: esc(phone),
     country: esc(country || "Not specified"),
     service: esc(service || "General"),
     budget: esc(budget || "Not specified"),
@@ -88,7 +90,7 @@ export const sendInquiryEmail = async ({ name, email, country, service, budget, 
   const mailOptions = {
     from: `"Pixie Digital Creatives" <${fromEmail}>`,
     to: toEmail,
-    replyTo: email,
+    ...(email ? { replyTo: email } : {}),
     subject: `🔔 New Inquiry from ${oneLine(name)} — ${oneLine(service || "General")}`,
     html: `
 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #000000; padding: 40px 20px;">
@@ -108,10 +110,18 @@ export const sendInquiryEmail = async ({ name, email, country, service, budget, 
                 <td style="padding: 10px 0; color: #71717a; font-size: 13px; width: 120px; vertical-align: top;">Name</td>
                 <td style="padding: 10px 0; color: #ffffff; font-size: 14px; font-weight: 600;">${safe.name}</td>
               </tr>
-              <tr>
+              ${safe.business ? `<tr>
+                <td style="padding: 10px 0; color: #71717a; font-size: 13px; vertical-align: top;">Business</td>
+                <td style="padding: 10px 0; color: #d4d4d8; font-size: 14px;">${safe.business}</td>
+              </tr>` : ""}
+              ${safe.email ? `<tr>
                 <td style="padding: 10px 0; color: #71717a; font-size: 13px; vertical-align: top;">Email</td>
                 <td style="padding: 10px 0; color: #d4d4d8; font-size: 14px;"><a href="mailto:${safe.email}" style="color: #a8bff5; text-decoration: underline;">${safe.email}</a></td>
-              </tr>
+              </tr>` : ""}
+              ${safe.phone ? `<tr>
+                <td style="padding: 10px 0; color: #71717a; font-size: 13px; vertical-align: top;">Phone</td>
+                <td style="padding: 10px 0; color: #d4d4d8; font-size: 14px;"><a href="tel:${safe.phone.replace(/[^0-9+]/g, "")}" style="color: #a8bff5; text-decoration: underline;">${safe.phone}</a></td>
+              </tr>` : ""}
               <tr>
                 <td style="padding: 10px 0; color: #71717a; font-size: 13px; vertical-align: top;">Country</td>
                 <td style="padding: 10px 0; color: #d4d4d8; font-size: 14px;">${safe.country}</td>

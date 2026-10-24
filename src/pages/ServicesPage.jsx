@@ -33,7 +33,7 @@ const ServicesPage = () => {
       <ScrollProgress />
 
       <main id="main">
-        <ServicesHero services={services} groups={groups} openContact={openContact} />
+        <ServicesHero services={services} openContact={openContact} />
 
         {services.length > 0 && (
           <>

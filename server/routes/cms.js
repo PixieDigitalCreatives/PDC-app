@@ -1,7 +1,9 @@
 import express from "express";
 import mongoose from "mongoose";
-import { Portfolio, Team, Stat, Company } from "../models/CmsModels.js";
+import { Portfolio, Team, Stat, Company, Pricing } from "../models/CmsModels.js";
 import { requireAuth } from "../middleware/auth.js";
+import { cleanPricing } from "../utils/pricing.js";
+import { cleanCompany } from "../utils/company.js";
 
 const router = express.Router();
 
@@ -16,11 +18,12 @@ const buildIdQuery = (id) => {
 // GET /api/cms/all — Public: loads all CMS state
 router.get("/all", async (req, res) => {
   try {
-    const [portfolio, team, stats, company] = await Promise.all([
+    const [portfolio, team, stats, company, pricing] = await Promise.all([
       Portfolio.find().sort({ order: 1 }),
       Team.find().sort({ order: 1 }),
       Stat.find(),
       Company.findOne(),
+      Pricing.findOne().lean(),
     ]);
 
     res.json({
@@ -29,6 +32,8 @@ router.get("/all", async (req, res) => {
       team: team.map((t) => ({ ...t.toObject(), id: t._id.toString() })),
       stats: stats.map((s) => ({ ...s.toObject(), id: s._id.toString() })),
       company: company ? company.toObject() : {},
+      // null until pricing is first saved from the Admin; the site then uses its built-in prices
+      pricing: pricing ? { categories: pricing.categories, budgetRanges: pricing.budgetRanges, updatedAt: pricing.updatedAt } : null,
     });
   } catch (err) {
     console.error("CMS fetch error:", err);
@@ -153,20 +158,36 @@ router.put("/stats/:id", requireAuth, async (req, res) => {
   }
 });
 
-// PUT /api/cms/company (Protected)
+// PUT /api/cms/company (Protected) — saves the known company fields only
 router.put("/company", requireAuth, async (req, res) => {
   try {
-    let company = await Company.findOne();
-    if (!company) {
-      company = await Company.create(req.body);
-    } else {
-      Object.assign(company, req.body);
-      await company.save();
+    const { company: fields, errors } = cleanCompany(req.body);
+    if (errors.length) {
+      return res.status(400).json({ success: false, error: errors[0], errors });
     }
+    const company = await Company.findOneAndUpdate({}, { $set: fields }, { new: true, upsert: true, setDefaultsOnInsert: true });
     res.json({ success: true, company: company.toObject() });
   } catch (err) {
     console.error("Update company error:", err);
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ success: false, error: "Could not save the company information." });
+  }
+});
+
+// PUT /api/cms/pricing (Protected) — replaces the whole pricing document
+router.put("/pricing", requireAuth, async (req, res) => {
+  try {
+    const { pricing, errors } = cleanPricing(req.body);
+    if (errors.length) {
+      return res.status(400).json({ success: false, error: errors[0], errors });
+    }
+    const saved = await Pricing.findOneAndUpdate({}, { $set: pricing }, { new: true, upsert: true, lean: true });
+    res.json({
+      success: true,
+      pricing: { categories: saved.categories, budgetRanges: saved.budgetRanges, updatedAt: saved.updatedAt },
+    });
+  } catch (err) {
+    console.error("Update pricing error:", err);
+    res.status(500).json({ success: false, error: "Could not save the pricing." });
   }
 });
 

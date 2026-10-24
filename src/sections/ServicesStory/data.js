@@ -1,7 +1,7 @@
 // Services page: groups the CMS services into chapters by category, in the order they first appear.
 // Copy here only describes what each category covers — no metrics or claims.
 
-const CHAPTER_BLURB = {
+export const CHAPTER_BLURB = {
   Build: "Websites, apps and systems, designed and engineered to perform.",
   Social: "A brand presence shaped by strategy, then kept active every day.",
   Content: "Footage, edits and content systems that carry your story.",

@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 
 const inquirySchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
-  email: { type: String, required: true, trim: true, lowercase: true },
+  business: { type: String, trim: true, default: "" },
+  // At least one of email / phone (checked in routes/contact.js)
+  email: { type: String, trim: true, lowercase: true, default: "" },
+  phone: { type: String, trim: true, default: "" },
   country: { type: String, default: "US" },
   service: { type: String, default: "General Inquiry" },
   budget: { type: String, default: "Not specified" },

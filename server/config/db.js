@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Admin from "../models/Admin.js";
+import { superAdminEmail } from "./auth.js";
 import { Company } from "../models/CmsModels.js";
 import { defaultCompanyInfo } from "../../src/data/initialData.js";
 
@@ -17,6 +18,7 @@ export const connectDb = async () => {
 
     // Seed admin if none exists
     await seedAdmin();
+    await ensureSuperAdmin();
     // Seed CMS data if collections are empty
     await seedCmsData();
   } catch (err) {
@@ -37,6 +39,25 @@ const seedAdmin = async () => {
     });
     await admin.save();
     console.log(`🔒 Default admin account created: ${adminEmail}`);
+  }
+};
+
+// The super admin is the account with SUPER_ADMIN_EMAIL (default rishisrivastava1910@gmail.com).
+// Its stored role is kept in step for display; if the account does not exist yet it is created
+// from SUPER_ADMIN_PASSWORD when that is set.
+const ensureSuperAdmin = async () => {
+  const email = superAdminEmail();
+  await Admin.updateMany({ email: { $ne: email }, role: "superadmin" }, { $set: { role: "admin" } });
+  const existing = await Admin.findOne({ email });
+  if (existing) {
+    if (existing.role !== "superadmin") await Admin.updateOne({ _id: existing._id }, { $set: { role: "superadmin" } });
+    return;
+  }
+  if (process.env.SUPER_ADMIN_PASSWORD) {
+    await Admin.create({ email, passwordHash: process.env.SUPER_ADMIN_PASSWORD, role: "superadmin" });
+    console.log(`👑 Super admin account created: ${email}`);
+  } else {
+    console.warn(`⚠️  No admin account for the super admin (${email}). Set SUPER_ADMIN_PASSWORD to create it.`);
   }
 };
 

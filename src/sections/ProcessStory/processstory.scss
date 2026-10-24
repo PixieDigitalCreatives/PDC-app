@@ -72,21 +72,20 @@
   &__copy {
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
-    grid-template-areas: 'badge badge' 'title lead' 'title ctas' 'phases phases';
+    grid-template-areas: 'title lead' 'title ctas' 'phases phases';
     column-gap: clamp(2rem, 5vw, 5rem);
     align-items: end;
 
-    .pg-badge { grid-area: badge; justify-self: start; }
 
     @include down($bp-lg) {
       grid-template-columns: 1fr;
-      grid-template-areas: 'badge' 'title' 'lead' 'ctas' 'phases';
+      grid-template-areas: 'title' 'lead' 'ctas' 'phases';
     }
   }
 
   &__title {
     grid-area: title;
-    margin: 1.4rem 0 0;
+    margin: 0;
     font-size: clamp(2.6rem, 6.2vw, 6.2rem);
     font-weight: 700;
     line-height: 1.03;

@@ -5,8 +5,9 @@ import { sendInquiryEmail, sendAutoReplyEmail } from "../config/mailer.js";
 const router = express.Router();
 
 // Longest value accepted for each field (the message gets the most room)
-const LIMITS = { name: 100, email: 254, country: 80, service: 120, budget: 80, message: 5000 };
+const LIMITS = { name: 100, business: 120, email: 254, phone: 30, country: 80, service: 160, budget: 80, message: 5000 };
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^\+?[0-9][0-9\s().-]{5,28}$/;
 
 // Only plain strings are accepted; anything else (objects, arrays, numbers) becomes empty.
 const text = (value) => (typeof value === "string" ? value.trim() : "");
@@ -16,24 +17,31 @@ router.post("/", async (req, res) => {
   try {
     const body = req.body || {};
     const name = text(body.name);
+    const business = text(body.business);
     const email = text(body.email);
+    const phone = text(body.phone);
     const message = text(body.message);
     const country = text(body.country);
     const service = text(body.service);
     const budget = text(body.budget);
 
-    if (!name || !email || !message) {
+    // Visitors can be reached by email or phone: at least one is needed.
+    if (!name || !message || (!email && !phone)) {
       return res.status(400).json({
         success: false,
-        error: "Name, email, and message are required.",
+        error: "Name, message and an email or phone number are required.",
       });
     }
 
-    if (!EMAIL_RE.test(email)) {
+    if (email && !EMAIL_RE.test(email)) {
       return res.status(400).json({ success: false, error: "Please enter a valid email address." });
     }
 
-    for (const [field, value] of Object.entries({ name, email, country, service, budget, message })) {
+    if (phone && !PHONE_RE.test(phone)) {
+      return res.status(400).json({ success: false, error: "Please enter a valid phone number." });
+    }
+
+    for (const [field, value] of Object.entries({ name, business, email, phone, country, service, budget, message })) {
       if (value.length > LIMITS[field]) {
         return res.status(400).json({
           success: false,
@@ -45,7 +53,9 @@ router.post("/", async (req, res) => {
     // 1. Save inquiry to MongoDB first, so a lead is never lost if the email fails
     const inquiry = await Inquiry.create({
       name,
+      business,
       email,
+      phone,
       country: country || "Not specified",
       service: service || "General Inquiry",
       budget: budget || "Not specified",
@@ -56,14 +66,16 @@ router.post("/", async (req, res) => {
     // 2. Send email via Zoho SMTP
     const emailResult = await sendInquiryEmail({
       name,
+      business,
       email,
+      phone,
       country,
       service,
       budget,
       message,
     });
 
-    if (emailResult.sent) {
+    if (emailResult.sent && email) {
       await sendAutoReplyEmail({ name, email, service });
     }
 
@@ -72,7 +84,7 @@ router.post("/", async (req, res) => {
     await inquiry.save();
 
     console.log(
-      `📩 Inquiry ${inquiry._id} from ${name} (${email}) — Email ${emailResult.sent ? "sent ✅" : `NOT sent ⚠️ (${emailResult.reason})`}`
+      `📩 Inquiry ${inquiry._id} from ${name} (${email || phone}) — Email ${emailResult.sent ? "sent ✅" : `NOT sent ⚠️ (${emailResult.reason})`}`
     );
 
     res.json({

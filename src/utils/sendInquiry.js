@@ -4,7 +4,8 @@
 const TIMEOUT_MS = 60000; // a sleeping free-tier server can take close to a minute to wake up
 
 /**
- * @param {{ name: string, email: string, country?: string, service?: string, message: string }} fields
+ * @param {{ name: string, email?: string, phone?: string, business?: string, country?: string, service?: string, budget?: string, message: string }} fields
+ *   (the API needs an email or a phone number)
  * @returns {Promise<{ ok: true } | { ok: false, error: string }>}
  */
 export const sendInquiry = async (fields) => {

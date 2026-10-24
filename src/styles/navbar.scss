@@ -1,5 +1,8 @@
 @use './abstracts' as *;
 
+// The row of links (5 entries, two with dropdowns) shows from this width; below it the menu button takes over.
+$bp-nav: $bp-lg;
+
 .navbar-wrapper {
   position: fixed;
   top: 0;
@@ -37,15 +40,13 @@
   @include container;
   height: 92px;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 2rem;
+  gap: 1.25rem;
   transition: height $dur-base $ease-out;
 
-  @include down($bp-lg) {
-    grid-template-columns: 1fr auto;
-    height: 72px;
-  }
+  @include down($bp-nav) { grid-template-columns: 1fr auto; }
+  @include down($bp-lg) { height: 72px; }
 }
 
 .navbar-logo {
@@ -102,7 +103,8 @@
 }
 
 .navbar-center {
-  @include down($bp-lg) { display: none; }
+  justify-self: center;
+  @include down($bp-nav) { display: none; }
 }
 
 .nav-list {
@@ -120,12 +122,28 @@
   border-radius: 999px;
   font-size: 0.9rem;
   font-weight: 500;
+  font-family: inherit;
+  line-height: inherit;
+  white-space: nowrap;
   color: $chrome-2;
   transition: color $dur-fast linear;
 
-  &:hover, &.active { color: $white; }
+  @include down(1200px) { padding: 9px 13px; }
+
+  &:hover, &.active, &[aria-expanded='true'] { color: $white; }
 
   &__text { position: relative; z-index: 1; }
+
+  &__chev {
+    position: relative;
+    z-index: 1;
+    margin-left: 5px;
+    font-size: 0.8em;
+    vertical-align: -1px;
+    transition: transform $dur-base $ease-out;
+
+    &.open { transform: rotate(180deg); }
+  }
 
   .nav-pill {
     position: absolute;
@@ -133,6 +151,54 @@
     border-radius: 999px;
     background: $white-08;
     box-shadow: inset 0 0 0 1px $white-08;
+  }
+}
+
+// ---- Dropdown of a link group ----
+.nav-item--menu { position: relative; }
+
+.nav-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  // framer animates `transform` (y), so the centring uses `translate`
+  translate: -50% 0;
+  min-width: 250px;
+  // transparent bridge, so the pointer can travel from the link into the panel
+  padding-top: 12px;
+  z-index: 2;
+
+  &__list {
+    list-style: none;
+    display: grid;
+    gap: 2px;
+    padding: 8px;
+    border-radius: 18px;
+    background: $ink;
+    border: 1px solid $white-12;
+    box-shadow: 0 24px 60px -24px alpha($shadow-tint, 0.8);
+  }
+
+  &__item {
+    display: grid;
+    gap: 3px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    transition: background $dur-fast linear;
+
+    &:hover, &:focus-visible { background: $white-08; }
+    &.active .nav-menu__name { color: $accent; }
+  }
+
+  &__name {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: $white;
+  }
+
+  &__note {
+    font-size: 0.78rem;
+    color: $chrome-3;
   }
 }
 
@@ -230,7 +296,7 @@
   @include down($bp-md) { display: none; }
 }
 
-.navbar-theme { @include down($bp-lg) { display: none; } }
+.navbar-theme { @include down($bp-nav) { display: none; } }
 
 .hamburger-btn {
   display: none;
@@ -241,7 +307,7 @@
   border-radius: 50%;
   z-index: $z-menu + 1;
 
-  @include down($bp-lg) { display: inline-block; }
+  @include down($bp-nav) { display: inline-block; }
 
   .line {
     position: absolute;
@@ -303,6 +369,25 @@
     .num { @include meta; color: $white-48; min-width: 2.2rem; }
     .txt { @include display(clamp(2.6rem, 11vw, 4.6rem)); line-height: 1; }
     &.active .txt { color: $accent; }
+  }
+
+  // The other pages of a group, under its main page
+  &__subs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0.2rem 0 0.9rem 3.2rem;
+  }
+
+  &__sub {
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid $white-12;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: $white-72;
+
+    &.active { border-color: $accent; color: $accent; }
   }
 
   &__foot {

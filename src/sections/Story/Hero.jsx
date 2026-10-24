@@ -62,9 +62,6 @@ const Hero = () => {
 
       <div className="st-hero__inner">
         <motion.div className="st-hero__copy" style={reduce ? undefined : { y: copyY, opacity: copyO }}>
-          <motion.span className="st-badge" {...enter(0.1)}>
-            <i /> Creative ideas <b>•</b> Digital solutions
-          </motion.span>
           <MaskText
             as="h1"
             className="st-hero__title"

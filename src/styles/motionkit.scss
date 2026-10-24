@@ -248,28 +248,6 @@
   }
 }
 
-.pg-badge {
-  @include meta;
-  font-size: 0.66rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  color: var(--accent-2);
-  border: 1px solid alpha(var(--accent-2), 0.35);
-  background: alpha(var(--accent-2), 0.08);
-
-  b { opacity: 0.6; font-weight: 600; }
-  i {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--accent-2);
-    animation: pg-pulse 2.2s ease-out infinite;
-  }
-  // secondary part of the badge: dropped on narrow screens so the pill stays on one line
-  &__more { display: inline-flex; align-items: center; gap: 10px; @include down($bp-md) { display: none; } }
-}
-
 .pg-scroll {
   position: absolute;
   left: 50%;
@@ -322,7 +300,7 @@
 }
 
 @include reduced-motion {
-  .pg-glow, .pg-badge i, .pg-scroll i::after { animation: none !important; }
+  .pg-glow, .pg-scroll i::after { animation: none !important; }
 }
 
 @include reduced-motion {

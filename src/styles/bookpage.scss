@@ -1,0 +1,51 @@
+@use './abstracts' as *;
+
+// Brochure / Company Profile page shell. The viewer itself is styled in flipbook.scss.
+.bk-page {
+  background: $black;
+  min-height: 100vh;
+  overflow-x: clip;
+}
+
+// One full screen panel: title row on top, the book fills the rest.
+.bk {
+  height: max(100svh, 600px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  padding-top: 104px;
+
+  @include down($bp-lg) { padding-top: 84px; }
+
+  &__head {
+    @include container;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem 3rem;
+    padding-bottom: clamp(0.25rem, 1.6vh, 1rem);
+  }
+
+  &__titles {
+    display: grid;
+    justify-items: start;
+    gap: 0.8rem;
+  }
+
+  &__title {
+    @include display(clamp(2rem, 4.4vw, 3.8rem));
+    color: $white;
+  }
+
+  &__intro {
+    max-width: 46ch;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: $chrome-2;
+
+    @include down($bp-md) { display: none; }
+  }
+
+  // No transform may stay on this wrapper: the viewer's full screen fallback is position: fixed.
+  &__viewer { min-height: 0; }
+}

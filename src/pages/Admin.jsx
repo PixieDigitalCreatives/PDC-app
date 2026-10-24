@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCms } from "../context/CmsContext";
 import {
@@ -19,8 +19,15 @@ import {
   RiEyeLine,
   RiCloseLine,
   RiVipCrownLine,
-  RiExternalLinkLine
+  RiExternalLinkLine,
+  RiPriceTag3Line,
+  RiLockPasswordLine,
+  RiShieldUserLine
 } from "react-icons/ri";
+import PricingEditor from "../components/admin/PricingEditor";
+import ChangePasswordForm from "../components/admin/ChangePasswordForm";
+import AdminUsers from "../components/admin/AdminUsers";
+import { adminApi, clearAdminSession, readAdminProfile, saveAdminSession } from "../utils/adminApi";
 import "../styles/admin.scss";
 
 const Admin = () => {
@@ -29,7 +36,11 @@ const Admin = () => {
     teamMembers,
     stats,
     companyInfo,
-    setCompanyInfo,
+    saveCompanyInfo,
+    services,
+    pricing,
+    pricingReady,
+    savePricing,
     addProject,
     updateProject,
     deleteProject,
@@ -55,6 +66,9 @@ const Admin = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  // The signed-in account: { id, email, name, role: "superadmin" | "admin", mustChangePassword }
+  const [me, setMe] = useState(() => readAdminProfile());
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -70,10 +84,12 @@ const Admin = () => {
 
       const data = await res.json();
       if (res.ok && data.success) {
+        saveAdminSession(data.token, data.admin);
+        setMe(data.admin);
         setIsAuthenticated(true);
-        sessionStorage.setItem("pdc_admin_token", data.token);
         setAuthError("");
-        showToast(`Welcome back, ${data.admin?.email || "Admin"}!`);
+        setLoginPassword("");
+        if (!data.admin?.mustChangePassword) showToast(`Welcome back, ${data.admin?.name || data.admin?.email || "Admin"}!`);
       } else {
         setAuthError(data.error || "Invalid email or password.");
       }
@@ -85,9 +101,32 @@ const Admin = () => {
   };
 
   const handleLogout = () => {
+    clearAdminSession();
+    setMe(null);
     setIsAuthenticated(false);
-    sessionStorage.removeItem("pdc_admin_token");
   };
+
+  // Refresh the account on load: role, whether a new password is still needed, and whether the
+  // session is still valid (removed account, password changed elsewhere).
+  useEffect(() => {
+    if (!isAuthenticated) return undefined;
+    let alive = true;
+    adminApi("/auth/me").then((r) => {
+      if (!alive) return;
+      if (r.ok) {
+        setMe(r.data.admin);
+        saveAdminSession(null, r.data.admin);
+      } else if (r.status === 401 || r.status === 403) {
+        clearAdminSession();
+        setMe(null);
+        setIsAuthenticated(false);
+        setAuthError(r.error || "Please log in again.");
+      }
+    });
+    return () => {
+      alive = false;
+    };
+  }, [isAuthenticated]);
 
   // Portfolio Modal State
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
@@ -121,9 +160,44 @@ const Admin = () => {
     email: "",
   });
 
+  // Company info is edited as a draft (null = no edits) and only goes live once the server saves it.
+  const [companyForm, setCompanyForm] = useState(null);
+  const [companyErrors, setCompanyErrors] = useState([]);
+  const [isSavingCompany, setIsSavingCompany] = useState(false);
+  const company = companyForm ?? companyInfo;
+  const editCompany = (patch) => {
+    setCompanyErrors([]);
+    setCompanyForm((prev) => ({ ...(prev ?? companyInfo), ...patch }));
+  };
+  const editSocial = (key, value) => {
+    setCompanyErrors([]);
+    setCompanyForm((prev) => {
+      const base = prev ?? companyInfo;
+      return { ...base, socials: { ...(base.socials || {}), [key]: value } };
+    });
+  };
+  const discardCompany = () => {
+    setCompanyForm(null);
+    setCompanyErrors([]);
+  };
+
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const handleSaveCompany = async (e) => {
+    e.preventDefault();
+    if (!companyForm || isSavingCompany) return;
+    setIsSavingCompany(true);
+    const result = await saveCompanyInfo(companyForm);
+    setIsSavingCompany(false);
+    if (!result.ok) {
+      setCompanyErrors(result.errors?.length ? result.errors : [result.error]);
+      return;
+    }
+    setCompanyForm(null);
+    showToast("Company information saved.");
   };
 
   // --- PROJECT ACTIONS ---
@@ -372,6 +446,40 @@ const Admin = () => {
     );
   }
 
+  if (me?.mustChangePassword) {
+    return (
+      <div className="admin-lock-screen">
+        <div className="lock-card glass-panel">
+          <div className="lock-header">
+            <img src="/brand/primary-480.png" alt="PDC Logo" className="lock-logo" />
+            <h2 className="lock-title">Set your own password</h2>
+            <p className="lock-sub">
+              You signed in as {me.email} with a temporary password. Choose your own password to continue.
+            </p>
+          </div>
+
+          <div className="lock-form">
+            <ChangePasswordForm
+              currentLabel="Temporary password"
+              submitLabel="SET PASSWORD & CONTINUE"
+              autoFocus
+              onDone={(admin) => {
+                setMe(admin);
+                showToast("Password set. Welcome to the CMS!");
+              }}
+            />
+          </div>
+
+          <div className="lock-footer">
+            <button type="button" className="back-link" onClick={handleLogout}>
+              <RiArrowLeftLine /> Log out
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="admin-page">
       {/* Toast Notification */}
@@ -398,6 +506,15 @@ const Admin = () => {
           </div>
 
           <div className="header-actions">
+            {me && (
+              <span className="admin-whoami" title={me.email}>
+                <RiShieldUserLine /> <span className="admin-whoami__email">{me.name || me.email}</span>
+                {me.role === "superadmin" && <b>Super admin</b>}
+              </span>
+            )}
+            <button onClick={() => setIsPasswordModalOpen(true)} className="btn-action-outline" title="Change your password">
+              <RiLockPasswordLine /> Change password
+            </button>
             <button onClick={exportData} className="btn-action-outline" title="Export Backup">
               <RiDownload2Line /> Export JSON
             </button>
@@ -495,6 +612,20 @@ const Admin = () => {
             >
               <RiSettings4Line /> Company Info & Socials
             </button>
+            <button
+              className={`tab-btn ${activeTab === "pricing" ? "active" : ""}`}
+              onClick={() => setActiveTab("pricing")}
+            >
+              <RiPriceTag3Line /> Pricing & Plans
+            </button>
+            {me?.role === "superadmin" && (
+              <button
+                className={`tab-btn ${activeTab === "admins" ? "active" : ""}`}
+                onClick={() => setActiveTab("admins")}
+              >
+                <RiShieldUserLine /> Admins
+              </button>
+            )}
           </div>
 
           {/* TAB 1: PORTFOLIO PROJECTS MANAGEMENT */}
@@ -681,6 +812,46 @@ const Admin = () => {
             </div>
           )}
 
+          {/* TAB 6: ADMINS (super admin only) */}
+          {activeTab === "admins" && me?.role === "superadmin" && (
+            <div className="tab-content">
+              <div className="tab-header">
+                <div>
+                  <h2 className="tab-title">Admins</h2>
+                  <p className="tab-subtitle">
+                    Add people who can sign in to this CMS. They get a temporary password and choose their own at first login.
+                  </p>
+                </div>
+              </div>
+              <AdminUsers me={me} showToast={showToast} />
+            </div>
+          )}
+
+          {/* TAB 5: PRICING & PLANS (the /pricing page) */}
+          {activeTab === "pricing" && (
+            <div className="tab-content">
+              <div className="tab-header">
+                <div>
+                  <h2 className="tab-title">Pricing & Plans</h2>
+                  <p className="tab-subtitle">
+                    Services, plans and prices on the Pricing page. Changes go live when you press Save.
+                  </p>
+                </div>
+              </div>
+              {pricingReady ? (
+                <PricingEditor
+                  key={pricing.updatedAt || "built-in"}
+                  pricing={pricing}
+                  services={services}
+                  onSave={savePricing}
+                  showToast={showToast}
+                />
+              ) : (
+                <p className="tab-subtitle">Loading pricing…</p>
+              )}
+            </div>
+          )}
+
           {/* TAB 4: COMPANY INFO & SOCIALS */}
           {activeTab === "company" && (
             <div className="tab-content">
@@ -693,28 +864,22 @@ const Admin = () => {
                 </div>
               </div>
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  showToast("Company information saved!");
-                }}
-                className="company-editor-form glass-panel"
-              >
+              <form onSubmit={handleSaveCompany} className="company-editor-form glass-panel">
                 <div className="form-row">
                   <div className="form-group">
                     <label>Studio Name</label>
                     <input
                       type="text"
-                      value={companyInfo.name}
-                      onChange={(e) => setCompanyInfo({ ...companyInfo, name: e.target.value })}
+                      value={company.name}
+                      onChange={(e) => editCompany({ name: e.target.value })}
                     />
                   </div>
                   <div className="form-group">
                     <label>Official Email</label>
                     <input
                       type="email"
-                      value={companyInfo.email}
-                      onChange={(e) => setCompanyInfo({ ...companyInfo, email: e.target.value })}
+                      value={company.email}
+                      onChange={(e) => editCompany({ email: e.target.value })}
                     />
                   </div>
                 </div>
@@ -724,8 +889,8 @@ const Admin = () => {
                     <label>Phone Number(s)</label>
                     <input
                       type="text"
-                      value={companyInfo.phone || ""}
-                      onChange={(e) => setCompanyInfo({ ...companyInfo, phone: e.target.value })}
+                      value={company.phone || ""}
+                      onChange={(e) => editCompany({ phone: e.target.value })}
                       placeholder="+91 97089 76946, +91 88253 10738"
                     />
                   </div>
@@ -733,19 +898,40 @@ const Admin = () => {
                     <label>Website</label>
                     <input
                       type="text"
-                      value={companyInfo.website || ""}
-                      onChange={(e) => setCompanyInfo({ ...companyInfo, website: e.target.value })}
+                      value={company.website || ""}
+                      onChange={(e) => editCompany({ website: e.target.value })}
                       placeholder="pixiedigitalcreatives.com"
                     />
                   </div>
                 </div>
 
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Tagline</label>
+                    <input
+                      type="text"
+                      value={company.tagline || ""}
+                      onChange={(e) => editCompany({ tagline: e.target.value })}
+                      placeholder="Creative. Strategic. Impactful."
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Address</label>
+                    <input
+                      type="text"
+                      value={company.address || ""}
+                      onChange={(e) => editCompany({ address: e.target.value })}
+                      placeholder="Shown in the footer (leave empty to hide)"
+                    />
+                  </div>
+                </div>
+
                 <div className="form-group">
-                  <label>Tagline / Description</label>
+                  <label>Description</label>
                   <textarea
                     rows="3"
-                    value={companyInfo.description}
-                    onChange={(e) => setCompanyInfo({ ...companyInfo, description: e.target.value })}
+                    value={company.description || ""}
+                    onChange={(e) => editCompany({ description: e.target.value })}
                   ></textarea>
                 </div>
 
@@ -756,12 +942,9 @@ const Admin = () => {
                     <label>Instagram URL</label>
                     <input
                       type="url"
-                      value={companyInfo?.socials?.instagram || ""}
+                      value={company?.socials?.instagram || ""}
                       onChange={(e) =>
-                        setCompanyInfo({
-                          ...companyInfo,
-                          socials: { ...(companyInfo?.socials || {}), instagram: e.target.value },
-                        })
+                        editSocial("instagram", e.target.value)
                       }
                     />
                   </div>
@@ -770,12 +953,9 @@ const Admin = () => {
                     <label>LinkedIn URL</label>
                     <input
                       type="url"
-                      value={companyInfo?.socials?.linkedin || ""}
+                      value={company?.socials?.linkedin || ""}
                       onChange={(e) =>
-                        setCompanyInfo({
-                          ...companyInfo,
-                          socials: { ...(companyInfo?.socials || {}), linkedin: e.target.value },
-                        })
+                        editSocial("linkedin", e.target.value)
                       }
                     />
                   </div>
@@ -786,12 +966,9 @@ const Admin = () => {
                     <label>Twitter / X URL</label>
                     <input
                       type="url"
-                      value={companyInfo?.socials?.twitter || ""}
+                      value={company?.socials?.twitter || ""}
                       onChange={(e) =>
-                        setCompanyInfo({
-                          ...companyInfo,
-                          socials: { ...(companyInfo?.socials || {}), twitter: e.target.value },
-                        })
+                        editSocial("twitter", e.target.value)
                       }
                     />
                   </div>
@@ -800,20 +977,40 @@ const Admin = () => {
                     <label>Facebook URL</label>
                     <input
                       type="url"
-                      value={companyInfo?.socials?.facebook || ""}
+                      value={company?.socials?.facebook || ""}
                       onChange={(e) =>
-                        setCompanyInfo({
-                          ...companyInfo,
-                          socials: { ...(companyInfo?.socials || {}), facebook: e.target.value },
-                        })
+                        editSocial("facebook", e.target.value)
                       }
                     />
                   </div>
                 </div>
 
-                <button type="submit" className="btn-primary save-company-btn">
-                  <RiCheckLine /> SAVE COMPANY SETTINGS
-                </button>
+                {companyErrors.length > 0 && (
+                  <div className="company-errors" role="alert">
+                    {companyErrors.map((err) => (
+                      <p key={err}>{err}</p>
+                    ))}
+                  </div>
+                )}
+
+                <div className="company-save-row">
+                  <button
+                    type="submit"
+                    className="btn-primary save-company-btn"
+                    disabled={!companyForm || isSavingCompany}
+                    aria-busy={isSavingCompany}
+                  >
+                    <RiCheckLine /> {isSavingCompany ? "SAVING…" : "SAVE COMPANY SETTINGS"}
+                  </button>
+                  {companyForm && (
+                    <button type="button" className="company-discard-btn" onClick={discardCompany} disabled={isSavingCompany}>
+                      Discard changes
+                    </button>
+                  )}
+                  <span className={`company-save-status ${companyForm ? "is-dirty" : ""}`}>
+                    {companyForm ? "Unsaved changes" : "Saved on the live site"}
+                  </span>
+                </div>
               </form>
             </div>
           )}
@@ -1114,6 +1311,26 @@ const Admin = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Change password window */}
+      {isPasswordModalOpen && (
+        <div className="admin-modal-overlay" onClick={() => setIsPasswordModalOpen(false)}>
+          <div className="admin-modal-dialog glass-panel pw-dialog" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setIsPasswordModalOpen(false)} aria-label="Close">
+              <RiCloseLine />
+            </button>
+            <h3 className="modal-form-title">Change password</h3>
+            <p className="pw-note">You stay signed in here; any other device where you are signed in will be signed out.</p>
+            <ChangePasswordForm
+              autoFocus
+              onDone={(admin) => {
+                setMe(admin);
+                setIsPasswordModalOpen(false);
+                showToast("Password updated.");
+              }}
+            />
           </div>
         </div>
       )}

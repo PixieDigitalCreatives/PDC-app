@@ -1,0 +1,940 @@
+@use './abstracts' as *;
+
+// Flipbook viewer (components/flipbook). Paper stays paper in both themes: a soft off-white in
+// the dark theme (less glare next to the dark stage), white in the light theme.
+:root,
+[data-theme='dark'] {
+  --paper: #f1ecf2;
+  --paper-back: #e3dce6;
+  --paper-edge: #b4a9be;
+  --paper-ink: #1a1033;
+  --paper-ink-2: #7a7189;
+  --paper-shade: #120a1c;
+  --paper-accent: #d4603f;
+  --paper-accent-2: #d64f8a;
+}
+
+[data-theme='light'] {
+  --paper: #ffffff;
+  --paper-back: #f3edf2;
+  --paper-edge: #d6cbd6;
+  --paper-ink: #1a1033;
+  --paper-ink-2: #8a8299;
+  --paper-shade: #2a1838;
+  --paper-accent: #d4603f;
+  --paper-accent-2: #d64f8a;
+}
+
+.flipbook {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+
+  &:fullscreen {
+    background: $black;
+    padding-top: 12px;
+  }
+
+  // Fallback where element full screen is not available (iPhone)
+  &.is-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: $z-modal - 1;
+    background: $black;
+    padding-top: 12px;
+  }
+}
+
+// ---- Stage --------------------------------------------------------------------------------------
+.fb-stage {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  isolation: isolate;
+
+  &__glow {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(92%, 1100px);
+    aspect-ratio: 2 / 1;
+    translate: -50% -50%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(closest-side at 35% 50%, alpha(var(--glow-1), 0.32), transparent),
+      radial-gradient(closest-side at 68% 50%, alpha(var(--glow-2), 0.22), transparent);
+  }
+}
+
+.fb-arrow {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 5;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1.35rem;
+  color: $white;
+  background: var(--glass);
+  border: 1px solid $white-12;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color $dur-fast linear, opacity $dur-fast linear, scale $dur-fast $ease-out;
+
+  &--prev { left: 24px; }
+  &--next { right: 24px; }
+
+  @include hover-device {
+    &:hover:not(:disabled) { border-color: $white-48; scale: 1.06; }
+  }
+  &:active:not(:disabled) { scale: 0.95; }
+  &:disabled { opacity: 0.28; cursor: default; }
+}
+
+// ---- Book ---------------------------------------------------------------------------------------
+.fb-book {
+  position: relative;
+  flex: none;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+
+  // Shadow plates under the left and right pages
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    border-radius: 3px;
+    box-shadow:
+      0 34px 60px -26px alpha($shadow-tint, 0.75),
+      0 12px 26px -14px alpha($shadow-tint, 0.55);
+    transition: opacity 0.2s linear;
+    pointer-events: none;
+  }
+
+  &.is-spread::before { left: 0; width: 50%; }
+  &.is-spread::after { left: 50%; width: 50%; }
+  &.is-single::before { left: 0; width: 100%; }
+  &.is-single::after { display: none; }
+  &:not(.has-l)::before { opacity: 0; }
+  &:not(.has-r)::after { opacity: 0; }
+}
+
+// The stacked page edges beside the book
+.fb-edge {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  background: repeating-linear-gradient(to right, var(--paper) 0 1px, var(--paper-edge) 1px 2px);
+  transition: width $dur-base $ease-out;
+  pointer-events: none;
+
+  &--right { left: 100%; border-radius: 0 3px 3px 0; }
+  &--left { right: 100%; border-radius: 3px 0 0 3px; }
+}
+
+// One printed side. --front = a right-hand page (spine on its left), --back = a left-hand page.
+.fb-face {
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  background: var(--paper);
+
+  // Gutter: the paper curves into the spine
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+  &--front::after {
+    background: linear-gradient(to right, alpha(var(--paper-shade), 0.2), alpha(var(--paper-shade), 0.05) 4%, transparent 11%);
+  }
+  &--back::after {
+    background: linear-gradient(to left, alpha(var(--paper-shade), 0.2), alpha(var(--paper-shade), 0.05) 4%, transparent 11%);
+  }
+  .is-single &--front::after {
+    background: linear-gradient(to right, alpha(var(--paper-shade), 0.12), transparent 4%);
+  }
+}
+
+// ---- The page being turned (positions painted from FlipBook.jsx / fold.js) -------------------
+// Anchored on the spine: the sheet that stays flat, the folded-over back of the sheet, and the
+// shadow it casts on the page underneath.
+.fb-fold {
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 3;
+  pointer-events: none;
+
+  &__under {
+    position: absolute;
+    top: 0;
+    overflow: hidden;
+  }
+
+  &__lift {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+  &__flap {
+    left: 0;
+    transform-origin: 0 0;
+    clip-path: polygon(0 0, 0 0, 0 0); // hidden until the first paint
+    will-change: transform, clip-path;
+  }
+
+  &__shade {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 3;
+    opacity: 0;
+    transform-origin: 0 0;
+    pointer-events: none;
+
+    // Under the fold: the turning sheet's shadow on the page it uncovers
+    &--under {
+      background: linear-gradient(to bottom, alpha(var(--paper-shade), 0.5), alpha(var(--paper-shade), 0.14) 35%, transparent);
+    }
+    // The flat part of the sheet starting to curl up towards the fold
+    &--curl {
+      background: linear-gradient(to bottom, alpha(var(--paper-shade), 0.22), transparent);
+    }
+    // The folded-over back: dark in the bend, a soft highlight where it flattens out
+    &--flap {
+      background: linear-gradient(
+        to bottom,
+        alpha(var(--paper-shade), 0.34) 0%,
+        alpha(var(--paper-shade), 0.1) 16%,
+        alpha(var(--paper), 0.45) 38%,
+        alpha(var(--paper-shade), 0.05) 70%,
+        transparent 100%
+      );
+    }
+  }
+}
+
+// ---- What is printed on a page ------------------------------------------------------------------
+.fb-sheet {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  color: var(--paper-ink);
+
+  &--reverse { background: var(--paper-back); }
+}
+
+.fb-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.fb-cover {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: 10cqw 9cqw 8cqw;
+  background: $black;
+  color: $white;
+  box-shadow: inset 0 0 0 1px $white-08;
+
+  &__glow {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+
+    &--a {
+      width: 120cqw;
+      aspect-ratio: 1;
+      right: -55cqw;
+      top: -45cqw;
+      background: radial-gradient(closest-side, alpha(var(--glow-1), 0.55), transparent);
+    }
+    &--b {
+      width: 100cqw;
+      aspect-ratio: 1;
+      left: -50cqw;
+      bottom: -40cqw;
+      background: radial-gradient(closest-side, alpha(var(--glow-2), 0.4), transparent);
+    }
+  }
+
+  &__logo {
+    position: relative;
+    width: 50cqw;
+    height: auto;
+  }
+
+  &__body {
+    position: relative;
+    align-self: end;
+    display: grid;
+    gap: 2.6cqw;
+  }
+
+  &__eyebrow {
+    font-size: 2.7cqw;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: $chrome-2;
+  }
+
+  &__title {
+    font-family: $font-display;
+    font-size: 13cqw;
+    font-weight: 600;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    background: $emphasis-gradient;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding-bottom: 0.06em;
+  }
+
+  &__tag {
+    position: relative;
+    font-family: $font-hand;
+    font-size: 6.4cqw;
+    line-height: 1.1;
+    color: $chrome;
+  }
+
+  &__foot {
+    position: relative;
+    margin-top: 7cqw;
+    padding-top: 3cqw;
+    border-top: 1px solid $white-12;
+    font-size: 2.6cqw;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: $chrome-3;
+  }
+
+  &--back {
+    grid-template-rows: auto;
+    align-content: center;
+    justify-items: center;
+    gap: 5cqw;
+    text-align: center;
+  }
+
+  &__mark {
+    position: relative;
+    width: 34cqw;
+    height: auto;
+  }
+
+  &__contact {
+    position: relative;
+    display: grid;
+    gap: 1.6cqw;
+    margin-top: 4cqw;
+    font-size: 3.3cqw;
+
+    a {
+      color: $chrome;
+      @include hover-device { &:hover { color: $accent; } }
+    }
+  }
+}
+
+// ---- Designed covers (a book's own cover / closing page) -------------------------------------
+.fb-cover--rich {
+  padding: 9cqw 8cqw 7cqw;
+
+  .fb-cover__logo { width: 42cqw; }
+  .fb-cover__body { gap: 3.6cqw; }
+}
+
+.fb-cover__headline {
+  display: grid;
+  font-family: $font-display;
+  font-size: 7.6cqw;
+  font-weight: 600;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: $white;
+}
+
+.fb-cover__grad {
+  background: $emphasis-gradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding-bottom: 0.08em;
+}
+
+.fb-cover__services {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4cqw 1.6cqw;
+
+  li {
+    padding: 0.9cqw 2cqw;
+    border-radius: 99px;
+    font-size: 2.15cqw;
+    font-weight: 500;
+    color: $chrome;
+    border: 1px solid $white-12;
+    background: $white-08;
+  }
+}
+
+.fb-cover__text {
+  position: relative;
+  max-width: 64cqw;
+  font-size: 2.85cqw;
+  line-height: 1.55;
+  color: $chrome-2;
+}
+
+.fb-cover__foot--split {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1.5cqw 3cqw;
+  margin-top: 6cqw;
+  font-size: 2.2cqw;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+
+  .fb-cover__site {
+    letter-spacing: 0.04em;
+    text-transform: none;
+    color: $chrome-2;
+  }
+}
+
+.fb-cover--closing {
+  gap: 4.2cqw;
+  padding-inline: 11cqw;
+
+  .fb-cover__mark { width: 24cqw; }
+  .fb-cover__text { max-width: 70cqw; text-align: center; }
+  .fb-cover__contact { margin-top: 1cqw; }
+}
+
+.fb-cover__closing {
+  position: relative;
+  font-family: $font-display;
+  font-size: 7.4cqw;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  background: $emphasis-gradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding-bottom: 0.06em;
+}
+
+.fb-cover__label {
+  font-size: 2cqw;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: $chrome-3;
+}
+
+.fb-cover__note {
+  position: relative;
+  max-width: 62cqw;
+  padding-top: 3.5cqw;
+  border-top: 1px solid $white-12;
+  font-size: 2.3cqw;
+  line-height: 1.5;
+  color: $chrome-3;
+}
+
+// ---- Inside page of price / service cards --------------------------------------------------------
+.fb-cards {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2.8cqw;
+  padding: 7.5cqw 6cqw 4.5cqw;
+  background: var(--paper);
+  color: var(--paper-ink);
+
+  &__head {
+    position: relative;
+    display: grid;
+    gap: 1.3cqw;
+    padding-bottom: 3.2cqw;
+
+    // a short brand-coloured rule under the heading
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 14cqw;
+      height: 0.5cqw;
+      border-radius: 1cqw;
+      background: linear-gradient(90deg, var(--paper-accent), var(--paper-accent-2));
+    }
+  }
+
+  &__title {
+    font-family: $font-display;
+    font-size: 5.8cqw;
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+  }
+
+  &__sub {
+    font-size: 2.6cqw;
+    line-height: 1.45;
+    color: var(--paper-ink-2);
+  }
+
+  &__grid {
+    list-style: none;
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+    gap: 2.4cqw;
+
+    &.is-dense { gap: 1.9cqw; }
+  }
+
+  &__note {
+    font-size: 1.95cqw;
+    line-height: 1.5;
+    font-style: italic;
+    color: var(--paper-ink-2);
+  }
+
+  &__foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 2cqw;
+    padding-top: 2cqw;
+    border-top: 1px solid color-mix(in srgb, var(--paper-ink) 12%, transparent);
+    font-size: 1.7cqw;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--paper-ink-2);
+
+    span:last-child { letter-spacing: 0.06em; text-transform: none; }
+    b { margin-left: 1.2cqw; color: var(--paper-accent-2); }
+  }
+}
+
+.fb-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1cqw;
+  min-height: 0;
+  padding: 2.6cqw 2.4cqw 2.6cqw 3.2cqw;
+  overflow: hidden;
+  border-radius: 2cqw;
+  background: color-mix(in srgb, var(--paper-ink) 3.5%, var(--paper));
+  border: 1px solid color-mix(in srgb, var(--paper-ink) 9%, transparent);
+
+  // accent bar on the left edge
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 2.6cqw;
+    bottom: 2.6cqw;
+    width: 0.55cqw;
+    border-radius: 0 1cqw 1cqw 0;
+    background: linear-gradient(180deg, var(--paper-accent), var(--paper-accent-2));
+  }
+
+  &__label {
+    font-size: 1.85cqw;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--paper-ink-2);
+  }
+
+  // sized so the longest range ("₹1,50,000–₹3,00,000+") stays on one line
+  &__price {
+    font-size: 3.3cqw;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(95deg, var(--paper-accent), var(--paper-accent-2));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  &__text {
+    font-size: 2.15cqw;
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--paper-ink) 82%, transparent);
+  }
+
+  .is-dense & {
+    gap: 0.7cqw;
+    padding-block: 2.1cqw;
+  }
+
+  // Fewer, taller cards: larger type, content centred in the card
+  .fb-cards__grid:not(.is-dense) & {
+    justify-content: center;
+    gap: 1.4cqw;
+
+    .fb-card__label { font-size: 2cqw; }
+    .fb-card__price { font-size: 3.9cqw; }
+    .fb-card__text { font-size: 2.45cqw; }
+  }
+}
+
+.fb-cards__kicker {
+  font-size: 1.9cqw;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--paper-accent-2);
+}
+
+// ---- What we do: services with description and key points --------------------------------------
+.fb-svc__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: 2.4cqw;
+}
+
+.fb-svc__group {
+  display: grid;
+  gap: 1.6cqw;
+}
+
+.fb-svc__cat {
+  display: grid;
+  gap: 0.5cqw;
+  font-size: 2.9cqw;
+  font-weight: 600;
+  color: var(--paper-ink);
+
+  span {
+    font-size: 2.05cqw;
+    font-weight: 400;
+    color: var(--paper-ink-2);
+  }
+}
+
+.fb-svc__list {
+  list-style: none;
+  display: grid;
+  gap: 2cqw;
+}
+
+.fb-svc__item {
+  display: grid;
+  grid-template-columns: 6.4cqw minmax(0, 1fr);
+  align-items: start;
+  gap: 2.6cqw;
+}
+
+.fb-svc__icon {
+  width: 6.4cqw;
+  height: 6.4cqw;
+  display: grid;
+  place-items: center;
+  border-radius: 1.8cqw;
+  font-size: 3.2cqw;
+  color: var(--paper-accent-2);
+  background: color-mix(in srgb, var(--paper-accent-2) 10%, var(--paper));
+  border: 1px solid color-mix(in srgb, var(--paper-accent-2) 22%, transparent);
+}
+
+.fb-svc__copy {
+  display: grid;
+  gap: 0.7cqw;
+
+  h4 {
+    font-size: 2.75cqw;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--paper-ink);
+  }
+
+  p {
+    font-size: 2.15cqw;
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--paper-ink) 78%, transparent);
+  }
+}
+
+.fb-svc__points {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4cqw 2.2cqw;
+  margin-top: 0.3cqw;
+
+  li {
+    position: relative;
+    padding-left: 1.8cqw;
+    font-size: 1.85cqw;
+    font-weight: 500;
+    color: var(--paper-ink-2);
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 0.9cqw;
+      height: 0.9cqw;
+      border-radius: 50%;
+      translate: 0 -50%;
+      background: linear-gradient(135deg, var(--paper-accent), var(--paper-accent-2));
+    }
+  }
+}
+
+// ---- How we work: the seven phases on a line ----------------------------------------------------
+.fb-proc__steps {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: 1.6cqw;
+
+  // the line joining the steps
+  &::before {
+    content: '';
+    position: absolute;
+    left: 3cqw;
+    top: 4cqw;
+    bottom: 4cqw;
+    width: 0.35cqw;
+    border-radius: 1cqw;
+    background: linear-gradient(180deg, var(--paper-accent), var(--paper-accent-2));
+    opacity: 0.35;
+  }
+
+  li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 6.4cqw minmax(0, 1fr);
+    align-items: center;
+    gap: 3cqw;
+  }
+
+  b {
+    width: 6.4cqw;
+    height: 6.4cqw;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 2.1cqw;
+    font-weight: 700;
+    color: var(--paper);
+    background: linear-gradient(135deg, var(--paper-accent), var(--paper-accent-2));
+    box-shadow: 0 0 0 0.9cqw var(--paper);
+  }
+
+  h4 {
+    font-size: 2.75cqw;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--paper-ink);
+  }
+
+  p {
+    margin-top: 0.4cqw;
+    font-size: 2.15cqw;
+    line-height: 1.45;
+    color: color-mix(in srgb, var(--paper-ink) 78%, transparent);
+  }
+}
+
+.fb-blank {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+
+  &__note {
+    font-size: 2.6cqw;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--paper-ink-2);
+    opacity: 0.55;
+  }
+
+  &__num {
+    position: absolute;
+    bottom: 5cqw;
+    right: 7cqw;
+    font-size: 2.8cqw;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--paper-ink-2);
+
+    .fb-face--back & { right: auto; left: 7cqw; }
+  }
+}
+
+// ---- Toolbar ------------------------------------------------------------------------------------
+.fb-bar {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+  margin: 6px 12px clamp(12px, 2.6vh, 24px);
+  padding: 6px 8px 6px 14px;
+  border-radius: 999px;
+  background: var(--glass);
+  border: 1px solid $white-08;
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: 0 18px 40px -24px alpha($shadow-tint, 0.7);
+
+  &__count {
+    min-width: 5.6em;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: $white;
+
+    i { font-style: normal; color: $chrome-3; margin-inline: 2px; }
+  }
+
+  &__range {
+    width: clamp(90px, 18vw, 240px);
+    height: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 99px;
+    background: linear-gradient(to right, var(--accent-2) var(--p, 0%), $white-12 var(--p, 0%));
+    cursor: pointer;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: $white;
+      box-shadow: 0 0 0 4px alpha(var(--accent-2), 0.28);
+    }
+    &::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border: 0;
+      border-radius: 50%;
+      background: $white;
+      box-shadow: 0 0 0 4px alpha(var(--accent-2), 0.28);
+    }
+
+    @include down($bp-sm) { display: none; }
+  }
+
+  &__sep {
+    width: 1px;
+    height: 22px;
+    margin-inline: 2px;
+    background: $white-12;
+  }
+}
+
+.fb-btn {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1.15rem;
+  color: $chrome;
+  transition: background $dur-fast linear, color $dur-fast linear;
+
+  @include hover-device {
+    &:hover:not(:disabled) { background: $white-08; color: $white; }
+  }
+  &:disabled { opacity: 0.3; cursor: default; }
+}
+
+.fb-seg {
+  display: flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: $white-08;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: $chrome-2;
+    white-space: nowrap;
+    transition: background $dur-fast linear, color $dur-fast linear;
+
+    svg { font-size: 1.05rem; }
+
+    @include hover-device { &:hover:not(.is-on) { color: $white; } }
+
+    &.is-on {
+      background: var(--btn-bg);
+      color: var(--btn-fg);
+      box-shadow: 0 8px 18px -10px var(--btn-glow);
+    }
+  }
+
+  @include down(640px) {
+    button { padding: 7px 10px; }
+    span { display: none; }
+  }
+}
+
+@include reduced-motion {
+  .fb-book::before,
+  .fb-book::after,
+  .fb-edge { transition: none; }
+}

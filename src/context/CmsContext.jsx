@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { defaultServices, defaultCompanyInfo } from "../data/initialData";
+import { DEFAULT_PRICING, DEFAULT_BUDGET_RANGES } from "../data/pricing";
 
 const CmsContext = createContext(null);
 
@@ -12,6 +13,7 @@ const STORAGE_KEYS = {
   PROCESS: "pdc_cms_process_v3",
   TESTIMONIALS: "pdc_cms_testimonials_v3",
   COMPANY: "pdc_cms_company_v3",
+  PRICING: "pdc_cms_pricing_v1",
   AUTH_TOKEN: "pdc_admin_token",
 };
 
@@ -31,6 +33,24 @@ const normalizeList = (items) => {
     id: item.id || (item._id ? item._id.toString() : `item-${idx}`),
     _id: item._id ? item._id.toString() : item.id,
   }));
+};
+
+// Pricing as the site uses it: { categories, budgetRanges }. Empty budget ranges fall back to the built-in ones.
+const DEFAULT_PRICING_DOC = { categories: DEFAULT_PRICING, budgetRanges: DEFAULT_BUDGET_RANGES };
+const toPricingDoc = (doc) =>
+  doc && Array.isArray(doc.categories)
+    ? {
+        categories: doc.categories,
+        budgetRanges: Array.isArray(doc.budgetRanges) && doc.budgetRanges.length ? doc.budgetRanges : DEFAULT_BUDGET_RANGES,
+        updatedAt: doc.updatedAt || null,
+      }
+    : null;
+const readPricingCache = () => {
+  try {
+    return toPricingDoc(JSON.parse(localStorage.getItem(STORAGE_KEYS.PRICING) || "null"));
+  } catch {
+    return null;
+  }
 };
 
 // Migration v3: wipe all cached team data — team is now CMS-only, no offline defaults
@@ -85,6 +105,12 @@ export const CmsProvider = ({ children }) => {
     }
   });
 
+  // 7. Pricing: the database copy once loaded (the last one is cached for return visits), the
+  // built-in prices until pricing is first saved from the Admin. `pricingReady` stays false while a
+  // first-time visitor waits for the database, so out-of-date prices are never shown.
+  const [pricing, setPricing] = useState(() => readPricingCache() || DEFAULT_PRICING_DOC);
+  const [pricingReady, setPricingReady] = useState(() => !!readPricingCache());
+
   // Contact Modal State
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [selectedProjectModal, setSelectedProjectModal] = useState(null);
@@ -97,12 +123,23 @@ export const CmsProvider = ({ children }) => {
 
   // Initial Fetch from Backend Server API
   useEffect(() => {
+    // A server that never answers must not hold the prices back forever.
+    const pricingFallback = setTimeout(() => setPricingReady(true), 20000);
+
     const fetchCmsData = async () => {
       try {
         const res = await fetch("/api/cms/all");
         if (res.ok) {
           const data = await res.json();
           if (data.success) {
+            const fromDb = toPricingDoc(data.pricing);
+            setPricing(fromDb || DEFAULT_PRICING_DOC);
+            try {
+              if (fromDb) localStorage.setItem(STORAGE_KEYS.PRICING, JSON.stringify(fromDb));
+              else localStorage.removeItem(STORAGE_KEYS.PRICING);
+            } catch {
+              /* storage unavailable: the prices just aren't cached */
+            }
             setPortfolioProjects(normalizeList(data.portfolio));
             setTeamMembers(normalizeList(data.team));
             setStats(normalizeList(data.stats));
@@ -121,10 +158,14 @@ export const CmsProvider = ({ children }) => {
         }
       } catch {
         setIsBackendConnected(false);
+      } finally {
+        clearTimeout(pricingFallback);
+        setPricingReady(true);
       }
     };
 
     fetchCmsData();
+    return () => clearTimeout(pricingFallback);
   }, []);
 
   // Sync to LocalStorage safely (only non-DB content is cached)
@@ -337,6 +378,74 @@ export const CmsProvider = ({ children }) => {
     }
   };
 
+  // --- COMPANY INFO ---
+  // Saves the company fields to the database; the site shows them once the server confirms.
+  // Returns { ok, error, errors } so the Admin can show what to fix.
+  const saveCompanyInfo = async (info) => {
+    const token = getAuthToken();
+    if (!token) return { ok: false, error: "Please log in again to save." };
+    const { name, shortName, email, phone, address, tagline, description, website, socials } = info;
+    try {
+      const res = await fetch("/api/cms/company", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name, shortName, email, phone, address, tagline, description, website, socials }),
+      });
+      let data = null;
+      try {
+        data = await res.json();
+      } catch {
+        /* not JSON (e.g. a proxy error page) */
+      }
+      if (res.ok && data?.success) {
+        setCompanyInfo({
+          ...defaultCompanyInfo,
+          ...data.company,
+          socials: { ...defaultCompanyInfo.socials, ...(data.company?.socials || {}) },
+        });
+        return { ok: true };
+      }
+      if (res.status === 401 || res.status === 403) {
+        return { ok: false, error: "Your session has expired. Please log in again, then save." };
+      }
+      return { ok: false, error: data?.error || "Could not save the company information.", errors: data?.errors || [] };
+    } catch {
+      return { ok: false, error: "Cannot reach the server. Nothing was saved." };
+    }
+  };
+
+  // --- PRICING ---
+  // Saves the whole pricing document. Returns { ok, error, errors } so the Admin can show what to fix.
+  const savePricing = async (doc) => {
+    const token = getAuthToken();
+    if (!token) return { ok: false, error: "Please log in again to save." };
+    try {
+      const res = await fetch("/api/cms/pricing", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(doc),
+      });
+      let data = null;
+      try {
+        data = await res.json();
+      } catch {
+        /* not JSON (e.g. a proxy error page) */
+      }
+      if (res.ok && data?.success) {
+        const saved = toPricingDoc(data.pricing) || DEFAULT_PRICING_DOC;
+        setPricing(saved);
+        safeSetStorage(STORAGE_KEYS.PRICING, saved);
+        return { ok: true, pricing: saved };
+      }
+      if (res.status === 401 || res.status === 403) {
+        return { ok: false, error: "Your session has expired. Please log in again, then save." };
+      }
+      return { ok: false, error: data?.error || "Could not save the pricing.", errors: data?.errors || [] };
+    } catch {
+      return { ok: false, error: "Cannot reach the server. Nothing was saved." };
+    }
+  };
+
   // --- BACKUP & RESTORE ACTIONS ---
   const resetToDefaults = () => {
     setPortfolioProjects([]);
@@ -355,6 +464,7 @@ export const CmsProvider = ({ children }) => {
       services: services,
       testimonials: testimonials,
       company: companyInfo,
+      pricing: pricing,
       exportedAt: new Date().toISOString(),
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], {
@@ -402,6 +512,10 @@ export const CmsProvider = ({ children }) => {
         testimonials,
         companyInfo,
         setCompanyInfo,
+        saveCompanyInfo,
+        pricing,
+        pricingReady,
+        savePricing,
         addProject,
         updateProject,
         deleteProject,

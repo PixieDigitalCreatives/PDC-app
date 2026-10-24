@@ -1,0 +1,840 @@
+@use '../../styles/abstracts' as *;
+
+// Pricing page (src/pages/PricingPage.jsx). Prices come from src/data/pricing.js.
+
+// ---- Hero -------------------------------------------------------------------------------------
+.pc-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 150px $gutter clamp(3rem, 6vw, 4.5rem);
+
+  @include down($bp-lg) { padding-top: 120px; }
+
+  &__bg {
+    position: absolute;
+    inset: -10% 0 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  &__inner {
+    max-width: 1440px;
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: center;
+    gap: clamp(2.5rem, 5vw, 5rem);
+
+    @include down($bp-lg) { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  &__copy {
+    display: grid;
+    justify-items: start;
+    gap: 1.5rem;
+  }
+
+  &__title {
+    @include display(clamp(2.8rem, 6.2vw, 5.8rem));
+    line-height: 0.98;
+    color: $white;
+  }
+
+  &__lead {
+    max-width: 42ch;
+    font-size: $fs-lead;
+    line-height: 1.5;
+    color: $chrome-2;
+  }
+
+  &__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  &__note {
+    font-size: 0.85rem;
+    color: $chrome-3;
+  }
+}
+
+// The price guide: every service with the price it starts at
+.pc-index {
+  padding: 0.5rem;
+  border-radius: 26px;
+  background: var(--glass);
+  border: 1px solid $white-08;
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  box-shadow: 0 40px 80px -48px alpha($shadow-tint, 0.8);
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 1.15rem 0.5rem;
+    @include meta;
+    font-size: 0.62rem;
+    color: $chrome-3;
+  }
+
+  ul { list-style: none; }
+
+  &__row {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr) auto 1rem;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.95rem 1.15rem;
+    border-radius: 16px;
+    text-align: left;
+    color: $white;
+    transition: background $dur-fast linear;
+
+    b {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: $chrome-3;
+      font-variant-numeric: tabular-nums;
+    }
+
+    svg {
+      color: $chrome-3;
+      transition: translate $dur-fast $ease-out, color $dur-fast linear;
+    }
+
+    @include hover-device {
+      &:hover {
+        background: $white-08;
+        svg { translate: 3px 0; color: $white; }
+      }
+    }
+  }
+
+  li { position: relative; }
+  li + li::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 1.15rem;
+    right: 1.15rem;
+    height: 1px;
+    background: $white-08;
+    pointer-events: none;
+  }
+
+  &__title {
+    font-size: 0.98rem;
+    font-weight: 500;
+    min-width: 0;
+  }
+
+  &__price {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: $chrome;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ---- Waiting for the CMS prices --------------------------------------------------------------
+@keyframes pc-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+%pc-ghost {
+  border-radius: 12px;
+  background: linear-gradient(90deg, $white-08 25%, $white-12 50%, $white-08 75%) 0 0 / 200% 100%;
+  animation: pc-shimmer 1.6s linear infinite;
+}
+
+.pc-index__ghost {
+  padding: 0.95rem 1.15rem;
+
+  i {
+    @extend %pc-ghost;
+    display: block;
+    height: 1.4rem;
+  }
+}
+
+.pc-loading {
+  padding-top: clamp(4rem, 8vw, 6rem);
+  display: grid;
+  gap: 1.25rem;
+
+  &__label {
+    @include meta;
+    font-size: 0.66rem;
+    color: $chrome-3;
+  }
+
+  &__cards {
+    display: grid;
+    gap: clamp(14px, 1.5vw, 22px);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+
+    i {
+      @extend %pc-ghost;
+      display: block;
+      height: 300px;
+      border-radius: 22px;
+    }
+  }
+}
+
+.pc-empty {
+  padding-top: clamp(4rem, 8vw, 6rem);
+  max-width: 52ch;
+  font-size: $fs-lead;
+  line-height: 1.5;
+  color: $chrome-2;
+}
+
+@include reduced-motion {
+  .pc-index__ghost i,
+  .pc-loading__cards i { animation: none; }
+}
+
+// ---- Floating tab bar -------------------------------------------------------------------------
+.pc-nav {
+  position: sticky;
+  top: 84px;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  padding-inline: $gutter;
+  pointer-events: none;
+
+  @include down($bp-lg) { top: 80px; }
+
+  ul {
+    pointer-events: auto;
+    list-style: none;
+    display: flex;
+    gap: 2px;
+    max-width: 100%;
+    padding: 5px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-radius: 999px;
+    background: var(--glass);
+    border: 1px solid $white-08;
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    box-shadow: 0 18px 40px -26px alpha($shadow-tint, 0.7);
+
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  a {
+    position: relative;
+    display: block;
+    padding: 9px 15px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+    color: $chrome-2;
+    transition: color $dur-fast linear;
+
+    span { position: relative; z-index: 1; }
+
+    &.is-on { color: $white; }
+    @include hover-device { &:hover { color: $white; } }
+  }
+
+  &__pill {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: $white-08;
+    box-shadow: inset 0 0 0 1px $white-08;
+  }
+
+  a.pc-nav__quote {
+    margin-left: 4px;
+    font-weight: 600;
+    color: var(--btn-fg);
+    background: var(--btn-bg);
+    box-shadow: 0 8px 18px -10px var(--btn-glow);
+
+    @include hover-device { &:hover { color: var(--btn-fg); } }
+  }
+}
+
+// ---- A service section ----------------------------------------------------------------------
+.pc-cats {
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-inline: $gutter;
+}
+
+.pc-cat {
+  padding-top: clamp(4.5rem, 9vw, 7.5rem);
+  // a jump lands with the heading just under the floating tab bar
+  scroll-margin-top: calc(150px - clamp(4.5rem, 9vw, 7.5rem));
+
+  &__head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(0, 0.85fr);
+    align-items: end;
+    gap: 1rem clamp(1.25rem, 3vw, 3rem);
+    margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+    padding-bottom: clamp(1.25rem, 2vw, 1.75rem);
+    border-bottom: 1px solid $white-08;
+
+    @include down($bp-lg) { grid-template-columns: auto minmax(0, 1fr); }
+  }
+
+  &__num {
+    font-size: clamp(2.6rem, 5vw, 4.4rem);
+    font-weight: 600;
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    color: transparent;
+    -webkit-text-stroke: 1px alpha($white, 0.32);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__name {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  &__kicker {
+    @include meta;
+    font-size: 0.64rem;
+    color: var(--accent-2);
+  }
+
+  &__title {
+    @include display(clamp(1.8rem, 3.4vw, 3rem));
+    color: $white;
+  }
+
+  &__side {
+    display: grid;
+    justify-items: start;
+    gap: 0.9rem;
+
+    @include down($bp-lg) { grid-column: 1 / -1; }
+  }
+
+  &__blurb {
+    max-width: 46ch;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: $chrome-2;
+  }
+
+  &__note {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.25rem;
+    font-size: 0.88rem;
+    color: $chrome-3;
+
+    svg { flex: none; font-size: 1.1rem; color: var(--accent-2); }
+  }
+}
+
+.pc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 3px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $white;
+  border-bottom: 1px solid $white-24;
+  transition: border-color $dur-fast linear;
+
+  svg { transition: translate $dur-base $ease-out; }
+
+  @include hover-device {
+    &:hover { border-color: var(--accent-2); }
+    &:hover svg { translate: 4px 0; }
+  }
+}
+
+// ---- Plan cards -------------------------------------------------------------------------------
+.pc-tiers {
+  display: grid;
+  gap: clamp(14px, 1.5vw, 22px);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+
+  &--3 { @include up(900px) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  &--4 {
+    @include up(700px) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @include up(1200px) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+}
+
+.pc-plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: clamp(1.4rem, 2vw, 1.9rem);
+  border-radius: 22px;
+  background: linear-gradient(180deg, alpha($white, 0.045), alpha($white, 0.012));
+  border: 1px solid $white-08;
+  // framer animates `transform` on entry, so the hover lift uses `translate`
+  transition: translate $dur-base $ease-out, border-color $dur-fast linear, box-shadow $dur-base $ease-out;
+
+  @include hover-device {
+    &:hover {
+      translate: 0 -4px;
+      border-color: $white-12;
+      box-shadow: 0 30px 60px -38px alpha($shadow-tint, 0.85);
+    }
+  }
+
+  &__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.6rem 1rem;
+  }
+
+  &__name {
+    font-size: 1.08rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: $white;
+  }
+
+  &__tag {
+    @include meta;
+    font-size: 0.58rem;
+    padding: 6px 10px;
+    border-radius: 999px;
+    color: var(--accent-2);
+    background: alpha(var(--accent-2), 0.1);
+    border: 1px solid alpha(var(--accent-2), 0.3);
+    white-space: nowrap;
+  }
+
+  &__fit {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: $chrome-2;
+  }
+
+  &__list {
+    list-style: none;
+    display: grid;
+    gap: 0.55rem;
+    padding-top: 1rem;
+    border-top: 1px solid $white-08;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.9rem;
+      color: $chrome;
+    }
+
+    svg {
+      flex: none;
+      padding: 3px;
+      font-size: 1.1rem;
+      border-radius: 50%;
+      color: var(--on-accent);
+      background: var(--accent);
+    }
+  }
+
+  &__cta {
+    margin-top: auto;
+    align-self: flex-start;
+  }
+
+  // The emphasised card of a category: deeper surface, gradient edge, gradient price
+  &.is-featured {
+    border-color: transparent;
+    background:
+      radial-gradient(120% 70% at 100% 0%, alpha(var(--accent-3), 0.24), transparent 62%),
+      radial-gradient(90% 60% at 0% 100%, alpha(var(--accent-2), 0.16), transparent 60%),
+      $ink;
+    box-shadow: 0 36px 70px -42px alpha(var(--accent-2), 0.55);
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      padding: 1px;
+      border-radius: inherit;
+      background: linear-gradient(140deg, alpha(var(--accent-2), 0.9), alpha(var(--accent-3), 0.5) 45%, alpha($white, 0.08) 75%);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .pc-price__main {
+      background: $emphasis-gradient;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+}
+
+// The price as it reads on a card / row
+.pc-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.45rem;
+  row-gap: 0.15rem;
+  font-variant-numeric: tabular-nums;
+
+  &__pre {
+    flex-basis: 100%;
+    @include meta;
+    font-size: 0.6rem;
+    color: $chrome-3;
+  }
+
+  &__main {
+    font-size: clamp(1.65rem, 2.2vw, 2.05rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: $white;
+    padding-right: 0.04em;
+  }
+
+  &__to {
+    font-size: clamp(1.02rem, 1.25vw, 1.18rem);
+    font-weight: 500;
+    color: $chrome-2;
+  }
+
+  &__unit {
+    font-size: 0.88rem;
+    color: $chrome-3;
+  }
+
+  &--quote .pc-price__main {
+    font-size: clamp(1.2rem, 1.6vw, 1.4rem);
+    letter-spacing: -0.01em;
+    color: $chrome;
+  }
+}
+
+.pc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: $white;
+  border: 1px solid $white-12;
+  transition: background $dur-fast linear, border-color $dur-fast linear;
+
+  svg { transition: translate $dur-base $ease-out; }
+
+  @include hover-device {
+    &:hover { background: $white-08; border-color: $white-24; }
+    &:hover svg { translate: 4px 0; }
+  }
+}
+
+// ---- Rate list (video) ----------------------------------------------------------------------
+.pc-rates {
+  list-style: none;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid $white-08;
+  background: alpha($white, 0.02);
+}
+
+.pc-rate {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem clamp(1rem, 3vw, 2.5rem);
+  padding: 1.35rem clamp(1.2rem, 2.4vw, 2rem);
+  transition: background $dur-fast linear;
+
+  & + & { border-top: 1px solid $white-08; }
+
+  @include hover-device { &:hover { background: alpha($white, 0.035); } }
+
+  &__info {
+    h3 { font-size: 1.05rem; font-weight: 600; color: $white; }
+    p { margin-top: 0.3rem; font-size: 0.9rem; line-height: 1.5; color: $chrome-3; }
+  }
+
+  .pc-price { justify-content: flex-end; }
+  .pc-price__main { font-size: clamp(1.2rem, 1.7vw, 1.5rem); }
+  .pc-price__to { font-size: clamp(0.95rem, 1.1vw, 1.05rem); }
+  .pc-price--quote .pc-price__main { font-size: 1.05rem; }
+
+  &__go {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: $white;
+    border: 1px solid $white-12;
+    transition: background $dur-fast linear, color $dur-fast linear, border-color $dur-fast linear;
+
+    @include hover-device {
+      &:hover { background: var(--btn-bg); color: var(--btn-fg); border-color: transparent; }
+    }
+  }
+
+  @include down($bp-md) {
+    grid-template-columns: minmax(0, 1fr) auto;
+
+    .pc-price { grid-column: 1; grid-row: 2; justify-content: flex-start; }
+    .pc-rate__go { grid-column: 2; grid-row: 1 / span 2; }
+  }
+}
+
+// ---- Two cards + a note (influencers) ---------------------------------------------------------
+.pc-duo {
+  display: grid;
+  gap: clamp(14px, 1.5vw, 22px);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+
+  @include up($bp-lg) { grid-template-columns: 1fr 1fr 1.1fr; }
+}
+
+.pc-notecard {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  padding: clamp(1.4rem, 2vw, 1.9rem);
+  border-radius: 22px;
+  border: 1px dashed alpha(var(--accent-2), 0.4);
+  background: alpha(var(--accent-2), 0.05);
+
+  svg { font-size: 1.5rem; color: var(--accent-2); }
+  h3 { font-size: 1rem; font-weight: 600; color: $white; }
+  p { font-size: 0.92rem; line-height: 1.6; color: $chrome-2; }
+}
+
+// ---- Custom proposal ------------------------------------------------------------------------
+.pc-proposal {
+  padding: clamp(5rem, 10vw, 8rem) $gutter;
+  scroll-margin-top: calc(140px - clamp(5rem, 10vw, 8rem));
+
+  &__panel {
+    position: relative;
+    max-width: 1440px;
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    padding: clamp(1.5rem, 4.5vw, 4rem);
+    border-radius: 32px;
+    border: 1px solid $white-08;
+    background:
+      radial-gradient(70% 90% at 0% 0%, alpha(var(--glow-1), 0.26), transparent 60%),
+      radial-gradient(60% 80% at 100% 100%, alpha(var(--glow-2), 0.18), transparent 60%),
+      $ink;
+
+    @include down($bp-lg) { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  &__copy {
+    display: grid;
+    align-content: start;
+    justify-items: start;
+    gap: 1.25rem;
+  }
+
+  &__title {
+    @include display(clamp(2.2rem, 4.4vw, 3.8rem));
+    color: $white;
+  }
+
+  &__text {
+    max-width: 44ch;
+    line-height: 1.6;
+    color: $chrome-2;
+  }
+
+  &__alt {
+    font-size: 0.9rem;
+    color: $chrome-3;
+
+    a {
+      color: $white;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      word-break: break-all;
+    }
+  }
+}
+
+.pc-steps {
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+  margin-block: 0.25rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    font-size: 0.95rem;
+    color: $chrome;
+  }
+
+  b {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: $white;
+    border: 1px solid $white-12;
+  }
+}
+
+.pc-form-wrap { min-width: 0; }
+
+.pc-form {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.25rem, 2.6vw, 2rem);
+  border-radius: 24px;
+  background: var(--glass);
+  border: 1px solid $white-08;
+
+  &__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+
+    @include down($bp-sm) { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  &__field {
+    display: grid;
+    gap: 0.45rem;
+
+    label {
+      @include meta;
+      font-size: 0.6rem;
+      color: $chrome-3;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 13px 15px;
+      border-radius: 12px;
+      border: 1px solid $white-12;
+      background: alpha($white, 0.03);
+      color: $white;
+      font: inherit;
+      font-size: 0.95rem;
+      transition: border-color $dur-fast linear, background $dur-fast linear, box-shadow $dur-fast linear;
+
+      &::placeholder { color: $chrome-3; }
+
+      &:focus,
+      &:focus-visible {
+        outline: none;
+        border-color: alpha(var(--accent-2), 0.7);
+        background: alpha($white, 0.05);
+        box-shadow: 0 0 0 4px alpha(var(--accent-2), 0.12);
+      }
+    }
+
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 40px;
+      cursor: pointer;
+
+      option { color: initial; }
+    }
+
+    textarea {
+      min-height: 130px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+  }
+
+  &__select {
+    position: relative;
+
+    svg {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      translate: 0 -50%;
+      color: $chrome-3;
+      pointer-events: none;
+    }
+  }
+
+  &__hint {
+    margin-top: -0.4rem;
+    font-size: 0.8rem;
+    color: $chrome-3;
+  }
+
+  // Send failed / missing contact: shown above the button, the form keeps what was typed
+  &__error {
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #ffb4b4;
+    background: rgba(255, 90, 90, 0.08);
+    border: 1px solid rgba(255, 120, 120, 0.3);
+  }
+
+  &__submit {
+    justify-self: start;
+    margin-top: 0.25rem;
+  }
+}
+
+[data-theme='light'] .pc-form__error { color: #b42318; }
+
+.pc-sent {
+  display: grid;
+  justify-items: start;
+  gap: 0.9rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  border-radius: 24px;
+  background: var(--glass);
+  border: 1px solid $white-08;
+
+  > svg { font-size: 2.6rem; color: var(--accent-2); }
+  h3 { @include display(clamp(1.6rem, 2.6vw, 2.2rem)); color: $white; }
+  p { max-width: 44ch; line-height: 1.6; color: $chrome-2; }
+}
+
+@include reduced-motion {
+  .pc-plan,
+  .pc-index__row svg,
+  .pc-link svg,
+  .pc-btn svg { transition: none; }
+}

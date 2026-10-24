@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform, useMotionValue, useMotionTemplate } from "framer-motion";
+import { Link } from "react-router-dom";
 import { HiArrowRight } from "react-icons/hi2";
 import { useReady } from "../../animations/ReadyContext";
 import { useIsDesktop, usePrefersReducedMotion } from "../../animations/hooks";
@@ -9,11 +10,10 @@ import { KineticLine, KineticWord } from "../../components/motion/KineticText";
 import Magnetic from "../../components/buttons/Magnetic";
 import SilkWaves from "../Story/SilkWaves";
 import ServiceOrbit from "./ServiceOrbit";
-import { pad } from "./data";
 
 // Chapter 0 — the promise. Letters rise in after the preloader, the orbit assembles, and on scroll
 // the copy drifts up while the orbit sinks and turns away.
-const ServicesHero = ({ services, groups, openContact }) => {
+const ServicesHero = ({ services, openContact }) => {
   const ref = useRef(null);
   const ready = useReady();
   const reduce = usePrefersReducedMotion();
@@ -61,9 +61,6 @@ const ServicesHero = ({ services, groups, openContact }) => {
 
       <div className="sv-hero__inner">
         <motion.div className="sv-hero__copy" style={fx({ y: copyY, opacity: copyO })}>
-          <motion.span className="sv-badge" {...enter(0.1)}>
-            <i /> Services <b>•</b> {pad(services.length)} ways we help
-          </motion.span>
 
           <h1 className="sv-hero__title" aria-label="Design, build, create and grow.">
             <KineticLine text="Design, build," from={4} ready={ready} />
@@ -82,23 +79,10 @@ const ServicesHero = ({ services, groups, openContact }) => {
                 <HiArrowRight />
               </button>
             </Magnetic>
-            <button type="button" className="btn-secondary" onClick={() => scrollToTarget("#chapters", { offset: -20 })}>
-              Explore services
-            </button>
+            <Link to="/pricing" className="btn-secondary">
+              See pricing
+            </Link>
           </motion.div>
-
-          {groups.length > 1 && (
-            <motion.ul className="sv-chips" {...enter(1.1)} aria-label="Service categories">
-              {groups.map((g) => (
-                <li key={g.slug}>
-                  <button type="button" className="sv-chip-link" onClick={() => scrollToTarget(`#chapter-${g.slug}`, { offset: -10 })}>
-                    <span>{g.key}</span>
-                    <b>{pad(g.items.length)}</b>
-                  </button>
-                </li>
-              ))}
-            </motion.ul>
-          )}
         </motion.div>
 
         <motion.div

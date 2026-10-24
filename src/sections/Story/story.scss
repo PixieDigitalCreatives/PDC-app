@@ -149,7 +149,7 @@
   }
 
   &__title {
-    margin: 1.4rem 0 1.25rem;
+    margin: 0 0 1.25rem;
     font-size: clamp(3rem, 6vw, 6.2rem);
     font-weight: 700;
     line-height: 1.05;
@@ -208,26 +208,6 @@
   100% { transform: translate3d(5%, -3%, 0) scale(0.95); }
 }
 
-.st-badge {
-  @include meta;
-  font-size: 0.66rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  color: var(--accent-2);
-  border: 1px solid alpha(var(--accent-2), 0.35);
-  background: alpha(var(--accent-2), 0.08);
-
-  b { opacity: 0.6; font-weight: 600; }
-  i {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--accent-2);
-    box-shadow: 0 0 0 0 alpha(var(--accent-2), 0.6);
-    animation: st-pulse 2.2s ease-out infinite;
-  }
-}
 @keyframes st-pulse {
   0% { box-shadow: 0 0 0 0 alpha(var(--accent-2), 0.55); }
   100% { box-shadow: 0 0 0 10px transparent; }
@@ -1026,5 +1006,5 @@
 }
 
 @include reduced-motion {
-  .st-glow, .chrome-logo__glow, .chrome-logo__sheen, .st-orb-card__glow, .st-shimmer, .st-badge i { animation: none !important; }
+  .st-glow, .chrome-logo__glow, .chrome-logo__sheen, .st-orb-card__glow, .st-shimmer { animation: none !important; }
 }

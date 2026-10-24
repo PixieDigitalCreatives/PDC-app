@@ -114,9 +114,6 @@ const ProcessHero = ({ openContact }) => {
 
       <div className="pr-hero__inner">
         <motion.div className="pr-hero__copy" style={fx({ y: copyY, opacity: copyO })}>
-          <motion.span className="pg-badge" {...enter(0.1)}>
-            <i /> Methodology &amp; workflow <span className="pg-badge__more"><b>•</b> {pad(PHASES.length)} phases</span>
-          </motion.span>
 
           <h1 className="pr-hero__title" aria-label="From first call to launch day.">
             <KineticLine text="From first call" from={4} ready={ready} />

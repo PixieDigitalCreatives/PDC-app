@@ -1,0 +1,9 @@
+@use './abstracts' as *;
+
+// Pricing page shell. The page itself is built from src/sections/PricingStory (pricingstory.scss).
+.pricing-page {
+  background: $black;
+  min-height: 100vh;
+  // `clip` (not `hidden`) so the sticky tab bar keeps working
+  overflow-x: clip;
+}

@@ -112,7 +112,7 @@
   }
 
   &__title {
-    margin: 1.5rem 0 1.4rem;
+    margin: 0 0 1.4rem;
     font-size: clamp(2.7rem, 6.7vw, 6.5rem);
     font-weight: 700;
     line-height: 1.02;
@@ -164,54 +164,6 @@
     background: var(--glow-3);
     opacity: calc(var(--glow-strength, 0.55) * 0.35);
     animation: sv-drift 24s ease-in-out -10s infinite alternate;
-  }
-}
-
-.sv-badge {
-  @include meta;
-  font-size: 0.66rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  color: var(--accent-2);
-  border: 1px solid alpha(var(--accent-2), 0.35);
-  background: alpha(var(--accent-2), 0.08);
-
-  b { opacity: 0.6; font-weight: 600; }
-  i {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--accent-2);
-    animation: sv-pulse 2.2s ease-out infinite;
-  }
-}
-
-// Category quick links
-.sv-chips {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 2.25rem;
-}
-.sv-chip-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 16px;
-  border-radius: 999px;
-  border: 1px solid $white-12;
-  background: alpha($white, 0.04);
-  font-size: 0.84rem;
-  font-weight: 500;
-  color: $white;
-  transition: border-color $dur-fast linear, background $dur-fast linear, transform $dur-base $ease-out;
-
-  b { @include meta; font-size: 0.62rem; color: var(--accent-2); }
-
-  @include hover-device {
-    &:hover { border-color: alpha(var(--accent-2), 0.55); background: alpha(var(--accent-2), 0.1); transform: translateY(-3px); }
   }
 }
 
@@ -771,7 +723,25 @@
   padding: clamp(0.25rem, 1.2vw, 1rem) clamp(0.25rem, 1.2vw, 0.75rem);
 
   &__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-  &__foot { margin-top: 0.6rem; }
+  &__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
+    margin-top: 0.6rem;
+  }
+
+  // Link to this service's section on /pricing
+  &__price {
+    padding-bottom: 3px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $white;
+    border-bottom: 1px solid $white-24;
+    transition: border-color $dur-fast linear;
+
+    @include hover-device { &:hover { border-color: var(--accent-2); } }
+  }
 }
 
 .sv-tile {
@@ -852,7 +822,7 @@
 
 @include reduced-motion {
   .sv-glow, .sv-orbit__halo, .sv-core__spin, .sv-ring, .sv-node__spin, .sv-stage__glow,
-  .sv-badge i, .sv-scroll i::after, .sv-card.is-active::before { animation: none !important; }
+  .sv-scroll i::after, .sv-card.is-active::before { animation: none !important; }
   .sv-corner, .sv-tile { transition: none; }
   .sv-tile { transform: none; opacity: 1; svg path { stroke-dashoffset: 0; } }
   .sv-corner { opacity: 1; translate: 0 0; }

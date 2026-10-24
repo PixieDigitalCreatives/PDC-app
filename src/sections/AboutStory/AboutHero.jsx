@@ -162,9 +162,6 @@ const AboutHero = ({ openContact }) => {
 
       <div className="ab-hero__inner">
         <motion.div className="ab-hero__copy" style={fx({ y: copyY, opacity: copyO })}>
-          <motion.span className="pg-badge" {...enter(0.1)}>
-            <i /> Our story <span className="pg-badge__more"><b>•</b> Pixie Digital Creatives</span>
-          </motion.span>
 
           <h1 className="ab-hero__title" aria-label="A small studio that makes things on purpose.">
             <KineticLine text="A small studio" from={4} ready={ready} />

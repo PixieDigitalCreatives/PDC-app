@@ -1,4 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { motion, useInView, useScroll, useSpring, useTransform } from "framer-motion";
 import { HiArrowRight } from "react-icons/hi2";
 import { EASE, fadeIn, VIEWPORT } from "../../animations/variants";
@@ -11,6 +12,8 @@ import ServiceArt from "../../components/media/ServiceArt";
 import { genImage } from "../../data/images";
 import { SERVICE_ICONS } from "../Story/icons";
 import { pad } from "./data";
+import { pricingForService } from "../../data/pricing";
+import { useCms } from "../../context/CmsContext";
 
 // Phones / tablets: the card rises into place when it enters the viewport.
 const riseIn = {
@@ -32,6 +35,8 @@ const ServiceCard = ({ service, n, total, flip, mode, onActive, openContact }) =
   const image = genImage(`service-${service.visual}`);
   const approaches = Array.isArray(service.approaches) ? service.approaches : [];
   const points = Array.isArray(service.points) ? service.points : [];
+  const { pricing: pricingDoc } = useCms();
+  const pricing = pricingForService(pricingDoc.categories, service.visual);
 
   const seen = useInView(cellRef, { once: true, margin: "0px 0px -22% 0px" });
   const inBand = useInView(cellRef, { margin: "-42% 0px -42% 0px" });
@@ -137,6 +142,11 @@ const ServiceCard = ({ service, n, total, flip, mode, onActive, openContact }) =
               <span>Discuss this service</span>
               <HiArrowRight />
             </button>
+            {pricing && (
+              <Link to={`/pricing#price-${pricing.slug}`} className="sv-body__price">
+                See pricing
+              </Link>
+            )}
           </div>
         </div>
       </TiltCard>
