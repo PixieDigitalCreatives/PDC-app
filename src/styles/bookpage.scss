@@ -3,47 +3,32 @@
 // Brochure / Company Profile page shell. The viewer itself is styled in flipbook.scss.
 .bk-page {
   background: $black;
-  min-height: 100vh;
   overflow-x: clip;
 }
 
-// One full screen panel: title row on top, the book fills the rest.
+// Exactly one screen: room for the fixed nav bar on top, the book fills the rest.
 .bk {
-  height: max(100svh, 600px);
+  height: 100svh;
+  height: 100dvh;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   padding-top: 104px;
 
-  @include down($bp-lg) { padding-top: 84px; }
+  @include down($bp-lg) {
+    padding-top: 84px;
 
-  &__head {
-    @include container;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 0.75rem 3rem;
-    padding-bottom: clamp(0.25rem, 1.6vh, 1rem);
+    // A phone held sideways: every pixel of height goes to the book
+    @media (max-height: 500px) { padding-top: 72px; }
   }
 
-  &__titles {
-    display: grid;
-    justify-items: start;
-    gap: 0.8rem;
-  }
-
+  // The page shows no title; this one is for screen readers only
   &__title {
-    @include display(clamp(2rem, 4.4vw, 3.8rem));
-    color: $white;
-  }
-
-  &__intro {
-    max-width: 46ch;
-    font-size: 0.95rem;
-    line-height: 1.55;
-    color: $chrome-2;
-
-    @include down($bp-md) { display: none; }
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   // No transform may stay on this wrapper: the viewer's full screen fallback is position: fixed.

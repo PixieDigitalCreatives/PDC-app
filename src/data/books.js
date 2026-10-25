@@ -28,7 +28,6 @@ export const BOOKS = {
   brochure: {
     slug: "brochure",
     title: "Brochure",
-    intro: "Turn the pages by dragging a corner, clicking a page or using the arrow keys. Switch between a two-page spread and a single page at any time.",
     pageAspect: 210 / 297,
     pdf: null,
     pages: [
@@ -84,7 +83,6 @@ export const BOOKS = {
   companyProfile: {
     slug: "company-profile",
     title: "Company Profile",
-    intro: "Turn the pages by dragging a corner, clicking a page or using the arrow keys. Switch between a two-page spread and a single page at any time.",
     pageAspect: 210 / 297,
     pdf: null,
     pages: [

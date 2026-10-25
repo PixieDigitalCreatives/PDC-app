@@ -1594,7 +1594,7 @@
   align-items: center;
   gap: 8px;
   max-width: calc(100% - 24px);
-  margin: 6px 12px clamp(12px, 2.6vh, 24px);
+  margin: 6px 12px clamp(8px, 2.6vh, 24px);
   padding: 6px 8px 6px 14px;
   border-radius: 999px;
   background: var(--glass);
@@ -1667,41 +1667,6 @@
     &:hover:not(:disabled) { background: $white-08; color: $white; }
   }
   &:disabled { opacity: 0.3; cursor: default; }
-}
-
-.fb-seg {
-  display: flex;
-  padding: 3px;
-  border-radius: 999px;
-  background: $white-08;
-
-  button {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 13px;
-    border-radius: 999px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: $chrome-2;
-    white-space: nowrap;
-    transition: background $dur-fast linear, color $dur-fast linear;
-
-    svg { font-size: 1.05rem; }
-
-    @include hover-device { &:hover:not(.is-on) { color: $white; } }
-
-    &.is-on {
-      background: var(--btn-bg);
-      color: var(--btn-fg);
-      box-shadow: 0 8px 18px -10px var(--btn-glow);
-    }
-  }
-
-  @include down(640px) {
-    button { padding: 7px 10px; }
-    span { display: none; }
-  }
 }
 
 @include reduced-motion {

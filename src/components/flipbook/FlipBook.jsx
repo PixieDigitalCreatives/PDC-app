@@ -3,8 +3,6 @@ import { animate, motion } from "framer-motion";
 import {
   HiChevronLeft,
   HiChevronRight,
-  HiOutlineBookOpen,
-  HiOutlineDocument,
   HiOutlineArrowsPointingOut,
   HiOutlineArrowsPointingIn,
   HiOutlineArrowDownTray,
@@ -17,12 +15,14 @@ import "../../styles/flipbook.scss";
 
 // A book whose pages turn like paper: the corner lifts, a fold runs across the sheet and the back of
 // the page comes over (geometry in fold.js). Landscape shows two pages side by side; portrait shows
-// one page that turns away to the left. Turn by dragging, clicking a page, the arrows, the keyboard
-// or the slider; hovering a corner lifts it a little.
+// one page that turns away to the left. The layout follows the screen: whichever fits it better is
+// picked again on every resize, so turning a phone switches it. Turn by dragging, clicking a page,
+// the arrows, the keyboard or the slider; hovering a corner lifts it a little.
 
 const TURN = 0.9; // seconds for a full turn
 const TURN_EASE = [0.42, 0, 0.3, 1];
 const PAD = 24;
+const SPREAD_MIN = 0.8; // two pages only while each keeps at least this share of a single page's size
 const REVERSE = -1; // the blank back of a page in portrait
 
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
@@ -53,21 +53,23 @@ const FlipBook = ({ book }) => {
   const bookRef = useRef(null);
   const size = useSize(stageRef);
 
-  const [userMode, setUserMode] = useState(null);
-  const spread = (userMode ?? (wide ? "landscape" : "portrait")) === "landscape";
+  // ---- Layout and size: the biggest book that fits the stage ---------------------------------
+  // A wide stage (desktop, a phone held sideways) holds two pages at full height: landscape. A tall
+  // one would shrink them to half its width: portrait, one page as big as the stage allows.
+  const side = wide ? 72 : 0; // room for the side arrows
+  const pad = Math.min(PAD, Math.round(size.h * 0.05));
+  const availW = Math.max(0, size.w - 2 * (pad + side));
+  const availH = Math.max(0, size.h - 2 * pad);
+  const fit = (c) => Math.floor(Math.min(availW / c, availH * pageAspect));
+  const spread = n > 1 && fit(2) >= fit(1) * SPREAD_MIN;
+  const cols = spread ? 2 : 1;
+  const pw = fit(cols);
+  const ph = Math.floor(pw / pageAspect);
 
   // `page` = first visible page, kept across view switches. `pos` = sheets turned in this view.
   const [page, setPage] = useState(0);
   const maxPos = spread ? Math.floor(n / 2) : n - 1;
   const pos = clamp(spread ? Math.floor((page + 1) / 2) : page, 0, maxPos);
-
-  // ---- Size: the biggest book that fits the stage --------------------------------------------
-  const cols = spread ? 2 : 1;
-  const side = wide ? 72 : 0; // room for the side arrows
-  const availW = Math.max(0, size.w - 2 * (PAD + side));
-  const availH = Math.max(0, size.h - 2 * PAD);
-  const pw = Math.floor(Math.min(availW / cols, availH * pageAspect));
-  const ph = Math.floor(pw / pageAspect);
 
   // ---- The turn in progress ------------------------------------------------------------------
   // turn = { id, dir: 1 | -1, from, to, top, kind: "peek" | "drag" | "run", commit }
@@ -403,12 +405,6 @@ const FlipBook = ({ book }) => {
     });
   };
 
-  const switchMode = (m) => {
-    settle();
-    drag.current = null;
-    setUserMode(m);
-  };
-
   // ---- What lies where -------------------------------------------------------------------------
   const L = (s) => (s > 0 && 2 * s - 1 < n ? 2 * s - 1 : null);
   const R = (s) => (2 * s < n ? 2 * s : null);
@@ -550,17 +546,6 @@ const FlipBook = ({ book }) => {
         )}
 
         <span className="fb-bar__sep" aria-hidden="true" />
-
-        <div className="fb-seg" role="group" aria-label="Page layout">
-          <button type="button" className={spread ? "is-on" : ""} aria-pressed={spread} onClick={() => switchMode("landscape")} title="Landscape: two pages side by side">
-            <HiOutlineBookOpen />
-            <span>Landscape</span>
-          </button>
-          <button type="button" className={!spread ? "is-on" : ""} aria-pressed={!spread} onClick={() => switchMode("portrait")} title="Portrait: one page at a time">
-            <HiOutlineDocument />
-            <span>Portrait</span>
-          </button>
-        </div>
 
         {pdf && (
           <a className="fb-btn" href={pdf} download aria-label="Download PDF" title="Download PDF">
