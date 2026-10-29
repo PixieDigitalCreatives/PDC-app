@@ -6,50 +6,50 @@
 // ======================================================================
 
 :root,
+[data-theme='light'] {
+  --spot: rgba(26, 75, 240, 0.08);
+  --cta-bg: linear-gradient(110deg, #e2eaff 0%, #f1f4fa 55%, #dce6ff 100%);
+  --cta-glow: rgba(255, 255, 255, 0.85);
+  --arrow-bg: #0b1430;
+  --arrow-fg: #ffffff;
+  --card-shadow: 0 22px 48px -28px rgba(27, 43, 94, 0.3);
+  --glow-strength: 0.75;
+}
+
 [data-theme='dark'] {
-  --spot: rgba(181, 124, 246, 0.12);
-  --cta-bg: linear-gradient(110deg, #1c0b22 0%, #4a1640 55%, #2a1446 100%);
-  --cta-glow: rgba(242, 141, 178, 0.38);
+  --spot: rgba(91, 140, 255, 0.12);
+  --cta-bg: linear-gradient(110deg, #060d24 0%, #0f2266 55%, #0a1638 100%);
+  --cta-glow: rgba(47, 125, 246, 0.38);
   --arrow-bg: rgba(255, 255, 255, 0.08);
   --arrow-fg: #ffffff;
   --card-shadow: 0 30px 60px -36px rgba(0, 0, 0, 0.8);
   --glow-strength: 0.55;
 }
 
-[data-theme='light'] {
-  --spot: rgba(238, 111, 160, 0.09);
-  --cta-bg: linear-gradient(110deg, #fde3ec 0%, #fde9df 55%, #f1e3fd 100%);
-  --cta-glow: rgba(255, 255, 255, 0.85);
-  --arrow-bg: #111018;
-  --arrow-fg: #ffffff;
-  --card-shadow: 0 22px 48px -28px rgba(107, 58, 90, 0.35);
-  --glow-strength: 0.75;
-}
-
-// Icon-tile tones (stats + service cards)
+// Icon-tile tones (stats + service cards): royal blue, electric blue, steel silver
 [data-theme='dark'] {
-  .st-tone-0 { --tone-bg: linear-gradient(140deg, #6a3bd1, #4b2a99); --tone-fg: #fff; }
-  .st-tone-1 { --tone-bg: linear-gradient(140deg, #7d4ae0, #5a35b5); --tone-fg: #fff; }
-  .st-tone-2 { --tone-bg: linear-gradient(140deg, #8c44c9, #5e2f97); --tone-fg: #fff; }
-  .st-tone-3 { --tone-bg: linear-gradient(140deg, #d14b8f, #9a2f66); --tone-fg: #fff; }
-  .st-tone-4 { --tone-bg: linear-gradient(140deg, #e07a52, #b0502f); --tone-fg: #fff; }
-  .st-tone-5 { --tone-bg: linear-gradient(140deg, #7a4bd6, #5631a8); --tone-fg: #fff; }
-  .st-stats .st-tone-0 { --tone-bg: #3b2421; --tone-fg: #f7b19e; }
-  .st-stats .st-tone-1 { --tone-bg: #2e2346; --tone-fg: #c4a6ff; }
-  .st-stats .st-tone-2 { --tone-bg: #3e1f33; --tone-fg: #f28db2; }
-  .st-stats .st-tone-3 { --tone-bg: #2e2346; --tone-fg: #c4a6ff; }
+  .st-tone-0 { --tone-bg: linear-gradient(140deg, #2a5cff, #1235c7); --tone-fg: #fff; }
+  .st-tone-1 { --tone-bg: linear-gradient(140deg, #3b85ff, #1c56d6); --tone-fg: #fff; }
+  .st-tone-2 { --tone-bg: linear-gradient(140deg, #6c7a99, #434f6b); --tone-fg: #fff; }
+  .st-tone-3 { --tone-bg: linear-gradient(140deg, #1e4fd8, #0f2a8a); --tone-fg: #fff; }
+  .st-tone-4 { --tone-bg: linear-gradient(140deg, #2f86ff, #1a5fd0); --tone-fg: #fff; }
+  .st-tone-5 { --tone-bg: linear-gradient(140deg, #8a96b0, #56627e); --tone-fg: #fff; }
+  .st-stats .st-tone-0 { --tone-bg: #0f1c44; --tone-fg: #8db4ff; }
+  .st-stats .st-tone-1 { --tone-bg: #17203a; --tone-fg: #c3cbdb; }
+  .st-stats .st-tone-2 { --tone-bg: #0d2150; --tone-fg: #6fa2ff; }
+  .st-stats .st-tone-3 { --tone-bg: #17203a; --tone-fg: #c3cbdb; }
 }
 [data-theme='light'] {
-  .st-tone-0 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
-  .st-tone-1 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
-  .st-tone-2 { --tone-bg: #fdebf4; --tone-fg: #d64f8a; }
-  .st-tone-3 { --tone-bg: #ffe8ef; --tone-fg: #d64f8a; }
-  .st-tone-4 { --tone-bg: #ffede6; --tone-fg: #e0663f; }
-  .st-tone-5 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
-  .st-stats .st-tone-0 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
-  .st-stats .st-tone-1 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
-  .st-stats .st-tone-2 { --tone-bg: #ffede6; --tone-fg: #e0663f; }
-  .st-stats .st-tone-3 { --tone-bg: #ffe8ef; --tone-fg: #d64f8a; }
+  .st-tone-0 { --tone-bg: #e7eeff; --tone-fg: #1a4bf0; }
+  .st-tone-1 { --tone-bg: #e3efff; --tone-fg: #1f6fe0; }
+  .st-tone-2 { --tone-bg: #eceff6; --tone-fg: #4a5a7e; }
+  .st-tone-3 { --tone-bg: #e7eeff; --tone-fg: #1a4bf0; }
+  .st-tone-4 { --tone-bg: #e3efff; --tone-fg: #1f6fe0; }
+  .st-tone-5 { --tone-bg: #eceff6; --tone-fg: #4a5a7e; }
+  .st-stats .st-tone-0 { --tone-bg: #e7eeff; --tone-fg: #1a4bf0; }
+  .st-stats .st-tone-1 { --tone-bg: #eceff6; --tone-fg: #4a5a7e; }
+  .st-stats .st-tone-2 { --tone-bg: #e3efff; --tone-fg: #1f6fe0; }
+  .st-stats .st-tone-3 { --tone-bg: #e7eeff; --tone-fg: #1a4bf0; }
 }
 
 .home-wrapper { background: $black; }

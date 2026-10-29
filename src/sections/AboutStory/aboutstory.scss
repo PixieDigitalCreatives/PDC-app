@@ -6,13 +6,13 @@
 // ======================================================================
 
 :root,
-[data-theme='dark'] {
-  --ab-spot: rgba(181, 124, 246, 0.14);
-  --ab-shadow: 0 34px 70px -40px rgba(0, 0, 0, 0.85);
-}
 [data-theme='light'] {
-  --ab-spot: rgba(238, 111, 160, 0.1);
-  --ab-shadow: 0 26px 56px -32px rgba(107, 58, 90, 0.38);
+  --ab-spot: rgba(26, 75, 240, 0.09);
+  --ab-shadow: 0 26px 56px -32px rgba(27, 43, 94, 0.32);
+}
+[data-theme='dark'] {
+  --ab-spot: rgba(91, 140, 255, 0.14);
+  --ab-shadow: 0 34px 70px -40px rgba(0, 0, 0, 0.85);
 }
 
 // Pillar tones
@@ -21,16 +21,16 @@
 .ab-tone-2 { --ta: var(--accent); }
 .ab-tone-3 { --ta: var(--accent-3); }
 [data-theme='dark'] {
-  .ab-tone-0 { --tone-bg: linear-gradient(140deg, #6a3bd1, #4b2a99); --tone-fg: #fff; }
-  .ab-tone-1 { --tone-bg: linear-gradient(140deg, #d14b8f, #9a2f66); --tone-fg: #fff; }
-  .ab-tone-2 { --tone-bg: linear-gradient(140deg, #e07a52, #b0502f); --tone-fg: #fff; }
-  .ab-tone-3 { --tone-bg: linear-gradient(140deg, #8c44c9, #5e2f97); --tone-fg: #fff; }
+  .ab-tone-0 { --tone-bg: linear-gradient(140deg, #6c7a99, #434f6b); --tone-fg: #fff; }
+  .ab-tone-1 { --tone-bg: linear-gradient(140deg, #3b85ff, #1c56d6); --tone-fg: #fff; }
+  .ab-tone-2 { --tone-bg: linear-gradient(140deg, #2a5cff, #1235c7); --tone-fg: #fff; }
+  .ab-tone-3 { --tone-bg: linear-gradient(140deg, #8a96b0, #56627e); --tone-fg: #fff; }
 }
 [data-theme='light'] {
-  .ab-tone-0 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
-  .ab-tone-1 { --tone-bg: #ffe8ef; --tone-fg: #d64f8a; }
-  .ab-tone-2 { --tone-bg: #ffede6; --tone-fg: #e0663f; }
-  .ab-tone-3 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
+  .ab-tone-0 { --tone-bg: #eceff6; --tone-fg: #4a5a7e; }
+  .ab-tone-1 { --tone-bg: #e3efff; --tone-fg: #1f6fe0; }
+  .ab-tone-2 { --tone-bg: #e7eeff; --tone-fg: #1a4bf0; }
+  .ab-tone-3 { --tone-bg: #eceff6; --tone-fg: #4a5a7e; }
 }
 
 // ---------------- Hero ----------------
@@ -152,7 +152,7 @@
     position: absolute;
     inset: 40% 0 0 0;
     z-index: 1;
-    background: linear-gradient(to top, rgba(8, 4, 14, 0.85), transparent);
+    background: linear-gradient(to top, rgba(5, 10, 26, 0.85), transparent);
     pointer-events: none;
   }
 }

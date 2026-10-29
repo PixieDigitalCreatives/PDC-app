@@ -13,13 +13,13 @@
 }
 
 :root,
-[data-theme='dark'] {
-  --sv-spot: rgba(181, 124, 246, 0.14);
-  --sv-shadow: 0 34px 70px -40px rgba(0, 0, 0, 0.85);
-}
 [data-theme='light'] {
-  --sv-spot: rgba(238, 111, 160, 0.1);
-  --sv-shadow: 0 26px 56px -32px rgba(107, 58, 90, 0.38);
+  --sv-spot: rgba(26, 75, 240, 0.09);
+  --sv-shadow: 0 26px 56px -32px rgba(27, 43, 94, 0.32);
+}
+[data-theme='dark'] {
+  --sv-spot: rgba(91, 140, 255, 0.14);
+  --sv-shadow: 0 34px 70px -40px rgba(0, 0, 0, 0.85);
 }
 
 // Per-card tones (icon tile + stage tint)
@@ -31,20 +31,20 @@
 .sv-tone-5 { --ta: var(--accent); }
 
 [data-theme='dark'] {
-  .sv-tone-0 { --tone-bg: linear-gradient(140deg, #6a3bd1, #4b2a99); --tone-fg: #fff; }
-  .sv-tone-1 { --tone-bg: linear-gradient(140deg, #d14b8f, #9a2f66); --tone-fg: #fff; }
-  .sv-tone-2 { --tone-bg: linear-gradient(140deg, #e07a52, #b0502f); --tone-fg: #fff; }
-  .sv-tone-3 { --tone-bg: linear-gradient(140deg, #8c44c9, #5e2f97); --tone-fg: #fff; }
-  .sv-tone-4 { --tone-bg: linear-gradient(140deg, #c2417f, #8a2a5c); --tone-fg: #fff; }
-  .sv-tone-5 { --tone-bg: linear-gradient(140deg, #d96a45, #a8482b); --tone-fg: #fff; }
+  .sv-tone-0 { --tone-bg: linear-gradient(140deg, #6c7a99, #434f6b); --tone-fg: #fff; }
+  .sv-tone-1 { --tone-bg: linear-gradient(140deg, #3b85ff, #1c56d6); --tone-fg: #fff; }
+  .sv-tone-2 { --tone-bg: linear-gradient(140deg, #2a5cff, #1235c7); --tone-fg: #fff; }
+  .sv-tone-3 { --tone-bg: linear-gradient(140deg, #8a96b0, #56627e); --tone-fg: #fff; }
+  .sv-tone-4 { --tone-bg: linear-gradient(140deg, #2f86ff, #1a5fd0); --tone-fg: #fff; }
+  .sv-tone-5 { --tone-bg: linear-gradient(140deg, #1e4fd8, #0f2a8a); --tone-fg: #fff; }
 }
 [data-theme='light'] {
-  .sv-tone-0 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
-  .sv-tone-1 { --tone-bg: #ffe8ef; --tone-fg: #d64f8a; }
-  .sv-tone-2 { --tone-bg: #ffede6; --tone-fg: #e0663f; }
-  .sv-tone-3 { --tone-bg: #f1e9ff; --tone-fg: #8b5cf6; }
-  .sv-tone-4 { --tone-bg: #fdebf4; --tone-fg: #d64f8a; }
-  .sv-tone-5 { --tone-bg: #ffede6; --tone-fg: #e0663f; }
+  .sv-tone-0 { --tone-bg: #eceff6; --tone-fg: #4a5a7e; }
+  .sv-tone-1 { --tone-bg: #e3efff; --tone-fg: #1f6fe0; }
+  .sv-tone-2 { --tone-bg: #e7eeff; --tone-fg: #1a4bf0; }
+  .sv-tone-3 { --tone-bg: #eceff6; --tone-fg: #4a5a7e; }
+  .sv-tone-4 { --tone-bg: #e3efff; --tone-fg: #1f6fe0; }
+  .sv-tone-5 { --tone-bg: #e7eeff; --tone-fg: #1a4bf0; }
 }
 
 .sv-sr {

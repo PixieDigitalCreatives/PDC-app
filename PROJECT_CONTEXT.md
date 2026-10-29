@@ -24,26 +24,27 @@ Marketing website + admin CMS for **Pixie Digital Creatives (PDC)**, a creative/
 4. Premium, storytelling motion with framer-motion is the expected standard for new UI work.
 
 ## 3. Current design (implemented on the live site)
-Based on a reference design: "Brands That Inspire Growth", metallic copper/silver 3D `PDC` logo (see "Brand assets" below),
-peach→pink→purple gradients, silk wave ribbons, handwritten notes, Poppins font.
+Based on a reference design: "Brands That Inspire Growth", silk wave ribbons, handwritten notes, Poppins font.
+**Rebrand 2026-10-30:** new chrome `pdc` logo in polished silver + royal blue with a navy "PIXIE DIGITAL CREATIVES"
+wordmark; the whole palette follows it (royal blue / electric blue / steel silver, navy type) and **light is the default theme**.
 
 - **Fonts:** Poppins (display/body/labels), Caveat (handwriting). Loaded in `index.html`.
 - **Themes: dark + light with a toggle** (navbar + mobile menu).
-  - `src/context/ThemeContext.jsx` — sets `data-theme` on `<html>`, saves to `localStorage('pdc-theme')`, first visit follows system preference; toggle uses a View Transitions circular reveal from the click point.
+  - `src/context/ThemeContext.jsx` — sets `data-theme` on `<html>`, saves to `localStorage('pdc-theme-v2')` (key bumped at the rebrand so old saved "dark" choices reset), first visit is always light; toggle uses a View Transitions circular reveal from the click point. `useLockupSrc()` returns the full logo for the theme (`primary-480.png`, or `primary-480-dark.png` with a light wordmark).
   - `index.html` has an inline script that applies the theme before first paint (no flash) and sets `meta[theme-color]`.
   - `src/components/ThemeToggle.jsx` (+ `styles/themetoggle.scss`).
 - **Design tokens = CSS custom properties**, defined in `src/index.scss` under `:root,[data-theme='dark']` and `[data-theme='light']`:
   `--bg --bg-2 --surface --surface-2 --fg --fg-2 --fg-3 --fg-4 --accent(peach/coral) --accent-2(pink) --accent-3(purple) --on-accent --btn-bg --btn-fg --btn-glow --grad-accent --grad-text --grad-text-2 --grad-chrome --glow-1..3 --wave-1..3 --glass --shadow --grain-opacity`.
   Story-only vars (`--spot --cta-bg --cta-glow --arrow-bg --card-shadow --glow-strength`, tile tones `.st-tone-0..5`) are in `src/sections/Story/story.scss`.
-  - Dark: bg `#0b0711`, white text, peach→pink gradient buttons. Light: bg `#fffbfc`, ink `#1a1033` text, black buttons.
+  - Light (default): bg `#f5f7fc`, navy `#0b1430` text, accent royal blue `#1a4bf0`, accent-2 electric blue `#2f7df6`, accent-3 steel `#56668a`, blue gradient buttons. Dark: bg `#050914`, white text, accent `#5b8cff`, accent-3 silver `#c3cbdb`.
+  - Section tone tiles (`.st-/.sv-/.ab-/.pr-tone-*`) use the same blue / electric / steel family.
 - **SCSS abstracts** (`src/styles/abstracts/`): `_tokens.scss` maps Sass vars to CSS vars (`$black: var(--bg)`, `$white: var(--fg)`, `$accent: var(--accent)`, `$chrome*: var(--fg-2..4)` …) and provides `alpha($color, $amount)` → `color-mix(...)` (use it instead of `rgba($var, a)`). `_mixins.scss`: `display()`, `meta`, `container`, `up/down($bp)`, `hover-device`, `reduced-motion`.
   - Never hard-code colours; every page stylesheet was migrated to the variables (only red error states are literal). Legacy aliases `--gold-*`, `--silver-*`, `--gradient-*` still exist for older page styles.
 - Global UI in `index.scss`: `.btn-primary` (gradient pill / ink pill + hover sheen), `.btn-secondary`, `.glass-panel`, `.section-eyebrow`, `.section-heading`, `.grad-text`, `.grad-text-2`, skip link, film-grain overlay, focus rings.
 
-**Brand assets** (supplied masters in `public/`: `primary.png` = PDC + "Pixie Digital Creatives" lockup, `secondary.png` = PDC only, `favicon.png` = square "D" mark; all transparent, 1.2–2.8 MB, so never used directly on pages). Web-sized, trimmed copies live in `public/brand/` (made with PIL; regenerate from the masters if the logo changes):
-- `primary-480.png` Navbar (top of page) / Footer / Admin lock screen · `secondary-1200.webp` Home hero `ChromeLogo` (image, sheen mask and reflection; the PDC-only logo) · `secondary-400.png` compact logo that fades in on the Navbar once it shrinks on scroll, and in the Admin header · `mark-256.png` centre of the About tagline ring.
-- Favicons in `index.html`: `favicon.ico` (16/32/48), `favicon-32.png`, `favicon-192.png`, `apple-touch-icon.png` (on the dark brand background). Social card: `og-image.png` (1200x630, primary logo on the brand gradient). `og:image` is a relative path: crawlers need an absolute URL, so set the final domain there when it is known.
-- The old blue `pdc` logo (`public/logo.png`) is no longer used by the live site (only by the unused `sections/ServiceStory/*`); safe to delete.
+**Brand assets** (masters in `public/`: `primary.png` = pdc + wordmark lockup, `secondary.png` = pdc letters only, `favicon.png` = pdc letters on a square; all transparent, trimmed copies of the owner-supplied high-res `public/1.png` (lockup) and `public/2.png` (letters only), 2000x1465). Web-sized copies live in `public/brand/` (made with PIL; regenerate from the masters if the logo changes):
+- `primary-480.png` Navbar (top of page) / Footer / Admin lock screen / book covers · `primary-480-dark.png` same with a light wordmark, used in the dark theme via `useLockupSrc()` · `secondary-1200.webp` Home hero `ChromeLogo` (image, sheen mask and reflection) · `secondary-400.png` compact logo that fades in on the Navbar once it shrinks on scroll, and in the Admin header · `mark-256.png` centre of the About tagline ring.
+- Favicons in `index.html`: `favicon.ico` (16/32/48), `favicon-32.png`, `favicon-192.png` (pdc letters, transparent), `apple-touch-icon.png` (on white). Social card: `og-image.png` (1200x630, lockup on a soft light-blue canvas). `og:image` is a relative path: crawlers need an absolute URL, so set the final domain there when it is known.
 
 ## 4. Home page = one scroll story (`src/pages/Home.jsx`)
 Sections live in `src/sections/Story/` (styles: `story.scss`):
@@ -68,7 +69,7 @@ Pinned sections are desktop-only (`useIsDesktop` = ≥1024px) and disabled for `
 - `ServicesHero` — letter-by-letter kinetic headline after the preloader, cursor spotlight, silk waves, category quick-links, and `ServiceOrbit`: every service as a node on 3 slowly turning rings around a glowing core (leans toward the cursor, pauses on hover, a node click jumps to that service).
 - `ServiceChapter` (one per category) — a giant word whose gradient fill is wiped in by scroll, a handwritten blurb, a sticky index rail on the left (scroll-spy, click to jump), and the cards on the right.
 - `ServiceCard` — desktop: driven by its own scroll progress (tips up out of the page, settles, then recedes), line-art / giant numeral / reading rail drift at different speeds, the card nearest screen centre gets a spinning gradient edge; icon strokes and ticks draw themselves. Phones: rise-in reveal. Reduced motion: fades only.
-- Service pictures: `components/media/ServiceArt.jsx` shows a glossy 3D PNG per service (`public/assets/services/<visual>.png`, plus `idea.png` for the Home "Ideas" chapter) that pops in, floats over a glow and ground shadow, with twinkling stars. Used by `ServiceCard` and the Home `Journey` orb card. Assets are the **3dicons** set by realvjy, gradient style, CC0 (mapping + source URL pattern in `public/assets/services/LICENSE.txt`). If a PNG is missing it falls back to the old line drawing (`ServiceVisual`). To swap a picture, replace the PNG with the same name (transparent, square, ~400px works well).
+- Service pictures: `components/media/ServiceArt.jsx` shows a glossy 3D PNG per service (`public/assets/services/<visual>.png`, plus `idea.png` for the Home "Ideas" chapter) that pops in, floats over a glow and ground shadow, with twinkling stars. Used by `ServiceCard` and the Home `Journey` orb card. Assets are the **3dicons** set by realvjy, gradient style, CC0 (mapping + source URL pattern in `public/assets/services/LICENSE.txt`), recoloured at the rebrand from violet/pink/orange to royal blue → silver (a fresh download needs the same hue remap). If a PNG is missing it falls back to the old line drawing (`ServiceVisual`). To swap a picture, replace the PNG with the same name (transparent, square, ~400px works well).
 - Page extras: scroll progress bar, two marquees, the shared `CtaBand`. Category blurbs in `data.js` only describe what a category covers (no metrics).
 - Layout notes: sticky needs no `overflow:hidden` ancestor (the page shell uses `overflow-x: clip`); flipped cards swap their grid columns so the stage keeps its width.
 

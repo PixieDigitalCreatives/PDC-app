@@ -2,13 +2,14 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import { flushSync } from "react-dom";
 
 const ThemeContext = createContext(null);
-const STORAGE_KEY = "pdc-theme";
-const META = { dark: "#0b0711", light: "#fffbfc" };
+// v2: the blue/silver rebrand made light the default, so choices saved before it are ignored.
+const STORAGE_KEY = "pdc-theme-v2";
+const META = { dark: "#050914", light: "#f5f7fc" };
 
 // index.html already set data-theme before first paint; start from that.
 const initialTheme = () => {
   const t = typeof document !== "undefined" ? document.documentElement.getAttribute("data-theme") : null;
-  return t === "light" ? "light" : "dark";
+  return t === "dark" ? "dark" : "light";
 };
 
 const applyTheme = (theme) => {
@@ -63,3 +64,7 @@ export const useTheme = () => {
   if (!ctx) throw new Error("useTheme must be used within a ThemeProvider");
   return ctx;
 };
+
+// The full logo has a navy wordmark; the dark theme uses a copy with a light wordmark.
+export const useLockupSrc = () =>
+  useTheme().theme === "dark" ? "/brand/primary-480-dark.png" : "/brand/primary-480.png";

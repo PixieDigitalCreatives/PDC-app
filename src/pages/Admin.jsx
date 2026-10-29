@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useCms } from "../context/CmsContext";
+import { useLockupSrc } from "../context/ThemeContext";
 import {
   RiDashboardLine,
   RiFolder2Line,
@@ -31,6 +32,7 @@ import { adminApi, clearAdminSession, readAdminProfile, saveAdminSession } from 
 import "../styles/admin.scss";
 
 const Admin = () => {
+  const lockupSrc = useLockupSrc();
   const {
     portfolioProjects,
     teamMembers,
@@ -384,7 +386,7 @@ const Admin = () => {
       <div className="admin-lock-screen">
         <div className="lock-card glass-panel">
           <div className="lock-header">
-            <img src="/brand/primary-480.png" alt="PDC Logo" className="lock-logo" />
+            <img src={lockupSrc} alt="PDC Logo" className="lock-logo" />
             <h2 className="lock-title">CMS Studio Access</h2>
             <p className="lock-sub">Sign in with your administrator credentials to continue.</p>
           </div>
@@ -451,7 +453,7 @@ const Admin = () => {
       <div className="admin-lock-screen">
         <div className="lock-card glass-panel">
           <div className="lock-header">
-            <img src="/brand/primary-480.png" alt="PDC Logo" className="lock-logo" />
+            <img src={lockupSrc} alt="PDC Logo" className="lock-logo" />
             <h2 className="lock-title">Set your own password</h2>
             <p className="lock-sub">
               You signed in as {me.email} with a temporary password. Choose your own password to continue.

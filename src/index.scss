@@ -1,74 +1,75 @@
 // Core Design System — Pixie Digital Creatives
-// Two themes share one token set. Dark: near-black violet, white type, peach -> pink actions.
-// Light: blush canvas, deep-violet type, ink buttons. Every colour below is a custom property,
-// so toggling [data-theme] on <html> re-skins the whole site instantly.
+// Colours come from the logo: royal blue + polished silver, navy wordmark.
+// Light (default): cool white canvas, navy type, royal-blue actions, steel-silver accents.
+// Dark (optional, via the toggle): deep navy canvas, white type, the same blue lifted for contrast.
+// Every colour below is a custom property, so toggling [data-theme] on <html> re-skins the whole site.
 // Legacy names (--gold-*, --silver-*, --gradient-*) are mapped for the older page stylesheets.
 
 @use './styles/abstracts' as *;
 
 :root,
-[data-theme='dark'] {
-  color-scheme: dark;
-  --bg: #0b0711;
-  --bg-2: #0f0a16;
-  --surface: #151019;
-  --surface-2: #1d1624;
-  --fg: #fbf8fd;
-  --fg-2: #e4ddec;
-  --fg-3: #b8afc4;
-  --fg-4: #857c93;
-  --accent: #f7b19e;      // peach
-  --accent-2: #f28db2;    // pink
-  --accent-3: #b57cf6;    // purple
-  --on-accent: #1a0f1f;
-  --shadow: #030106;
-  --btn-bg: linear-gradient(100deg, #f9c3aa 0%, #f39bb6 100%);
-  --btn-fg: #1a0f1f;
-  --btn-glow: rgba(243, 155, 182, 0.4);
-  --grad-accent: linear-gradient(90deg, #f9c3aa 0%, #f39bb6 100%);
-  --grad-text: linear-gradient(95deg, #f48fb1 0%, #fdba8c 100%);
-  --grad-text-2: linear-gradient(95deg, #b57cf6 0%, #f48fb1 100%);
-  --grad-chrome: linear-gradient(180deg, #ffffff 0%, #ebe4f3 48%, #a99dbb 100%);
-  --glow-1: #7c3aed;
-  --glow-2: #ec4899;
-  --glow-3: #f7b19e;
-  --wave-1: #7c3aed;
-  --wave-2: #ec4899;
-  --wave-3: #f7b19e;
-  --glass: rgba(18, 13, 24, 0.72);
-  --grain-opacity: 0.06;
-}
-
 [data-theme='light'] {
   color-scheme: light;
-  --bg: #fffbfc;
-  --bg-2: #fbf3f7;
+  --bg: #f5f7fc;
+  --bg-2: #edf1f9;
   --surface: #ffffff;
-  --surface-2: #fbf4f8;
-  --fg: #1a1033;
-  --fg-2: #2e2547;
-  --fg-3: #5e5672;
-  --fg-4: #8a8299;
-  --accent: #d4603f;      // coral, darkened for contrast on blush
-  --accent-2: #d64f8a;
-  --accent-3: #8b4fe8;
+  --surface-2: #f0f3fa;
+  --fg: #0b1430;          // navy, as in the wordmark
+  --fg-2: #1c2846;
+  --fg-3: #4a5672;
+  --fg-4: #737e96;
+  --accent: #1a4bf0;      // logo royal blue
+  --accent-2: #2f7df6;    // brighter electric blue
+  --accent-3: #56668a;    // steel silver
   --on-accent: #ffffff;
-  --shadow: #6b3a5a;
-  --btn-bg: #111018;
+  --shadow: #1b2b5e;
+  --btn-bg: linear-gradient(100deg, #2a5cff 0%, #0f37d8 100%);
   --btn-fg: #ffffff;
-  --btn-glow: rgba(17, 16, 24, 0.25);
-  --grad-accent: linear-gradient(90deg, #f29a80 0%, #ee6fa0 100%);
-  --grad-text: linear-gradient(95deg, #ee6fa0 0%, #f59a72 100%);
-  --grad-text-2: linear-gradient(95deg, #9b5cf0 0%, #ee6fa0 100%);
-  --grad-chrome: linear-gradient(180deg, #1a1033 0%, #3a2d5c 60%, #6e5f92 100%);
-  --glow-1: #d8b4fe;
-  --glow-2: #f9a8d4;
-  --glow-3: #fdba9a;
-  --wave-1: #f9a8d4;
-  --wave-2: #c4b5fd;
-  --wave-3: #fdba8c;
-  --glass: rgba(255, 255, 255, 0.78);
-  --grain-opacity: 0.035;
+  --btn-glow: rgba(26, 75, 240, 0.32);
+  --grad-accent: linear-gradient(90deg, #1a4bf0 0%, #4f8dff 100%);
+  --grad-text: linear-gradient(95deg, #0f37d8 0%, #3f86ff 100%);
+  --grad-text-2: linear-gradient(95deg, #56668a 0%, #1a4bf0 100%);
+  --grad-chrome: linear-gradient(180deg, #0b1430 0%, #2a3a64 60%, #61709a 100%);
+  --glow-1: #b8ccff;
+  --glow-2: #d3dbea;
+  --glow-3: #a5c6ff;
+  --wave-1: #9db8ff;
+  --wave-2: #c9d2e4;
+  --wave-3: #7aa6ff;
+  --glass: rgba(255, 255, 255, 0.8);
+  --grain-opacity: 0.03;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #050914;
+  --bg-2: #080d1c;
+  --surface: #0d1426;
+  --surface-2: #141c33;
+  --fg: #f4f7fd;
+  --fg-2: #dde4f1;
+  --fg-3: #a9b3c8;
+  --fg-4: #77829b;
+  --accent: #5b8cff;      // logo blue, lifted for dark
+  --accent-2: #8db4ff;
+  --accent-3: #c3cbdb;    // silver
+  --on-accent: #050914;
+  --shadow: #010309;
+  --btn-bg: linear-gradient(100deg, #3a6bff 0%, #1638d8 100%);
+  --btn-fg: #ffffff;
+  --btn-glow: rgba(58, 107, 255, 0.45);
+  --grad-accent: linear-gradient(90deg, #3a6bff 0%, #8db4ff 100%);
+  --grad-text: linear-gradient(95deg, #4f86ff 0%, #c9d6f2 100%);
+  --grad-text-2: linear-gradient(95deg, #c3cbdb 0%, #5b8cff 100%);
+  --grad-chrome: linear-gradient(180deg, #ffffff 0%, #e1e7f2 48%, #98a3ba 100%);
+  --glow-1: #1d3fd6;
+  --glow-2: #2f7df6;
+  --glow-3: #8a97b3;
+  --wave-1: #1d3fd6;
+  --wave-2: #2f7df6;
+  --wave-3: #c3cbdb;
+  --glass: rgba(9, 14, 28, 0.72);
+  --grain-opacity: 0.06;
 }
 
 :root {
@@ -166,7 +167,7 @@ body {
     z-index: $z-grain;
     pointer-events: none;
     opacity: var(--grain-opacity);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.93 0 0 0 0 0.84 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.86 0 0 0 0 0.91 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     animation: grain-shift 1.2s steps(4) infinite;
   }
 }

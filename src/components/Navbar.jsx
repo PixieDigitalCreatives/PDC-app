@@ -9,6 +9,7 @@ import {
 } from "framer-motion";
 import { useCms } from "../context/CmsContext";
 import { useCurrency } from "../context/CurrencyContext";
+import { useLockupSrc } from "../context/ThemeContext";
 import { HiArrowRight, HiOutlineArrowUpRight, HiOutlineChevronDown } from "react-icons/hi2";
 import { FaInstagram, FaLinkedinIn, FaXTwitter } from "react-icons/fa6";
 import Magnetic from "./buttons/Magnetic";
@@ -96,6 +97,7 @@ const Navbar = () => {
   const navRef = useRef(null);
 
   const { setIsContactModalOpen, companyInfo } = useCms();
+  const lockupSrc = useLockupSrc();
   const { selectedCountry, countries, setSelectedCountry } = useCurrency();
   const location = useLocation();
   const isHome = location.pathname === "/";
@@ -157,7 +159,7 @@ const Navbar = () => {
           <div className="navbar-logo">
             <Link to="/" className="logo-link" aria-label="Pixie Digital Creatives — home">
               <span className="logo-stack">
-                <img src="/brand/primary-480.png" alt="Pixie Digital Creatives" className="logo-img logo-img--primary" />
+                <img src={lockupSrc} alt="Pixie Digital Creatives" className="logo-img logo-img--primary" />
                 <img src="/brand/secondary-400.png" alt="" aria-hidden="true" className="logo-img logo-img--secondary" />
               </span>
             </Link>

@@ -6,19 +6,19 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/brand/favicon-192.png" />
     <link rel="apple-touch-icon" href="/brand/apple-touch-icon.png" />
-    <meta name="theme-color" content="#0b0711" />
+    <meta name="theme-color" content="#f5f7fc" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Apply the saved (or system) theme before first paint, so there is no flash of the wrong theme -->
+    <!-- Apply the saved theme before first paint, so there is no flash of the wrong theme. Light is the default. -->
     <script>
       (function () {
-        var t = 'dark';
+        var t = 'light';
         try {
-          t = localStorage.getItem('pdc-theme');
-          if (t !== 'light' && t !== 'dark') t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-        } catch (e) { t = 'dark'; }
+          t = localStorage.getItem('pdc-theme-v2');
+          if (t !== 'light' && t !== 'dark') t = 'light';
+        } catch (e) { t = 'light'; }
         document.documentElement.setAttribute('data-theme', t);
         var m = document.querySelector('meta[name="theme-color"]');
-        if (m) m.setAttribute('content', t === 'light' ? '#fffbfc' : '#0b0711');
+        if (m) m.setAttribute('content', t === 'light' ? '#f5f7fc' : '#050914');
       })();
     </script>
     <title>Pixie Digital Creatives — Creative. Strategic. Impactful.</title>

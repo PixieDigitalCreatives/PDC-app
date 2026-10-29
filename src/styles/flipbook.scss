@@ -1,28 +1,28 @@
 @use './abstracts' as *;
 
-// Flipbook viewer (components/flipbook). Paper stays paper in both themes: a soft off-white in
-// the dark theme (less glare next to the dark stage), white in the light theme.
+// Flipbook viewer (components/flipbook). Paper stays paper in both themes: white in the light
+// theme, a soft cool off-white in the dark theme (less glare next to the dark stage).
 :root,
-[data-theme='dark'] {
-  --paper: #f1ecf2;
-  --paper-back: #e3dce6;
-  --paper-edge: #b4a9be;
-  --paper-ink: #1a1033;
-  --paper-ink-2: #7a7189;
-  --paper-shade: #120a1c;
-  --paper-accent: #d4603f;
-  --paper-accent-2: #d64f8a;
-}
-
 [data-theme='light'] {
   --paper: #ffffff;
-  --paper-back: #f3edf2;
-  --paper-edge: #d6cbd6;
-  --paper-ink: #1a1033;
-  --paper-ink-2: #8a8299;
-  --paper-shade: #2a1838;
-  --paper-accent: #d4603f;
-  --paper-accent-2: #d64f8a;
+  --paper-back: #eef1f7;
+  --paper-edge: #cdd4e2;
+  --paper-ink: #0b1430;
+  --paper-ink-2: #737e96;
+  --paper-shade: #152349;
+  --paper-accent: #1a4bf0;
+  --paper-accent-2: #56668a;
+}
+
+[data-theme='dark'] {
+  --paper: #eef1f6;
+  --paper-back: #dde2ec;
+  --paper-edge: #a9b2c4;
+  --paper-ink: #0b1430;
+  --paper-ink-2: #6d7891;
+  --paper-shade: #060b1c;
+  --paper-accent: #1a4bf0;
+  --paper-accent-2: #56668a;
 }
 
 .flipbook {
