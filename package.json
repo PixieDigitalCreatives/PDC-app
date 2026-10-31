@@ -8,7 +8,7 @@
     "server": "node server/server.js",
     "start": "concurrently --kill-others \"npm run server\" \"npm run dev\"",
     "start:server": "node server/server.js",
-    "build": "vite build",
+    "build": "vite build && node scripts/prerender-seo.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "images": "node scripts/generate-images.mjs"

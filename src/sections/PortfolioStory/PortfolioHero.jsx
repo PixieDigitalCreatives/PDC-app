@@ -8,6 +8,10 @@ import { EASE } from "../../animations/variants";
 import { KineticLine, KineticWord } from "../../components/motion/KineticText";
 import Magnetic from "../../components/buttons/Magnetic";
 import { pad } from "./data";
+import { seoPage } from "../../data/seo";
+
+// Keyword line and intro text are shared with the page's SEO copy (src/data/seo.js).
+const SEO = seoPage("/portfolio");
 
 const COLS = 3;
 const SPRING = { stiffness: 60, damping: 18, mass: 0.8 };
@@ -127,13 +131,14 @@ const PortfolioHero = ({ projects, categories, onPickCategory, onOpen, openConta
       <div className="pf-hero__inner">
         <motion.div className="pf-hero__copy" style={fx({ y: copyY, opacity: copyO })}>
 
-          <h1 className="pf-hero__title" aria-label="Work that speaks for itself.">
+          <h1 className="pf-hero__title" aria-label={`${SEO.kicker}. Work that speaks for itself.`}>
+            <motion.span className="h1-kicker" {...enter(0.1)}>{SEO.kicker}</motion.span>
             <KineticLine text="Work that speaks" from={4} ready={ready} />
             <KineticWord className="grad-text text-shimmer" delay={0.7} ready={ready}>for itself.</KineticWord>
           </h1>
 
           <motion.p className="pf-hero__lead" {...enter(0.8)}>
-            A selection of the websites and digital products we have designed and built.
+            {SEO.lead}
           </motion.p>
 
           <motion.div className="pf-hero__ctas" {...enter(0.95)}>

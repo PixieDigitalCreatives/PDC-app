@@ -9,6 +9,10 @@ import { KineticLine, KineticWord } from "../../components/motion/KineticText";
 import Magnetic from "../../components/buttons/Magnetic";
 import { jumpToPhase } from "./jump";
 import { PHASES, ROUTE_H, ROUTE_W, pad, routePath, routePoints } from "./data";
+import { seoPage } from "../../data/seo";
+
+// Keyword line and intro text are shared with the page's SEO copy (src/data/seo.js).
+const SEO = seoPage("/process");
 
 // The route: one stop per phase on a winding line that draws itself, with a light travelling along it.
 const Route = ({ ready, reduce }) => {
@@ -115,13 +119,14 @@ const ProcessHero = ({ openContact }) => {
       <div className="pr-hero__inner">
         <motion.div className="pr-hero__copy" style={fx({ y: copyY, opacity: copyO })}>
 
-          <h1 className="pr-hero__title" aria-label="From first call to launch day.">
+          <h1 className="pr-hero__title" aria-label={`${SEO.kicker}. From first call to launch day.`}>
+            <motion.span className="h1-kicker" {...enter(0.1)}>{SEO.kicker}</motion.span>
             <KineticLine text="From first call" from={4} ready={ready} />
             <KineticWord className="grad-text text-shimmer" delay={0.7} ready={ready}>to launch day.</KineticWord>
           </h1>
 
           <motion.p className="pr-hero__lead" {...enter(0.85)}>
-            Seven steps, each with clear deliverables, so you always know what is happening and what comes next.
+            {SEO.lead}
           </motion.p>
 
           <motion.div className="pr-hero__ctas" {...enter(1)}>

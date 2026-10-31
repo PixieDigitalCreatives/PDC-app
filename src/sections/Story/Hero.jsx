@@ -10,6 +10,10 @@ import Magnetic from "../../components/buttons/Magnetic";
 import MaskText from "../../components/motion/MaskText";
 import SilkWaves from "./SilkWaves";
 import ChromeLogo from "./ChromeLogo";
+import { seoPage } from "../../data/seo";
+
+// Keyword line and intro text are shared with the page's SEO copy (src/data/seo.js).
+const SEO = seoPage("/");
 
 const NOTES = ["Ideas", "Design", "Develop", "Grow"];
 
@@ -68,13 +72,14 @@ const Hero = () => {
             onReady
             delay={2}
             lines={[
+              <span className="h1-kicker" key="k">{SEO.kicker}</span>,
               "Brands",
               <>That <span className="grad-text st-shimmer">Inspire</span></>,
               <span className="grad-text-2 st-shimmer" key="g">Growth</span>,
             ]}
           />
           <motion.p className="st-hero__lead" {...enter(0.6)}>
-            We design, develop and market digital experiences that help businesses grow and stand out.
+            {SEO.lead}
           </motion.p>
           <motion.div className="st-hero__ctas" {...enter(0.75)}>
             <Magnetic strength={0.25}>

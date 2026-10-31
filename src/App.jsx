@@ -18,6 +18,7 @@ const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 import Cursor from "./components/cursor/Cursor";
 import SmoothScroll from "./components/motion/SmoothScroll";
 import ScrollAnimationManager from "./components/ScrollAnimationManager";
+import RouteSeo from "./components/RouteSeo";
 import { ReadyContext } from "./animations/ReadyContext";
 import { EASE_IN_OUT } from "./animations/variants";
 import { scrollToTop } from "./animations/lenis";
@@ -57,6 +58,7 @@ const AnimatedRoutes = () => {
   return (
     <>
       <ScrollAnimationManager pathKey={displayLocation.pathname} />
+      <RouteSeo pathname={displayLocation.pathname} />
       <Suspense fallback={null}>
       <Routes location={displayLocation}>
         <Route path="/" element={<Home />} />

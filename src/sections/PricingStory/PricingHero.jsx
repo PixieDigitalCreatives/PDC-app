@@ -7,6 +7,10 @@ import { KineticLine, KineticWord } from "../../components/motion/KineticText";
 import Magnetic from "../../components/buttons/Magnetic";
 import { useCurrency } from "../../context/CurrencyContext";
 import { categoryFrom } from "../../data/pricing";
+import { seoPage } from "../../data/seo";
+
+// Keyword line and intro text are shared with the page's SEO copy (src/data/seo.js).
+const SEO = seoPage("/pricing");
 
 // Opening: the promise on the left, a price guide on the right (every service with the lowest
 // confirmed price it starts at), each row jumping to its section.
@@ -30,14 +34,14 @@ const PricingHero = ({ categories, pricesReady, onQuote, openContact, onJump }) 
       <div className="pc-hero__inner">
         <div className="pc-hero__copy">
 
-          <h1 className="pc-hero__title" aria-label="Clear pricing, built around you.">
+          <h1 className="pc-hero__title" aria-label={`${SEO.kicker}. Clear pricing, built around you.`}>
+            <motion.span className="h1-kicker" {...enter(0.1)}>{SEO.kicker}</motion.span>
             <KineticLine text="Clear pricing," ready={ready} />
             <KineticWord className="grad-text" delay={0.55} ready={ready}>built around you.</KineticWord>
           </h1>
 
           <motion.p className="pc-hero__lead" {...enter(0.7)}>
-            Starting prices for everything we do, in one place. Every project is scoped with you first, so your final
-            quote fits what you actually need.
+            {SEO.lead}
           </motion.p>
 
           <motion.div className="pc-hero__ctas" {...enter(0.85)}>

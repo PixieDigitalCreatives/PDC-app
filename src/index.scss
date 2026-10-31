@@ -277,6 +277,39 @@ img, video {
   }
 }
 
+// Keyword line at the top of each page's H1 (text from src/data/seo.js), above the slogan.
+// Resets what the headline styles set, so it stays a small label even inside gradient headings.
+.h1-kicker {
+  @include meta;
+  display: block;
+  font-size: clamp(0.68rem, 0.9vw, 0.8rem);
+  line-height: 1.5;
+  color: $accent;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  text-wrap: balance;
+  margin-bottom: clamp(0.75rem, 1.4vw, 1.25rem);
+}
+
+// Plain copy of the page written into #root at build time (scripts/prerender-seo.mjs) for crawlers
+// and visitors without JavaScript. React replaces it when the app starts; until then it stays out of
+// sight for visitors with JavaScript, who see the usual empty first frame.
+.seo-prerender {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 6rem $gutter 4rem;
+  color: $white-72;
+
+  nav { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; margin-bottom: 3rem; font-size: 0.9rem; }
+  a { color: $accent; }
+  h1 { font-family: $font-display; font-size: clamp(2rem, 6vw, 3.5rem); line-height: 1.1; color: $white; margin-bottom: 1.25rem; }
+  h2 { font-family: $font-display; font-size: 1.5rem; color: $white; margin: 2.5rem 0 1rem; }
+  ul { display: grid; gap: 0.6rem; padding-left: 1.25rem; }
+  p { margin-bottom: 1rem; }
+
+  .has-js & { visibility: hidden; }
+}
+
 // Section headline
 .section-heading {
   font-family: $font-display;

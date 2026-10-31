@@ -1166,6 +1166,12 @@
         border-radius: 12px;
       }
 
+      .image-preview-box.round.large {
+        width: 110px;
+        height: 110px;
+        margin-top: 0.75rem;
+      }
+
       .admin-form .modal-form-actions--steps {
         justify-content: space-between;
         align-items: center;

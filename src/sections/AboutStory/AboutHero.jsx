@@ -10,6 +10,10 @@ import { EASE, EASE_IN_OUT } from "../../animations/variants";
 import { KineticLine, KineticWord } from "../../components/motion/KineticText";
 import Magnetic from "../../components/buttons/Magnetic";
 import SilkWaves from "../Story/SilkWaves";
+import { seoPage } from "../../data/seo";
+
+// Keyword line and intro text are shared with the page's SEO copy (src/data/seo.js).
+const SEO = seoPage("/about");
 
 const FALLBACK = "/rishi.jpg";
 const onImgError = (e) => {
@@ -167,15 +171,15 @@ const AboutHero = ({ openContact }) => {
       <div className="ab-hero__inner">
         <motion.div className="ab-hero__copy" style={fx({ y: copyY, opacity: copyO })}>
 
-          <h1 className="ab-hero__title" aria-label="A small studio that makes things on purpose.">
+          <h1 className="ab-hero__title" aria-label={`${SEO.kicker}. A small studio that makes things on purpose.`}>
+            <motion.span className="h1-kicker" {...enter(0.1)}>{SEO.kicker}</motion.span>
             <KineticLine text="A small studio" from={4} ready={ready} />
             <KineticLine text="that makes things" from={18} ready={ready} />
             <KineticWord className="grad-text text-shimmer" delay={0.8} ready={ready}>on purpose.</KineticWord>
           </h1>
 
           <motion.p className="ab-hero__lead" {...enter(0.85)}>
-            Pixie Digital Creatives is a boutique creative technology studio helping ambitious founders, businesses and
-            creators turn bold ideas into high-impact digital experiences.
+            {SEO.lead}
           </motion.p>
 
           <motion.div className="ab-hero__ctas" {...enter(1)}>

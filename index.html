@@ -17,21 +17,31 @@
           if (t !== 'light' && t !== 'dark') t = 'dark';
         } catch (e) { t = 'dark'; }
         document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.classList.add('has-js');
         var m = document.querySelector('meta[name="theme-color"]');
         if (m) m.setAttribute('content', t === 'light' ? '#faf4ee' : '#230220');
       })();
     </script>
-    <title>Pixie Digital Creatives — Creative. Strategic. Impactful.</title>
-    <meta name="description" content="Pixie Digital Creatives designs and builds websites, apps, CRM systems, video and content, and runs SEO, GEO, AEO and paid campaigns for growing businesses." />
+    <!-- SEO: home page defaults. `npm run build` rewrites these for every page from src/data/seo.js
+         (scripts/prerender-seo.mjs), and components/RouteSeo.jsx keeps them current while browsing. -->
+    <title>Website &amp; App Development Agency | Pixie Digital Creatives</title>
+    <meta name="description" content="Digital agency for premium website development, app development and social media handling. We design, build and grow websites and apps for ambitious brands." />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://www.pixiedigitalcreatives.com/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Pixie Digital Creatives" />
-    <meta property="og:title" content="Pixie Digital Creatives — Creative. Strategic. Impactful." />
-    <meta property="og:description" content="Websites, apps, content and digital growth from one studio." />
-    <meta property="og:image" content="/brand/og-image.png" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://www.pixiedigitalcreatives.com/" />
+    <meta property="og:title" content="Website &amp; App Development Agency | Pixie Digital Creatives" />
+    <meta property="og:description" content="Digital agency for premium website development, app development and social media handling. We design, build and grow websites and apps for ambitious brands." />
+    <meta property="og:image" content="https://www.pixiedigitalcreatives.com/brand/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Pixie Digital Creatives logo" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="/brand/og-image.png" />
+    <meta name="twitter:title" content="Website &amp; App Development Agency | Pixie Digital Creatives" />
+    <meta name="twitter:description" content="Digital agency for premium website development, app development and social media handling. We design, build and grow websites and apps for ambitious brands." />
+    <meta name="twitter:image" content="https://www.pixiedigitalcreatives.com/brand/og-image.png" />
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

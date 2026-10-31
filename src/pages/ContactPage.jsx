@@ -15,7 +15,11 @@ import TiltCard from "../components/motion/TiltCard";
 import { Stagger } from "../components/motion/Stagger";
 import { genImage } from "../data/images";
 import { sendInquiry } from "../utils/sendInquiry";
+import { seoPage } from "../data/seo";
 import "../styles/contactpage.scss";
+
+// Keyword line and intro text are shared with the page's SEO copy (src/data/seo.js).
+const SEO = seoPage("/contact");
 
 const ContactPage = () => {
   const { companyInfo, services } = useCms();
@@ -97,15 +101,14 @@ const ContactPage = () => {
           <HeroAurora image={genImage("hero-contact")} />
           <div className="container-custom">
             <div className="hero-content-center">
-              <Reveal as="span" className="section-eyebrow" delay={0.35}>GET IN TOUCH</Reveal>
               <MaskText
                 as="h1"
                 className="contact-hero-title"
                 delay={5}
-                lines={["Tell us what", <>you're <em>building.</em></>]}
+                lines={[<span className="h1-kicker" key="k">{SEO.kicker}</span>, "Tell us what", <>you're <em>building.</em></>]}
               />
               <Reveal as="p" className="contact-hero-desc" delay={0.75}>
-                Partnering with founders and businesses globally. Reach out in your preferred currency and we'll reply within 24 hours.
+                {SEO.lead}
               </Reveal>
             </div>
           </div>

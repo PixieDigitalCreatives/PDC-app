@@ -35,12 +35,105 @@ import AdminUsers from "../components/admin/AdminUsers";
 import { adminApi, clearAdminSession, readAdminProfile, saveAdminSession } from "../utils/adminApi";
 import "../styles/admin.scss";
 
-// The project form is split into short steps (no scrolling); each step lists its required fields.
+// Long modal forms are split into short steps (no scrolling). Each step lists its required fields.
 const PROJECT_STEPS = [
   { label: "Basics", required: ["title"] },
   { label: "Image & link", required: [] },
   { label: "Details", required: ["description"] },
 ];
+
+const TEAM_STEPS = [
+  { label: "Profile", required: ["name", "role"] },
+  { label: "Photo & bio", required: ["bio"] },
+  { label: "Links", required: [] },
+];
+
+// Step state for one stepped form. Moving forward checks the fields on screen first (the browser
+// marks any that are missing); checkAll covers the steps that are not on screen when saving.
+const useFormSteps = (steps) => {
+  const [step, setStep] = useState(0);
+  const formRef = useRef(null);
+  const last = steps.length - 1;
+  const goTo = (target) => {
+    if (target > step && !formRef.current?.reportValidity()) return;
+    setStep(Math.max(0, Math.min(target, last)));
+  };
+  const checkAll = (values) => {
+    const missing = steps.findIndex((s) => s.required.some((key) => !String(values[key] || "").trim()));
+    if (missing === -1) return true;
+    setStep(missing);
+    setTimeout(() => formRef.current?.reportValidity(), 0);
+    return false;
+  };
+  return { step, setStep, last, formRef, goTo, checkAll };
+};
+
+const StepNav = ({ steps, flow }) => (
+  <ol className="form-steps" aria-label="Form steps">
+    {steps.map((step, i) => (
+      <li key={step.label} className={i === flow.step ? "is-current" : undefined}>
+        <button
+          type="button"
+          className={`form-step ${i === flow.step ? "is-current" : ""} ${i < flow.step ? "is-done" : ""}`}
+          aria-current={i === flow.step ? "step" : undefined}
+          onClick={() => flow.goTo(i)}
+        >
+          <span className="form-step__num">{i < flow.step ? <RiCheckLine /> : i + 1}</span>
+          <span className="form-step__label">{step.label}</span>
+        </button>
+      </li>
+    ))}
+  </ol>
+);
+
+const StepBody = ({ step, children }) => (
+  <AnimatePresence mode="wait" initial={false}>
+    <motion.div
+      key={step}
+      className="form-step-body"
+      initial={{ opacity: 0, x: 24 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -24 }}
+      transition={{ duration: 0.22 }}
+    >
+      {children}
+    </motion.div>
+  </AnimatePresence>
+);
+
+// Back / Next, plus Save on every step while editing so a small change needs no Next, Next.
+const StepActions = ({ flow, editing, onCancel, submitLabel }) => (
+  <div className="modal-form-actions modal-form-actions--steps">
+    {flow.step === 0 ? (
+      <button type="button" onClick={onCancel} className="btn-secondary">
+        Cancel
+      </button>
+    ) : (
+      <button type="button" onClick={() => flow.goTo(flow.step - 1)} className="btn-secondary">
+        <RiArrowLeftLine /> Back
+      </button>
+    )}
+    <span className="form-steps-count">Step {flow.step + 1} of {flow.last + 1}</span>
+    {/* Separate keys: React must never reuse the Next button as a submit button, or the
+        click that opens the last step would also submit the form. */}
+    <div className="modal-form-actions__end">
+      {editing && flow.step < flow.last && (
+        <button key="save" type="submit" className="btn-secondary">
+          <RiCheckLine /> Save changes
+        </button>
+      )}
+      {flow.step < flow.last ? (
+        <button key="next" type="button" onClick={() => flow.goTo(flow.step + 1)} className="btn-primary">
+          Next <RiArrowRightLine />
+        </button>
+      ) : (
+        <button key="submit" type="submit" className="btn-primary">
+          <RiCheckLine /> {submitLabel}
+        </button>
+      )}
+    </div>
+  </div>
+);
 
 const Admin = () => {
   const logos = useLogos();
@@ -144,8 +237,7 @@ const Admin = () => {
 
   // Portfolio Modal State
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
-  const [projectStep, setProjectStep] = useState(0);
-  const projectFormRef = useRef(null);
+  const projectFlow = useFormSteps(PROJECT_STEPS);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [projectForm, setProjectForm] = useState({
@@ -164,6 +256,7 @@ const Admin = () => {
 
   // Team Modal State
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const teamFlow = useFormSteps(TEAM_STEPS);
   const [editingMember, setEditingMember] = useState(null);
   const [teamForm, setTeamForm] = useState({
     name: "",
@@ -233,7 +326,7 @@ const Admin = () => {
       liveUrl: "",
       featured: true,
     });
-    setProjectStep(0);
+    projectFlow.setStep(0);
     setIsProjectModalOpen(true);
   };
 
@@ -252,31 +345,18 @@ const Admin = () => {
       liveUrl: proj.liveUrl || "",
       featured: !!proj.featured,
     });
-    setProjectStep(0);
+    projectFlow.setStep(0);
     setIsProjectModalOpen(true);
-  };
-
-  // Steps: Next checks the fields on screen; the browser marks any that are missing.
-  const lastProjectStep = PROJECT_STEPS.length - 1;
-  const goToProjectStep = (target) => {
-    if (target > projectStep && !projectFormRef.current?.reportValidity()) return;
-    setProjectStep(Math.max(0, Math.min(target, lastProjectStep)));
   };
 
   const handleSaveProject = (e) => {
     e.preventDefault();
     // Enter on an earlier step of a new project moves on instead of saving.
-    if (!editingProject && projectStep < lastProjectStep) {
-      goToProjectStep(projectStep + 1);
+    if (!editingProject && projectFlow.step < projectFlow.last) {
+      projectFlow.goTo(projectFlow.step + 1);
       return;
     }
-    // Fields on other steps are not on screen, so check them here and open the step that needs work.
-    const missing = PROJECT_STEPS.findIndex((step) => step.required.some((key) => !String(projectForm[key] || "").trim()));
-    if (missing !== -1) {
-      setProjectStep(missing);
-      setTimeout(() => projectFormRef.current?.reportValidity(), 0);
-      return;
-    }
+    if (!projectFlow.checkAll(projectForm)) return;
     const formattedTags = projectForm.tags
       .split(",")
       .map((t) => t.trim())
@@ -332,6 +412,7 @@ const Admin = () => {
       github: "https://github.com",
       email: "",
     });
+    teamFlow.setStep(0);
     setIsTeamModalOpen(true);
   };
 
@@ -348,11 +429,17 @@ const Admin = () => {
       github: mem.github || "",
       email: mem.email || "",
     });
+    teamFlow.setStep(0);
     setIsTeamModalOpen(true);
   };
 
   const handleSaveTeamMember = (e) => {
     e.preventDefault();
+    if (!editingMember && teamFlow.step < teamFlow.last) {
+      teamFlow.goTo(teamFlow.step + 1);
+      return;
+    }
+    if (!teamFlow.checkAll(teamForm)) return;
     if (editingMember) {
       updateTeamMember(editingMember.id, teamForm);
       showToast(`Team member "${teamForm.name}" updated!`);
@@ -1141,216 +1228,169 @@ const Admin = () => {
               {editingProject ? "Edit Portfolio Project" : "Add New Portfolio Project"}
             </h3>
 
-            <ol className="form-steps" aria-label="Form steps">
-              {PROJECT_STEPS.map((step, i) => (
-                <li key={step.label} className={i === projectStep ? "is-current" : undefined}>
-                  <button
-                    type="button"
-                    className={`form-step ${i === projectStep ? "is-current" : ""} ${i < projectStep ? "is-done" : ""}`}
-                    aria-current={i === projectStep ? "step" : undefined}
-                    onClick={() => goToProjectStep(i)}
-                  >
-                    <span className="form-step__num">{i < projectStep ? <RiCheckLine /> : i + 1}</span>
-                    <span className="form-step__label">{step.label}</span>
-                  </button>
-                </li>
-              ))}
-            </ol>
+            <StepNav steps={PROJECT_STEPS} flow={projectFlow} />
 
-            <form ref={projectFormRef} onSubmit={handleSaveProject} className="admin-form">
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={projectStep}
-                  className="form-step-body"
-                  initial={{ opacity: 0, x: 24 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -24 }}
-                  transition={{ duration: 0.22 }}
-                >
-                  {projectStep === 0 && (
-                    <>
-                      <div className="form-row">
-                        <div className="form-group">
-                          <label>Project Title *</label>
-                          <input
-                            type="text"
-                            required
-                            autoFocus
-                            placeholder="e.g. TechNova, UrbanNest"
-                            value={projectForm.title}
-                            onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })}
-                          />
-                        </div>
-
-                        <div className="form-group">
-                          <label>Category *</label>
-                          <select
-                            value={projectForm.category}
-                            onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })}
-                          >
-                            <option value="Web Application">Web Application</option>
-                            <option value="Web Development">Web Development</option>
-                            <option value="E-commerce">E-commerce</option>
-                            <option value="Branding">Branding</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="form-row">
-                        <div className="form-group">
-                          <label>Type / Subtitle (e.g. MERN Web Application)</label>
-                          <input
-                            type="text"
-                            placeholder="e.g. Headless WordPress / E-commerce Store"
-                            value={projectForm.type}
-                            onChange={(e) => setProjectForm({ ...projectForm, type: e.target.value })}
-                          />
-                        </div>
-
-                        <div className="form-group">
-                          <label>Client Name</label>
-                          <input
-                            type="text"
-                            placeholder="e.g. TechNova Systems"
-                            value={projectForm.client}
-                            onChange={(e) => setProjectForm({ ...projectForm, client: e.target.value })}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="form-row">
-                        <div className="form-group">
-                          <label>Year</label>
-                          <input
-                            type="text"
-                            placeholder="2024"
-                            value={projectForm.year}
-                            onChange={(e) => setProjectForm({ ...projectForm, year: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {projectStep === 1 && (
-                    <>
+            <form ref={projectFlow.formRef} onSubmit={handleSaveProject} className="admin-form">
+              <StepBody step={projectFlow.step}>
+                {projectFlow.step === 0 && (
+                  <>
+                    <div className="form-row">
                       <div className="form-group">
-                        <label>Live URL</label>
-                        <input
-                          type="url"
-                          placeholder="https://example.com"
-                          value={projectForm.liveUrl}
-                          onChange={(e) => setProjectForm({ ...projectForm, liveUrl: e.target.value })}
-                        />
-                      </div>
-
-                      {/* Image Input & Upload */}
-                      <div className="form-group">
-                        <label>Project Image URL or Upload File</label>
-                        <div className="image-input-dual">
-                          <input
-                            type="text"
-                            placeholder="/portfolio.jpg or https://images..."
-                            value={projectForm.image}
-                            onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })}
-                          />
-                          <label className="upload-file-btn">
-                            <RiImageAddLine /> Choose File
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handleImageFileChange(e, setProjectForm)}
-                              style={{ display: "none" }}
-                            />
-                          </label>
-                        </div>
-                        {projectForm.image && (
-                          <div className="image-preview-box wide">
-                            <img src={projectForm.image} alt="Preview" />
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  )}
-
-                  {projectStep === 2 && (
-                    <>
-                      <div className="form-group">
-                        <label>Project Description *</label>
-                        <textarea
-                          rows="5"
-                          required
-                          placeholder="Short one or two line summary of the project and deliverables..."
-                          value={projectForm.description}
-                          onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
-                        ></textarea>
-                      </div>
-
-                      <div className="form-group">
-                        <label>Tags (Comma separated)</label>
+                        <label>Project Title *</label>
                         <input
                           type="text"
-                          placeholder="React, Next.js, UI/UX, Scalable"
-                          value={projectForm.tags}
-                          onChange={(e) => setProjectForm({ ...projectForm, tags: e.target.value })}
+                          required
+                          autoFocus
+                          placeholder="e.g. TechNova, UrbanNest"
+                          value={projectForm.title}
+                          onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })}
                         />
                       </div>
 
-                      <div className="form-checkbox-group">
-                        <label>
+                      <div className="form-group">
+                        <label>Category *</label>
+                        <select
+                          value={projectForm.category}
+                          onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })}
+                        >
+                          <option value="Web Application">Web Application</option>
+                          <option value="Web Development">Web Development</option>
+                          <option value="E-commerce">E-commerce</option>
+                          <option value="Branding">Branding</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Type / Subtitle (e.g. MERN Web Application)</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Headless WordPress / E-commerce Store"
+                          value={projectForm.type}
+                          onChange={(e) => setProjectForm({ ...projectForm, type: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label>Client Name</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. TechNova Systems"
+                          value={projectForm.client}
+                          onChange={(e) => setProjectForm({ ...projectForm, client: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Year</label>
+                        <input
+                          type="text"
+                          placeholder="2024"
+                          value={projectForm.year}
+                          onChange={(e) => setProjectForm({ ...projectForm, year: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {projectFlow.step === 1 && (
+                  <>
+                    <div className="form-group">
+                      <label>Live URL</label>
+                      <input
+                        type="url"
+                        placeholder="https://example.com"
+                        value={projectForm.liveUrl}
+                        onChange={(e) => setProjectForm({ ...projectForm, liveUrl: e.target.value })}
+                      />
+                    </div>
+
+                    {/* Image Input & Upload */}
+                    <div className="form-group">
+                      <label>Project Image URL or Upload File</label>
+                      <div className="image-input-dual">
+                        <input
+                          type="text"
+                          placeholder="/portfolio.jpg or https://images..."
+                          value={projectForm.image}
+                          onChange={(e) => setProjectForm({ ...projectForm, image: e.target.value })}
+                        />
+                        <label className="upload-file-btn">
+                          <RiImageAddLine /> Choose File
                           <input
-                            type="checkbox"
-                            checked={projectForm.featured}
-                            onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageFileChange(e, setProjectForm)}
+                            style={{ display: "none" }}
                           />
-                          Feature on Homepage
                         </label>
                       </div>
-                    </>
-                  )}
-                </motion.div>
-              </AnimatePresence>
-
-              <div className="modal-form-actions modal-form-actions--steps">
-                {projectStep === 0 ? (
-                  <button type="button" onClick={() => setIsProjectModalOpen(false)} className="btn-secondary">
-                    Cancel
-                  </button>
-                ) : (
-                  <button type="button" onClick={() => goToProjectStep(projectStep - 1)} className="btn-secondary">
-                    <RiArrowLeftLine /> Back
-                  </button>
+                      {projectForm.image && (
+                        <div className="image-preview-box wide">
+                          <img src={projectForm.image} alt="Preview" />
+                        </div>
+                      )}
+                    </div>
+                  </>
                 )}
-                <span className="form-steps-count">Step {projectStep + 1} of {PROJECT_STEPS.length}</span>
-                {/* Separate keys: React must never reuse the Next button as a submit button, or the
-                    click that opens the last step would also submit the form. */}
-                <div className="modal-form-actions__end">
-                  {editingProject && projectStep < lastProjectStep && (
-                    <button key="save" type="submit" className="btn-secondary">
-                      <RiCheckLine /> Save changes
-                    </button>
-                  )}
-                  {projectStep < lastProjectStep ? (
-                    <button key="next" type="button" onClick={() => goToProjectStep(projectStep + 1)} className="btn-primary">
-                      Next <RiArrowRightLine />
-                    </button>
-                  ) : (
-                    <button key="submit" type="submit" className="btn-primary">
-                      <RiCheckLine /> {editingProject ? "Update Project" : "Add Project"}
-                    </button>
-                  )}
-                </div>
-              </div>
+
+                {projectFlow.step === 2 && (
+                  <>
+                    <div className="form-group">
+                      <label>Project Description *</label>
+                      <textarea
+                        rows="5"
+                        required
+                        placeholder="Short one or two line summary of the project and deliverables..."
+                        value={projectForm.description}
+                        onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
+                      ></textarea>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Tags (Comma separated)</label>
+                      <input
+                        type="text"
+                        placeholder="React, Next.js, UI/UX, Scalable"
+                        value={projectForm.tags}
+                        onChange={(e) => setProjectForm({ ...projectForm, tags: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="form-checkbox-group">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={projectForm.featured}
+                          onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
+                        />
+                        Feature on Homepage
+                      </label>
+                    </div>
+                  </>
+                )}
+              </StepBody>
+
+              <StepActions
+                flow={projectFlow}
+                editing={!!editingProject}
+                onCancel={() => setIsProjectModalOpen(false)}
+                submitLabel={editingProject ? "Update Project" : "Add Project"}
+              />
             </form>
           </div>
         </div>
       )}
 
-      {/* MODAL: ADD / EDIT FOUNDER & TEAM MEMBER */}
+      {/* MODAL: ADD / EDIT FOUNDER & TEAM MEMBER — three short steps instead of one long scrolling form */}
       {isTeamModalOpen && (
         <div className="admin-modal-overlay" onClick={() => setIsTeamModalOpen(false)}>
-          <div className="admin-modal-dialog glass-panel" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setIsTeamModalOpen(false)}>
+          <div className="admin-modal-dialog admin-modal-dialog--steps glass-panel" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setIsTeamModalOpen(false)} aria-label="Close">
               <RiCloseLine />
             </button>
 
@@ -1358,132 +1398,147 @@ const Admin = () => {
               {editingMember ? "Edit Founder / Team Member" : "Add Founder / Team Member"}
             </h3>
 
-            <form onSubmit={handleSaveTeamMember} className="admin-form">
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Full Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Ashish, Vivek, Rishi"
-                    value={teamForm.name}
-                    onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
-                  />
-                </div>
+            <StepNav steps={TEAM_STEPS} flow={teamFlow} />
 
-                <div className="form-group">
-                  <label>Role / Position *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Founder & Creative Director, Co-Founder"
-                    value={teamForm.role}
-                    onChange={(e) => setTeamForm({ ...teamForm, role: e.target.value })}
-                  />
-                </div>
-              </div>
+            <form ref={teamFlow.formRef} onSubmit={handleSaveTeamMember} className="admin-form">
+              <StepBody step={teamFlow.step}>
+                {teamFlow.step === 0 && (
+                  <>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Full Name *</label>
+                        <input
+                          type="text"
+                          required
+                          autoFocus
+                          placeholder="e.g. Ashish, Vivek, Rishi"
+                          value={teamForm.name}
+                          onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })}
+                        />
+                      </div>
 
-              {/* Photo Input & Upload */}
-              <div className="form-group">
-                <label>Member Photo URL or Upload File</label>
-                <div className="image-input-dual">
-                  <input
-                    type="text"
-                    placeholder="/rishi.jpg, /vivek.jpg, /ashish.jpg or URL"
-                    value={teamForm.image}
-                    onChange={(e) => setTeamForm({ ...teamForm, image: e.target.value })}
-                  />
-                  <label className="upload-file-btn">
-                    <RiImageAddLine /> Choose File
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageFileChange(e, setTeamForm)}
-                      style={{ display: "none" }}
-                    />
-                  </label>
-                </div>
-                {teamForm.image && (
-                  <div className="image-preview-box round">
-                    <img src={teamForm.image} alt="Preview" />
-                  </div>
+                      <div className="form-group">
+                        <label>Role / Position *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Founder & Creative Director, Co-Founder"
+                          value={teamForm.role}
+                          onChange={(e) => setTeamForm({ ...teamForm, role: e.target.value })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-checkbox-group">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={teamForm.isFounder}
+                          onChange={(e) => setTeamForm({ ...teamForm, isFounder: e.target.checked })}
+                        />
+                        Mark as Founder / Co-Founder
+                      </label>
+                    </div>
+                  </>
                 )}
-              </div>
 
-              <div className="form-group">
-                <label>Bio / Background *</label>
-                <textarea
-                  rows="3"
-                  required
-                  placeholder="Short statement of leadership background, skills and passion..."
-                  value={teamForm.bio}
-                  onChange={(e) => setTeamForm({ ...teamForm, bio: e.target.value })}
-                ></textarea>
-              </div>
+                {teamFlow.step === 1 && (
+                  <>
+                    {/* Photo Input & Upload */}
+                    <div className="form-group">
+                      <label>Member Photo URL or Upload File</label>
+                      <div className="image-input-dual">
+                        <input
+                          type="text"
+                          placeholder="/rishi.jpg, /vivek.jpg, /ashish.jpg or URL"
+                          value={teamForm.image}
+                          onChange={(e) => setTeamForm({ ...teamForm, image: e.target.value })}
+                        />
+                        <label className="upload-file-btn">
+                          <RiImageAddLine /> Choose File
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleImageFileChange(e, setTeamForm)}
+                            style={{ display: "none" }}
+                          />
+                        </label>
+                      </div>
+                      {teamForm.image && (
+                        <div className="image-preview-box round large">
+                          <img src={teamForm.image} alt="Preview" />
+                        </div>
+                      )}
+                    </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>LinkedIn URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://linkedin.com/in/username"
-                    value={teamForm.linkedin}
-                    onChange={(e) => setTeamForm({ ...teamForm, linkedin: e.target.value })}
-                  />
-                </div>
+                    <div className="form-group">
+                      <label>Bio / Background *</label>
+                      <textarea
+                        rows="4"
+                        required
+                        placeholder="Short statement of leadership background, skills and passion..."
+                        value={teamForm.bio}
+                        onChange={(e) => setTeamForm({ ...teamForm, bio: e.target.value })}
+                      ></textarea>
+                    </div>
+                  </>
+                )}
 
-                <div className="form-group">
-                  <label>Twitter / X URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://x.com/username"
-                    value={teamForm.twitter}
-                    onChange={(e) => setTeamForm({ ...teamForm, twitter: e.target.value })}
-                  />
-                </div>
-              </div>
+                {teamFlow.step === 2 && (
+                  <>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>LinkedIn URL</label>
+                        <input
+                          type="url"
+                          placeholder="https://linkedin.com/in/username"
+                          value={teamForm.linkedin}
+                          onChange={(e) => setTeamForm({ ...teamForm, linkedin: e.target.value })}
+                        />
+                      </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>GitHub URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://github.com/username"
-                    value={teamForm.github}
-                    onChange={(e) => setTeamForm({ ...teamForm, github: e.target.value })}
-                  />
-                </div>
+                      <div className="form-group">
+                        <label>Twitter / X URL</label>
+                        <input
+                          type="url"
+                          placeholder="https://x.com/username"
+                          value={teamForm.twitter}
+                          onChange={(e) => setTeamForm({ ...teamForm, twitter: e.target.value })}
+                        />
+                      </div>
+                    </div>
 
-                <div className="form-group">
-                  <label>Direct Email</label>
-                  <input
-                    type="email"
-                    placeholder="name@pixiedigitalcreatives.com"
-                    value={teamForm.email}
-                    onChange={(e) => setTeamForm({ ...teamForm, email: e.target.value })}
-                  />
-                </div>
-              </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>GitHub URL</label>
+                        <input
+                          type="url"
+                          placeholder="https://github.com/username"
+                          value={teamForm.github}
+                          onChange={(e) => setTeamForm({ ...teamForm, github: e.target.value })}
+                        />
+                      </div>
 
-              <div className="form-checkbox-group">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={teamForm.isFounder}
-                    onChange={(e) => setTeamForm({ ...teamForm, isFounder: e.target.checked })}
-                  />
-                  Mark as Founder / Co-Founder
-                </label>
-              </div>
+                      <div className="form-group">
+                        <label>Direct Email</label>
+                        <input
+                          type="email"
+                          placeholder="name@pixiedigitalcreatives.com"
+                          value={teamForm.email}
+                          onChange={(e) => setTeamForm({ ...teamForm, email: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+              </StepBody>
 
-              <div className="modal-form-actions">
-                <button type="button" onClick={() => setIsTeamModalOpen(false)} className="btn-secondary">
-                  Cancel
-                </button>
-                <button type="submit" className="btn-primary">
-                  <RiCheckLine /> {editingMember ? "Update Member" : "Add Member"}
-                </button>
-              </div>
+              <StepActions
+                flow={teamFlow}
+                editing={!!editingMember}
+                onCancel={() => setIsTeamModalOpen(false)}
+                submitLabel={editingMember ? "Update Member" : "Add Member"}
+              />
             </form>
           </div>
         </div>

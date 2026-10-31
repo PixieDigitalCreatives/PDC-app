@@ -10,6 +10,10 @@ import { KineticLine, KineticWord } from "../../components/motion/KineticText";
 import Magnetic from "../../components/buttons/Magnetic";
 import SilkWaves from "../Story/SilkWaves";
 import ServiceOrbit from "./ServiceOrbit";
+import { seoPage } from "../../data/seo";
+
+// Keyword line and intro text are shared with the page's SEO copy (src/data/seo.js).
+const SEO = seoPage("/services");
 
 // Chapter 0 — the promise. Letters rise in after the preloader, the orbit assembles, and on scroll
 // the copy drifts up while the orbit sinks and turns away.
@@ -62,14 +66,15 @@ const ServicesHero = ({ services, openContact }) => {
       <div className="sv-hero__inner">
         <motion.div className="sv-hero__copy" style={fx({ y: copyY, opacity: copyO })}>
 
-          <h1 className="sv-hero__title" aria-label="Design, build, create and grow.">
+          <h1 className="sv-hero__title" aria-label={`${SEO.kicker}. Design, build, create and grow.`}>
+            <motion.span className="h1-kicker" {...enter(0.1)}>{SEO.kicker}</motion.span>
             <KineticLine text="Design, build," from={4} ready={ready} />
             <KineticLine text="create &" from={20} ready={ready} />
             <KineticWord className="grad-text text-shimmer" delay={0.75} ready={ready}>grow.</KineticWord>
           </h1>
 
           <motion.p className="sv-hero__lead" {...enter(0.8)}>
-            Website and app development, CRM, content, social, video and digital growth, handled by one team.
+            {SEO.lead}
           </motion.p>
 
           <motion.div className="sv-hero__ctas" {...enter(0.95)}>
