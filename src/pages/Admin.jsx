@@ -1143,7 +1143,7 @@ const Admin = () => {
 
             <ol className="form-steps" aria-label="Form steps">
               {PROJECT_STEPS.map((step, i) => (
-                <li key={step.label}>
+                <li key={step.label} className={i === projectStep ? "is-current" : undefined}>
                   <button
                     type="button"
                     className={`form-step ${i === projectStep ? "is-current" : ""} ${i < projectStep ? "is-done" : ""}`}
@@ -1322,18 +1322,20 @@ const Admin = () => {
                   </button>
                 )}
                 <span className="form-steps-count">Step {projectStep + 1} of {PROJECT_STEPS.length}</span>
+                {/* Separate keys: React must never reuse the Next button as a submit button, or the
+                    click that opens the last step would also submit the form. */}
                 <div className="modal-form-actions__end">
                   {editingProject && projectStep < lastProjectStep && (
-                    <button type="submit" className="btn-secondary">
+                    <button key="save" type="submit" className="btn-secondary">
                       <RiCheckLine /> Save changes
                     </button>
                   )}
                   {projectStep < lastProjectStep ? (
-                    <button type="button" onClick={() => goToProjectStep(projectStep + 1)} className="btn-primary">
+                    <button key="next" type="button" onClick={() => goToProjectStep(projectStep + 1)} className="btn-primary">
                       Next <RiArrowRightLine />
                     </button>
                   ) : (
-                    <button type="submit" className="btn-primary">
+                    <button key="submit" type="submit" className="btn-primary">
                       <RiCheckLine /> {editingProject ? "Update Project" : "Add Project"}
                     </button>
                   )}
