@@ -178,12 +178,15 @@ export const CmsProvider = ({ children }) => {
   }, [companyInfo]);
 
   // --- PORTFOLIO CRUD ACTIONS ---
+  // The list is kept in display order (as the server sorts it). A new project goes to the top;
+  // the server sets its real order number the same way.
   const addProject = async (project) => {
     const tempId = `proj-${Date.now()}`;
+    const first = portfolioProjects[0];
     const newProject = {
       ...project,
       id: tempId,
-      order: portfolioProjects.length + 1,
+      order: first ? (first.order ?? 0) - 1 : 0,
     };
     setPortfolioProjects((prev) => [newProject, ...prev]);
 
@@ -241,6 +244,33 @@ export const CmsProvider = ({ children }) => {
       } catch (err) {
         console.warn("Backend update error:", err);
       }
+    }
+  };
+
+  // Saves a new portfolio order: `ids` is every project id, first to last. The list changes at once
+  // and goes back to how it was if the server does not accept it.
+  const reorderProjects = async (ids) => {
+    const previous = portfolioProjects;
+    const byId = new Map(previous.map((p) => [p.id, p]));
+    setPortfolioProjects(ids.map((id, i) => ({ ...byId.get(id), order: i })));
+
+    const token = getAuthToken();
+    try {
+      const res = await fetch("/api/cms/portfolio/order", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ ids }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) return { ok: true };
+      setPortfolioProjects(previous);
+      return { ok: false, error: data.error || "Could not save the order." };
+    } catch {
+      setPortfolioProjects(previous);
+      return { ok: false, error: "Could not reach the server. The order was not saved." };
     }
   };
 
@@ -518,6 +548,7 @@ export const CmsProvider = ({ children }) => {
         savePricing,
         addProject,
         updateProject,
+        reorderProjects,
         deleteProject,
         addTeamMember,
         updateTeamMember,

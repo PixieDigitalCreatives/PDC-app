@@ -1,7 +1,7 @@
 // Core Design System — Pixie Digital Creatives
-// Colours come from the logo: royal blue + polished silver, navy wordmark.
-// Light (default): cool white canvas, navy type, royal-blue actions, steel-silver accents.
-// Dark (optional, via the toggle): deep navy canvas, white type, the same blue lifted for contrast.
+// Colours come from the logo: cream/champagne ribbons with lilac shading and a rose glow, on deep plum.
+// Dark (default): the logo's own plum canvas, cream type, champagne actions (cream logo as supplied).
+// Light (via the toggle): cream canvas, plum type, plum actions, rose + champagne accents (plum logo version).
 // Every colour below is a custom property, so toggling [data-theme] on <html> re-skins the whole site.
 // Legacy names (--gold-*, --silver-*, --gradient-*) are mapped for the older page stylesheets.
 
@@ -10,65 +10,65 @@
 :root,
 [data-theme='light'] {
   color-scheme: light;
-  --bg: #f5f7fc;
-  --bg-2: #edf1f9;
-  --surface: #ffffff;
-  --surface-2: #f0f3fa;
-  --fg: #0b1430;          // navy, as in the wordmark
-  --fg-2: #1c2846;
-  --fg-3: #4a5672;
-  --fg-4: #737e96;
-  --accent: #1a4bf0;      // logo royal blue
-  --accent-2: #2f7df6;    // brighter electric blue
-  --accent-3: #56668a;    // steel silver
-  --on-accent: #ffffff;
-  --shadow: #1b2b5e;
-  --btn-bg: linear-gradient(100deg, #2a5cff 0%, #0f37d8 100%);
-  --btn-fg: #ffffff;
-  --btn-glow: rgba(26, 75, 240, 0.32);
-  --grad-accent: linear-gradient(90deg, #1a4bf0 0%, #4f8dff 100%);
-  --grad-text: linear-gradient(95deg, #0f37d8 0%, #3f86ff 100%);
-  --grad-text-2: linear-gradient(95deg, #56668a 0%, #1a4bf0 100%);
-  --grad-chrome: linear-gradient(180deg, #0b1430 0%, #2a3a64 60%, #61709a 100%);
-  --glow-1: #b8ccff;
-  --glow-2: #d3dbea;
-  --glow-3: #a5c6ff;
-  --wave-1: #9db8ff;
-  --wave-2: #c9d2e4;
-  --wave-3: #7aa6ff;
-  --glass: rgba(255, 255, 255, 0.8);
+  --bg: #faf4ee;          // cream
+  --bg-2: #f4ebe3;
+  --surface: #fffaf6;
+  --surface-2: #f6ede6;
+  --fg: #250222;          // logo plum
+  --fg-2: #3b0d36;
+  --fg-3: #6a4a62;
+  --fg-4: #8c7085;
+  --accent: #7a1f6c;      // plum-magenta
+  --accent-2: #b0487f;    // rose, from the logo glow
+  --accent-3: #9a6e4f;    // champagne, deepened for contrast on cream
+  --on-accent: #fff8f1;
+  --shadow: #4a1a3e;
+  --btn-bg: linear-gradient(100deg, #5a1150 0%, #250222 100%);
+  --btn-fg: #fbefe3;
+  --btn-glow: rgba(90, 17, 80, 0.32);
+  --grad-accent: linear-gradient(90deg, #7a1f6c 0%, #c0689a 100%);
+  --grad-text: linear-gradient(95deg, #5a1150 0%, #b0487f 100%);
+  --grad-text-2: linear-gradient(95deg, #9a6e4f 0%, #7a1f6c 100%);
+  --grad-chrome: linear-gradient(180deg, #250222 0%, #4a1543 60%, #7d5672 100%);
+  --glow-1: #f0c9dc;
+  --glow-2: #f2dcc6;
+  --glow-3: #e7bfd6;
+  --wave-1: #e2b0cb;
+  --wave-2: #ecd2bb;
+  --wave-3: #c98bb0;
+  --glass: rgba(255, 250, 246, 0.8);
   --grain-opacity: 0.03;
 }
 
 [data-theme='dark'] {
   color-scheme: dark;
-  --bg: #050914;
-  --bg-2: #080d1c;
-  --surface: #0d1426;
-  --surface-2: #141c33;
-  --fg: #f4f7fd;
-  --fg-2: #dde4f1;
-  --fg-3: #a9b3c8;
-  --fg-4: #77829b;
-  --accent: #5b8cff;      // logo blue, lifted for dark
-  --accent-2: #8db4ff;
-  --accent-3: #c3cbdb;    // silver
-  --on-accent: #050914;
-  --shadow: #010309;
-  --btn-bg: linear-gradient(100deg, #3a6bff 0%, #1638d8 100%);
-  --btn-fg: #ffffff;
-  --btn-glow: rgba(58, 107, 255, 0.45);
-  --grad-accent: linear-gradient(90deg, #3a6bff 0%, #8db4ff 100%);
-  --grad-text: linear-gradient(95deg, #4f86ff 0%, #c9d6f2 100%);
-  --grad-text-2: linear-gradient(95deg, #c3cbdb 0%, #5b8cff 100%);
-  --grad-chrome: linear-gradient(180deg, #ffffff 0%, #e1e7f2 48%, #98a3ba 100%);
-  --glow-1: #1d3fd6;
-  --glow-2: #2f7df6;
-  --glow-3: #8a97b3;
-  --wave-1: #1d3fd6;
-  --wave-2: #2f7df6;
-  --wave-3: #c3cbdb;
-  --glass: rgba(9, 14, 28, 0.72);
+  --bg: #230220;          // the logo's plum
+  --bg-2: #2a0527;
+  --surface: #32092e;
+  --surface-2: #3d0f38;
+  --fg: #fbefe3;          // cream, as in the ribbons
+  --fg-2: #efdccb;
+  --fg-3: #c9aab9;
+  --fg-4: #9c7d92;
+  --accent: #f0cfae;      // champagne
+  --accent-2: #e8a9c8;    // rose glow
+  --accent-3: #c58fc0;    // lilac ribbon shading
+  --on-accent: #250222;
+  --shadow: #0e000c;
+  --btn-bg: linear-gradient(100deg, #fbefe3 0%, #e9c8a6 100%);
+  --btn-fg: #250222;
+  --btn-glow: rgba(240, 207, 174, 0.35);
+  --grad-accent: linear-gradient(90deg, #f6dec5 0%, #e8a9c8 100%);
+  --grad-text: linear-gradient(95deg, #e8a9c8 0%, #f6dec5 100%);
+  --grad-text-2: linear-gradient(95deg, #c58fc0 0%, #f0cfae 100%);
+  --grad-chrome: linear-gradient(180deg, #fffaf4 0%, #f0dccb 48%, #b892a8 100%);
+  --glow-1: #6e1a62;
+  --glow-2: #a83c86;
+  --glow-3: #b9876a;
+  --wave-1: #7a1f6c;
+  --wave-2: #c25a9a;
+  --wave-3: #f0cfae;
+  --glass: rgba(35, 2, 32, 0.74);
   --grain-opacity: 0.06;
 }
 
@@ -167,7 +167,7 @@ body {
     z-index: $z-grain;
     pointer-events: none;
     opacity: var(--grain-opacity);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.86 0 0 0 0 0.91 0 0 0 0 1 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.92 0 0 0 0 0.9 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     animation: grain-shift 1.2s steps(4) infinite;
   }
 }

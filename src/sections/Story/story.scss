@@ -7,49 +7,49 @@
 
 :root,
 [data-theme='light'] {
-  --spot: rgba(26, 75, 240, 0.08);
-  --cta-bg: linear-gradient(110deg, #e2eaff 0%, #f1f4fa 55%, #dce6ff 100%);
+  --spot: rgba(122, 31, 108, 0.08);
+  --cta-bg: linear-gradient(110deg, #f6e2ec 0%, #f8efe6 55%, #f1dfd1 100%);
   --cta-glow: rgba(255, 255, 255, 0.85);
-  --arrow-bg: #0b1430;
+  --arrow-bg: #250222;
   --arrow-fg: #ffffff;
-  --card-shadow: 0 22px 48px -28px rgba(27, 43, 94, 0.3);
+  --card-shadow: 0 22px 48px -28px rgba(74, 26, 62, 0.28);
   --glow-strength: 0.75;
 }
 
 [data-theme='dark'] {
-  --spot: rgba(91, 140, 255, 0.12);
-  --cta-bg: linear-gradient(110deg, #060d24 0%, #0f2266 55%, #0a1638 100%);
-  --cta-glow: rgba(47, 125, 246, 0.38);
+  --spot: rgba(232, 169, 200, 0.1);
+  --cta-bg: linear-gradient(110deg, #1a0118 0%, #4a0d42 55%, #2d0529 100%);
+  --cta-glow: rgba(194, 90, 154, 0.38);
   --arrow-bg: rgba(255, 255, 255, 0.08);
   --arrow-fg: #ffffff;
   --card-shadow: 0 30px 60px -36px rgba(0, 0, 0, 0.8);
   --glow-strength: 0.55;
 }
 
-// Icon-tile tones (stats + service cards): royal blue, electric blue, steel silver
+// Icon-tile tones (stats + service cards): plum, rose, champagne, lilac
 [data-theme='dark'] {
-  .st-tone-0 { --tone-bg: linear-gradient(140deg, #2a5cff, #1235c7); --tone-fg: #fff; }
-  .st-tone-1 { --tone-bg: linear-gradient(140deg, #3b85ff, #1c56d6); --tone-fg: #fff; }
-  .st-tone-2 { --tone-bg: linear-gradient(140deg, #6c7a99, #434f6b); --tone-fg: #fff; }
-  .st-tone-3 { --tone-bg: linear-gradient(140deg, #1e4fd8, #0f2a8a); --tone-fg: #fff; }
-  .st-tone-4 { --tone-bg: linear-gradient(140deg, #2f86ff, #1a5fd0); --tone-fg: #fff; }
-  .st-tone-5 { --tone-bg: linear-gradient(140deg, #8a96b0, #56627e); --tone-fg: #fff; }
-  .st-stats .st-tone-0 { --tone-bg: #0f1c44; --tone-fg: #8db4ff; }
-  .st-stats .st-tone-1 { --tone-bg: #17203a; --tone-fg: #c3cbdb; }
-  .st-stats .st-tone-2 { --tone-bg: #0d2150; --tone-fg: #6fa2ff; }
-  .st-stats .st-tone-3 { --tone-bg: #17203a; --tone-fg: #c3cbdb; }
+  .st-tone-0 { --tone-bg: linear-gradient(140deg, #8a2a7a, #5a1150); --tone-fg: #fff; }
+  .st-tone-1 { --tone-bg: linear-gradient(140deg, #c25a9a, #8a2f6a); --tone-fg: #fff; }
+  .st-tone-2 { --tone-bg: linear-gradient(140deg, #c9a07a, #8f6a4c); --tone-fg: #fff; }
+  .st-tone-3 { --tone-bg: linear-gradient(140deg, #6e1d61, #3a0833); --tone-fg: #fff; }
+  .st-tone-4 { --tone-bg: linear-gradient(140deg, #d06aa6, #94306e); --tone-fg: #fff; }
+  .st-tone-5 { --tone-bg: linear-gradient(140deg, #b07aaa, #6e3f6a); --tone-fg: #fff; }
+  .st-stats .st-tone-0 { --tone-bg: #3d0d37; --tone-fg: #f0cfae; }
+  .st-stats .st-tone-1 { --tone-bg: #3a1236; --tone-fg: #e8a9c8; }
+  .st-stats .st-tone-2 { --tone-bg: #44103d; --tone-fg: #f3d7bd; }
+  .st-stats .st-tone-3 { --tone-bg: #3a1236; --tone-fg: #e8a9c8; }
 }
 [data-theme='light'] {
-  .st-tone-0 { --tone-bg: #e7eeff; --tone-fg: #1a4bf0; }
-  .st-tone-1 { --tone-bg: #e3efff; --tone-fg: #1f6fe0; }
-  .st-tone-2 { --tone-bg: #eceff6; --tone-fg: #4a5a7e; }
-  .st-tone-3 { --tone-bg: #e7eeff; --tone-fg: #1a4bf0; }
-  .st-tone-4 { --tone-bg: #e3efff; --tone-fg: #1f6fe0; }
-  .st-tone-5 { --tone-bg: #eceff6; --tone-fg: #4a5a7e; }
-  .st-stats .st-tone-0 { --tone-bg: #e7eeff; --tone-fg: #1a4bf0; }
-  .st-stats .st-tone-1 { --tone-bg: #eceff6; --tone-fg: #4a5a7e; }
-  .st-stats .st-tone-2 { --tone-bg: #e3efff; --tone-fg: #1f6fe0; }
-  .st-stats .st-tone-3 { --tone-bg: #e7eeff; --tone-fg: #1a4bf0; }
+  .st-tone-0 { --tone-bg: #f5e6f0; --tone-fg: #7a1f6c; }
+  .st-tone-1 { --tone-bg: #fae8ef; --tone-fg: #a8407a; }
+  .st-tone-2 { --tone-bg: #f6ece1; --tone-fg: #8a6040; }
+  .st-tone-3 { --tone-bg: #f5e6f0; --tone-fg: #7a1f6c; }
+  .st-tone-4 { --tone-bg: #fae8ef; --tone-fg: #a8407a; }
+  .st-tone-5 { --tone-bg: #f6ece1; --tone-fg: #8a6040; }
+  .st-stats .st-tone-0 { --tone-bg: #f5e6f0; --tone-fg: #7a1f6c; }
+  .st-stats .st-tone-1 { --tone-bg: #f6ece1; --tone-fg: #8a6040; }
+  .st-stats .st-tone-2 { --tone-bg: #fae8ef; --tone-fg: #a8407a; }
+  .st-stats .st-tone-3 { --tone-bg: #f5e6f0; --tone-fg: #7a1f6c; }
 }
 
 .home-wrapper { background: $black; }

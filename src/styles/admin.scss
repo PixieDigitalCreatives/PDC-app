@@ -574,6 +574,62 @@
         }
       }
 
+      // Position on the website: a picker plus one-step moves
+      .card-order-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.6rem 1.5rem;
+        border-top: 1px solid color-mix(in srgb, var(--fg) 6%, transparent);
+
+        .card-order-pos {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.7rem;
+          font-weight: 600;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+          color: var(--fg-3);
+
+          select {
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid color-mix(in srgb, var(--fg) 14%, transparent);
+            background: var(--surface);
+            color: var(--fg);
+            font: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+
+            &:disabled { opacity: 0.5; cursor: progress; }
+          }
+        }
+
+        .card-order-moves { display: inline-flex; gap: 6px; }
+
+        .btn-order {
+          display: inline-grid;
+          place-items: center;
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          color: var(--fg);
+          background: color-mix(in srgb, var(--fg) 6%, transparent);
+          border: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
+          cursor: pointer;
+          transition: all 0.25s ease;
+
+          &:hover:not(:disabled) {
+            background: color-mix(in srgb, var(--accent) 12%, transparent);
+            border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+            color: var(--accent);
+          }
+          &:disabled { opacity: 0.35; cursor: not-allowed; }
+        }
+      }
+
       .card-footer-actions {
         display: flex;
         align-items: center;

@@ -7,11 +7,11 @@
 
 :root,
 [data-theme='light'] {
-  --pr-spot: rgba(26, 75, 240, 0.09);
-  --pr-shadow: 0 26px 56px -32px rgba(27, 43, 94, 0.32);
+  --pr-spot: rgba(122, 31, 108, 0.09);
+  --pr-shadow: 0 26px 56px -32px rgba(74, 26, 62, 0.3);
 }
 [data-theme='dark'] {
-  --pr-spot: rgba(91, 140, 255, 0.14);
+  --pr-spot: rgba(232, 169, 200, 0.12);
   --pr-shadow: 0 34px 70px -40px rgba(0, 0, 0, 0.85);
 }
 
@@ -20,16 +20,16 @@
 .pr-tone-2 { --ta: var(--accent); }
 .pr-tone-3 { --ta: var(--accent-3); }
 [data-theme='dark'] {
-  .pr-tone-0 { --tone-bg: linear-gradient(140deg, #6c7a99, #434f6b); --tone-fg: #fff; }
-  .pr-tone-1 { --tone-bg: linear-gradient(140deg, #3b85ff, #1c56d6); --tone-fg: #fff; }
-  .pr-tone-2 { --tone-bg: linear-gradient(140deg, #2a5cff, #1235c7); --tone-fg: #fff; }
-  .pr-tone-3 { --tone-bg: linear-gradient(140deg, #8a96b0, #56627e); --tone-fg: #fff; }
+  .pr-tone-0 { --tone-bg: linear-gradient(140deg, #c9a07a, #8f6a4c); --tone-fg: #fff; }
+  .pr-tone-1 { --tone-bg: linear-gradient(140deg, #c25a9a, #8a2f6a); --tone-fg: #fff; }
+  .pr-tone-2 { --tone-bg: linear-gradient(140deg, #8a2a7a, #5a1150); --tone-fg: #fff; }
+  .pr-tone-3 { --tone-bg: linear-gradient(140deg, #b07aaa, #6e3f6a); --tone-fg: #fff; }
 }
 [data-theme='light'] {
-  .pr-tone-0 { --tone-bg: #eceff6; --tone-fg: #4a5a7e; }
-  .pr-tone-1 { --tone-bg: #e3efff; --tone-fg: #1f6fe0; }
-  .pr-tone-2 { --tone-bg: #e7eeff; --tone-fg: #1a4bf0; }
-  .pr-tone-3 { --tone-bg: #eceff6; --tone-fg: #4a5a7e; }
+  .pr-tone-0 { --tone-bg: #f6ece1; --tone-fg: #8a6040; }
+  .pr-tone-1 { --tone-bg: #fae8ef; --tone-fg: #a8407a; }
+  .pr-tone-2 { --tone-bg: #f5e6f0; --tone-fg: #7a1f6c; }
+  .pr-tone-3 { --tone-bg: #f6ece1; --tone-fg: #8a6040; }
 }
 
 .pr-meta { @include meta; font-size: 0.66rem; color: var(--accent-2); }

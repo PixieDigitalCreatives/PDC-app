@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useCms } from "../context/CmsContext";
-import { useLockupSrc } from "../context/ThemeContext";
+import { useLogos } from "../context/ThemeContext";
 import {
   RiDashboardLine,
   RiFolder2Line,
@@ -23,7 +24,9 @@ import {
   RiExternalLinkLine,
   RiPriceTag3Line,
   RiLockPasswordLine,
-  RiShieldUserLine
+  RiShieldUserLine,
+  RiArrowUpLine,
+  RiArrowDownLine
 } from "react-icons/ri";
 import PricingEditor from "../components/admin/PricingEditor";
 import ChangePasswordForm from "../components/admin/ChangePasswordForm";
@@ -32,7 +35,7 @@ import { adminApi, clearAdminSession, readAdminProfile, saveAdminSession } from 
 import "../styles/admin.scss";
 
 const Admin = () => {
-  const lockupSrc = useLockupSrc();
+  const logos = useLogos();
   const {
     portfolioProjects,
     teamMembers,
@@ -45,6 +48,7 @@ const Admin = () => {
     savePricing,
     addProject,
     updateProject,
+    reorderProjects,
     deleteProject,
     addTeamMember,
     updateTeamMember,
@@ -132,6 +136,7 @@ const Admin = () => {
 
   // Portfolio Modal State
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [projectForm, setProjectForm] = useState({
     title: "",
@@ -262,6 +267,19 @@ const Admin = () => {
     setIsProjectModalOpen(false);
   };
 
+  // Move a project to another position; the list order is the order on the website.
+  // One save at a time, so the server never receives orders out of sequence.
+  const moveProject = async (from, to) => {
+    if (isSavingOrder || from === to || to < 0 || to >= portfolioProjects.length) return;
+    const ids = portfolioProjects.map((p) => p.id);
+    const [moved] = ids.splice(from, 1);
+    ids.splice(to, 0, moved);
+    setIsSavingOrder(true);
+    const result = await reorderProjects(ids);
+    setIsSavingOrder(false);
+    showToast(result.ok ? "Project order saved." : result.error);
+  };
+
   const handleDeleteProject = (id, title) => {
     if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
       deleteProject(id);
@@ -386,7 +404,7 @@ const Admin = () => {
       <div className="admin-lock-screen">
         <div className="lock-card glass-panel">
           <div className="lock-header">
-            <img src={lockupSrc} alt="PDC Logo" className="lock-logo" />
+            <img src={logos.lockup} alt="PDC Logo" className="lock-logo" />
             <h2 className="lock-title">CMS Studio Access</h2>
             <p className="lock-sub">Sign in with your administrator credentials to continue.</p>
           </div>
@@ -453,7 +471,7 @@ const Admin = () => {
       <div className="admin-lock-screen">
         <div className="lock-card glass-panel">
           <div className="lock-header">
-            <img src={lockupSrc} alt="PDC Logo" className="lock-logo" />
+            <img src={logos.lockup} alt="PDC Logo" className="lock-logo" />
             <h2 className="lock-title">Set your own password</h2>
             <p className="lock-sub">
               You signed in as {me.email} with a temporary password. Choose your own password to continue.
@@ -499,7 +517,7 @@ const Admin = () => {
               <RiArrowLeftLine /> View Website
             </Link>
             <div className="admin-title-wrap">
-              <img src="/brand/secondary-400.png" alt="PDC Logo" className="admin-logo" />
+              <img src={logos.mark} alt="PDC Logo" className="admin-logo" />
               <div className="admin-title-text">
                 <h1>Pixie Digital Creatives</h1>
                 <span className="cms-badge">STUDIO CMS PANEL</span>
@@ -637,7 +655,8 @@ const Admin = () => {
                 <div>
                   <h2 className="tab-title">Portfolio Projects</h2>
                   <p className="tab-subtitle">
-                    Add, edit, and organize projects showcased on the homepage and portfolio grid.
+                    Add, edit, and organize projects showcased on the homepage and portfolio grid. The order here is
+                    the order on the website; new projects start at the top.
                   </p>
                 </div>
                 <button onClick={handleOpenNewProject} className="btn-primary">
@@ -646,8 +665,8 @@ const Admin = () => {
               </div>
 
               <div className="admin-grid-cards">
-                {portfolioProjects.map((project) => (
-                  <div key={project.id} className="admin-card glass-panel">
+                {portfolioProjects.map((project, index) => (
+                  <motion.div key={project.id} layout transition={{ duration: 0.35 }} className="admin-card glass-panel">
                     <div className="card-thumb-wrap">
                       <img
                         src={project.image || "/portfolio.jpg"}
@@ -682,6 +701,44 @@ const Admin = () => {
                       </div>
                     </div>
 
+                    <div className="card-order-bar" role="group" aria-label={`Position of ${project.title}`}>
+                      <label className="card-order-pos">
+                        <span>Position</span>
+                        <select
+                          value={index}
+                          onChange={(e) => moveProject(index, Number(e.target.value))}
+                          disabled={isSavingOrder}
+                        >
+                          {portfolioProjects.map((p, i) => (
+                            <option key={p.id} value={i}>{i + 1}</option>
+                          ))}
+                        </select>
+                        <span>of {portfolioProjects.length}</span>
+                      </label>
+                      <div className="card-order-moves">
+                        <button
+                          type="button"
+                          className="btn-order"
+                          onClick={() => moveProject(index, index - 1)}
+                          disabled={isSavingOrder || index === 0}
+                          title="Move up"
+                          aria-label={`Move ${project.title} up`}
+                        >
+                          <RiArrowUpLine />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-order"
+                          onClick={() => moveProject(index, index + 1)}
+                          disabled={isSavingOrder || index === portfolioProjects.length - 1}
+                          title="Move down"
+                          aria-label={`Move ${project.title} down`}
+                        >
+                          <RiArrowDownLine />
+                        </button>
+                      </div>
+                    </div>
+
                     <div className="card-footer-actions">
                       <button
                         onClick={() => handleOpenEditProject(project)}
@@ -698,7 +755,7 @@ const Admin = () => {
                         <RiDeleteBin6Line /> Delete
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>

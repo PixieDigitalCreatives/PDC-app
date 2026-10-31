@@ -1,5 +1,6 @@
 import React from "react";
 import { useCms } from "../../context/CmsContext";
+import { useLogos } from "../../context/ThemeContext";
 import { SERVICE_ICONS } from "../../sections/Story/icons";
 import { CHAPTER_BLURB } from "../../sections/ServicesStory/data";
 import { PHASES, pad } from "../../sections/ProcessStory/data";
@@ -13,13 +14,14 @@ const siteUrl = (website) => `https://${website.replace(/^https?:\/\//, "")}`;
 // the book title.
 const Cover = ({ book, page }) => {
   const { companyInfo } = useCms();
+  const logos = useLogos();
 
   if (page.headline) {
     return (
       <div className="fb-cover fb-cover--rich">
         <span className="fb-cover__glow fb-cover__glow--a" />
         <span className="fb-cover__glow fb-cover__glow--b" />
-        <img className="fb-cover__logo" src="/brand/primary-480.png" alt="Pixie Digital Creatives" draggable={false} />
+        <img className="fb-cover__logo" src={logos.lockup} alt="Pixie Digital Creatives" draggable={false} />
         <div className="fb-cover__body">
           {page.eyebrow && <span className="fb-cover__eyebrow-pill">{page.eyebrow}</span>}
           <h2 className="fb-cover__headline">
@@ -47,7 +49,7 @@ const Cover = ({ book, page }) => {
     <div className="fb-cover">
       <span className="fb-cover__glow fb-cover__glow--a" />
       <span className="fb-cover__glow fb-cover__glow--b" />
-      <img className="fb-cover__logo" src="/brand/primary-480.png" alt="Pixie Digital Creatives" draggable={false} />
+      <img className="fb-cover__logo" src={logos.lockup} alt="Pixie Digital Creatives" draggable={false} />
       <div className="fb-cover__body">
         <span className="fb-cover__eyebrow">{page.eyebrow || companyInfo?.name || "Pixie Digital Creatives"}</span>
         <h2 className="fb-cover__title">{page.title || book.title}</h2>
@@ -63,6 +65,7 @@ const Cover = ({ book, page }) => {
 // Back cover. With `title` it carries the book's closing message; without, minimal clean brand mark.
 const BackCover = ({ page }) => {
   const { companyInfo } = useCms();
+  const logos = useLogos();
   const website = page?.website || companyInfo?.website || "pixiedigitalcreatives.com";
   const tagline = page?.tagline || companyInfo?.tagline || "Turning ideas into digital experiences.";
 
@@ -71,7 +74,7 @@ const BackCover = ({ page }) => {
       <div className="fb-cover fb-cover--back fb-cover--closing">
         <span className="fb-cover__glow fb-cover__glow--a" />
         <span className="fb-cover__glow fb-cover__glow--b" />
-        <img className="fb-cover__mark" src="/brand/secondary-400.png" alt="PDC" draggable={false} />
+        <img className="fb-cover__mark" src={logos.mark} alt="PDC" draggable={false} />
         <h2 className="fb-cover__closing">{page.title}</h2>
         {page.text && <p className="fb-cover__text">{page.text}</p>}
         <div className="fb-cover__contact">
@@ -87,7 +90,7 @@ const BackCover = ({ page }) => {
     <div className="fb-cover fb-cover--back">
       <span className="fb-cover__glow fb-cover__glow--a" />
       <span className="fb-cover__glow fb-cover__glow--b" />
-      <img className="fb-cover__mark" src="/brand/secondary-400.png" alt="PDC" draggable={false} />
+      <img className="fb-cover__mark" src={logos.mark} alt="PDC" draggable={false} />
       {tagline && <p className="fb-cover__tag">{tagline}</p>}
       <div className="fb-cover__site-badge">
         <a href={siteUrl(website)} target="_blank" rel="noreferrer">{website}</a>

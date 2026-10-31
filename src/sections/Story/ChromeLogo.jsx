@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from "framer-motion";
 import { useFinePointer } from "../../animations/hooks";
+import { useLogos } from "../../context/ThemeContext";
 import { EASE } from "../../animations/variants";
 
 const SPRING = { stiffness: 90, damping: 18, mass: 0.7 };
@@ -11,6 +12,7 @@ const SPRING = { stiffness: 90, damping: 18, mass: 0.7 };
  */
 const ChromeLogo = ({ ready = true, className = "", style }) => {
   const reduce = useReducedMotion();
+  const logos = useLogos();
   const fine = useFinePointer();
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
@@ -45,10 +47,10 @@ const ChromeLogo = ({ ready = true, className = "", style }) => {
           animate={reduce ? undefined : { y: [0, -14, 0] }}
           transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
         >
-          <img src="/brand/secondary-1200.webp" alt="Pixie Digital Creatives" className="chrome-logo__img" draggable="false" />
+          <img src={logos.hero} alt="Pixie Digital Creatives" className="chrome-logo__img" draggable="false" />
           <span className="chrome-logo__sheen" aria-hidden="true" />
         </motion.div>
-        <img src="/brand/secondary-1200.webp" alt="" className="chrome-logo__reflection" aria-hidden="true" draggable="false" />
+        <img src={logos.hero} alt="" className="chrome-logo__reflection" aria-hidden="true" draggable="false" />
       </motion.div>
     </motion.div>
   );

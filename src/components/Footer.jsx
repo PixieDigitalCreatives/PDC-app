@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCms } from "../context/CmsContext";
-import { useLockupSrc } from "../context/ThemeContext";
+import { useLogos } from "../context/ThemeContext";
 import { FaInstagram, FaLinkedinIn, FaFacebookF, FaXTwitter } from "react-icons/fa6";
 import { EASE, VIEWPORT } from "../animations/variants";
 import "../styles/footer.scss";
@@ -26,7 +26,7 @@ const col = {
 
 const Footer = () => {
   const { companyInfo, services } = useCms();
-  const lockupSrc = useLockupSrc();
+  const logos = useLogos();
   const socials = [
     { label: "Instagram", Icon: FaInstagram, href: companyInfo?.socials?.instagram || "https://www.instagram.com/pixiedigitalcreatives/" },
     { label: "LinkedIn", Icon: FaLinkedinIn, href: companyInfo?.socials?.linkedin || "https://www.linkedin.com/company/pixiedigitalcreatives" },
@@ -41,7 +41,7 @@ const Footer = () => {
         <div className="footer-grid">
           <motion.div className="footer-col brand-col" variants={col} custom={0}>
             <Link to="/" className="footer-logo-link" aria-label="Pixie Digital Creatives — home">
-              <img src={lockupSrc} alt="Pixie Digital Creatives" className="footer-logo" />
+              <img src={logos.lockup} alt="Pixie Digital Creatives" className="footer-logo" />
             </Link>
             <p className="footer-statement">
               Creative solutions for modern brands.

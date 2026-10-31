@@ -2,14 +2,14 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import { flushSync } from "react-dom";
 
 const ThemeContext = createContext(null);
-// v2: the blue/silver rebrand made light the default, so choices saved before it are ignored.
-const STORAGE_KEY = "pdc-theme-v2";
-const META = { dark: "#050914", light: "#f5f7fc" };
+// v3: dark (plum) became the default; the theme is saved on every visit, so older saved values are ignored.
+const STORAGE_KEY = "pdc-theme-v3";
+const META = { dark: "#230220", light: "#faf4ee" };
 
 // index.html already set data-theme before first paint; start from that.
 const initialTheme = () => {
   const t = typeof document !== "undefined" ? document.documentElement.getAttribute("data-theme") : null;
-  return t === "dark" ? "dark" : "light";
+  return t === "light" ? "light" : "dark";
 };
 
 const applyTheme = (theme) => {
@@ -65,6 +65,19 @@ export const useTheme = () => {
   return ctx;
 };
 
-// The full logo has a navy wordmark; the dark theme uses a copy with a light wordmark.
-export const useLockupSrc = () =>
-  useTheme().theme === "dark" ? "/brand/primary-480-dark.png" : "/brand/primary-480.png";
+// Logo files per theme: a plum version for the light theme, the cream logo as supplied for the dark one.
+const LOGOS = {
+  light: {
+    lockup: "/brand/primary-480.png",
+    mark: "/brand/secondary-400.png",
+    hero: "/brand/secondary-1200.webp",
+    ring: "/brand/mark-256.png",
+  },
+  dark: {
+    lockup: "/brand/primary-480-dark.png",
+    mark: "/brand/secondary-400-dark.png",
+    hero: "/brand/secondary-1200-dark.webp",
+    ring: "/brand/mark-256-dark.png",
+  },
+};
+export const useLogos = () => LOGOS[useTheme().theme];

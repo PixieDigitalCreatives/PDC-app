@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from "react";
 import { motion, useMotionValue, useMotionTemplate, useScroll, useSpring, useTransform } from "framer-motion";
 import { HiArrowRight } from "react-icons/hi2";
 import { useCms } from "../../context/CmsContext";
+import { useLogos } from "../../context/ThemeContext";
 import { useReady } from "../../animations/ReadyContext";
 import { useFinePointer, useIsDesktop, usePrefersReducedMotion } from "../../animations/hooks";
 import { scrollToTarget } from "../../animations/lenis";
@@ -68,25 +69,28 @@ const Plate = ({ item, spot, index, ready, nx, ny, scrollP, motionOn }) => {
 };
 
 // A ring of text (the company tagline) turning around the logo.
-const Ring = ({ text, ready }) => (
-  <motion.div
-    className="ab-ring"
-    aria-hidden="true"
-    initial={{ scale: 0, rotate: -90, opacity: 0 }}
-    animate={ready ? { scale: 1, rotate: 0, opacity: 1 } : undefined}
-    transition={{ type: "spring", stiffness: 120, damping: 16, delay: 1.5 }}
-  >
-    <svg viewBox="0 0 200 200" className="ab-ring__text">
-      <defs>
-        <path id="ab-ring-path" d="M100 100 m-78 0 a78 78 0 1 1 156 0 a78 78 0 1 1 -156 0" />
-      </defs>
-      <text>
-        <textPath href="#ab-ring-path" startOffset="0" textLength="484" lengthAdjust="spacing">{`${text} • `}</textPath>
-      </text>
-    </svg>
-    <img src="/brand/mark-256.png" alt="" className="ab-ring__logo" />
-  </motion.div>
-);
+const Ring = ({ text, ready }) => {
+  const logos = useLogos();
+  return (
+    <motion.div
+      className="ab-ring"
+      aria-hidden="true"
+      initial={{ scale: 0, rotate: -90, opacity: 0 }}
+      animate={ready ? { scale: 1, rotate: 0, opacity: 1 } : undefined}
+      transition={{ type: "spring", stiffness: 120, damping: 16, delay: 1.5 }}
+    >
+      <svg viewBox="0 0 200 200" className="ab-ring__text">
+        <defs>
+          <path id="ab-ring-path" d="M100 100 m-78 0 a78 78 0 1 1 156 0 a78 78 0 1 1 -156 0" />
+        </defs>
+        <text>
+          <textPath href="#ab-ring-path" startOffset="0" textLength="484" lengthAdjust="spacing">{`${text} • `}</textPath>
+        </text>
+      </svg>
+      <img src={logos.ring} alt="" className="ab-ring__logo" />
+    </motion.div>
+  );
+};
 
 // Chapter 0 — who we are. The headline rises letter by letter while the people behind the studio
 // open as arches, each drifting at its own depth with the cursor and the scroll.

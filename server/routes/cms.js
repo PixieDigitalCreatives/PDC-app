@@ -19,7 +19,7 @@ const buildIdQuery = (id) => {
 router.get("/all", async (req, res) => {
   try {
     const [portfolio, team, stats, company, pricing] = await Promise.all([
-      Portfolio.find().sort({ order: 1 }),
+      Portfolio.find().sort({ order: 1, createdAt: -1 }),
       Team.find().sort({ order: 1 }),
       Stat.find(),
       Company.findOne(),
@@ -43,15 +43,44 @@ router.get("/all", async (req, res) => {
 
 // --- PORTFOLIO ROUTES ---
 
-// POST /api/cms/portfolio (Protected)
+// POST /api/cms/portfolio (Protected) — a new project goes to the top of the list.
 router.post("/portfolio", requireAuth, async (req, res) => {
   try {
-    const project = await Portfolio.create(req.body);
+    const first = await Portfolio.findOne().sort({ order: 1 }).select("order").lean();
+    const order = first ? (first.order ?? 0) - 1 : 0;
+    const project = await Portfolio.create({ ...req.body, order });
     const obj = project.toObject();
     res.json({ success: true, project: { ...obj, id: obj._id.toString() } });
   } catch (err) {
     console.error("Create project error:", err);
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// PUT /api/cms/portfolio/order (Protected) — body { ids }: every project id once, first to last.
+// Declared before /portfolio/:id so "order" is not read as an id.
+router.put("/portfolio/order", requireAuth, async (req, res) => {
+  try {
+    const ids = req.body?.ids;
+    const valid =
+      Array.isArray(ids) &&
+      ids.every((id) => typeof id === "string" && mongoose.Types.ObjectId.isValid(id)) &&
+      new Set(ids).size === ids.length;
+    if (!valid) {
+      return res.status(400).json({ success: false, error: "Send every project id once, in the new order." });
+    }
+    const existing = await Portfolio.find().select("_id").lean();
+    const known = new Set(existing.map((p) => p._id.toString()));
+    if (ids.length !== known.size || ids.some((id) => !known.has(id))) {
+      return res.status(409).json({ success: false, error: "The project list has changed. Reload the page and try again." });
+    }
+    await Portfolio.bulkWrite(
+      ids.map((id, i) => ({ updateOne: { filter: { _id: id }, update: { $set: { order: i } } } }))
+    );
+    res.json({ success: true, ids });
+  } catch (err) {
+    console.error("Reorder projects error:", err);
+    res.status(500).json({ success: false, error: "Could not save the order." });
   }
 });
 
