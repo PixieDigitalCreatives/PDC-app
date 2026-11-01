@@ -1,3 +1,35 @@
+# Pixie Digital Creatives: crawler policy (owner-approved, 1 Nov 2026)
+
+# Search engines and AI search tools: allowed. They fetch pages to show and cite them in results
+# and AI answers (ChatGPT Search, Perplexity, Claude, Google, Bing / Copilot, Apple, DuckDuckGo).
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: Perplexity-User
+User-agent: Claude-SearchBot
+User-agent: Claude-User
+User-agent: Applebot
+User-agent: DuckAssistBot
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+# AI training crawlers: allowed, so AI models can learn about the studio and its services.
+# To stop training use later, change "Allow: /" to "Disallow: /" in this group only;
+# search and AI-answer access above is not affected.
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: CCBot
+User-agent: meta-externalagent
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+# Everyone else
 User-agent: *
 Allow: /
 Disallow: /admin

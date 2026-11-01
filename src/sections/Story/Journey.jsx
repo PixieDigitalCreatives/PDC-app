@@ -8,38 +8,8 @@ import ServiceArt from "../../components/media/ServiceArt";
 import Reveal from "../../components/motion/Reveal";
 import SilkWaves from "./SilkWaves";
 import { SERVICE_ICONS } from "./icons";
+import { JOURNEY_CHAPTERS as CHAPTERS } from "../../data/siteCopy";
 
-// The four handwritten words from the hero become the four chapters of the story.
-const CHAPTERS = [
-  {
-    key: "Ideas",
-    title: "Every brand starts as a spark.",
-    text: "We listen first: your goals, your audience and what makes you different. Strategy and content planning turn a rough idea into a clear direction.",
-    visual: "idea",
-    services: ["social", "content"],
-  },
-  {
-    key: "Design",
-    title: "Then we give it a face.",
-    text: "Interfaces, identity and motion designed to feel like you, on every screen and in every scroll.",
-    visual: "wordpress",
-    services: ["web", "wordpress", "edit"],
-  },
-  {
-    key: "Develop",
-    title: "Built to perform.",
-    text: "Websites, apps and systems engineered for speed, security and scale, with a CMS your team can actually use.",
-    visual: "web",
-    services: ["app", "crm", "stack"],
-  },
-  {
-    key: "Grow",
-    title: "And then, it grows.",
-    text: "SEO, GEO and AEO get you found, paid campaigns bring the right people in, and content keeps them coming back.",
-    visual: "reach",
-    services: ["search", "ads", "handling"],
-  },
-];
 const pad = (n) => String(n).padStart(2, "0");
 
 const useChapterServices = () => {

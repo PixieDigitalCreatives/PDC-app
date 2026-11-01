@@ -7,104 +7,13 @@ import {
   RiRocketLine,
   RiLifebuoyLine,
 } from "react-icons/ri";
+import { PROCESS_PHASES } from "../../data/siteCopy";
 
 export const pad = (n) => String(n).padStart(2, "0");
 
-// The seven phases. Copy describes what each phase involves and delivers; it makes no promises
-// about how long a phase takes (that depends on the project).
-export const PHASES = [
-  {
-    name: "Discovery and alignment",
-    short: "Discovery",
-    icon: RiCompass3Line,
-    tagline: "Uncovering goals, user behavior and the competitive landscape.",
-    desc: "Every exceptional digital product begins with careful listening. We talk to stakeholders, look at market benchmarks, audit existing systems and define clear business measures of success.",
-    deliverables: [
-      "Discovery workshop and goal blueprint",
-      "User persona and flow mapping",
-      "Competitor landscape benchmark",
-      "Technical feasibility scope",
-    ],
-  },
-  {
-    name: "Strategy and architecture",
-    short: "Strategy",
-    icon: RiRouteLine,
-    tagline: "Structuring the information architecture and the project roadmap.",
-    desc: "We turn what we learned into a clear roadmap: information hierarchy, data requirements, conversion paths and the technical stack, all settled before design begins.",
-    deliverables: [
-      "Information architecture",
-      "Technical stack architecture",
-      "Content strategy and copy outlines",
-      "Milestone and schedule",
-    ],
-  },
-  {
-    name: "UI/UX design",
-    short: "Design",
-    icon: RiLayoutMasonryLine,
-    tagline: "Crafting bespoke, high-conversion visual interfaces.",
-    desc: "Our designers build visual concepts in Figma, combining considered typography, a consistent visual system, responsive layouts and interactive details, and refine them with your feedback.",
-    deliverables: [
-      "Wireframes and low-fidelity concepts",
-      "High-fidelity desktop and mobile UI",
-      "Design system and tokens",
-      "Interactive Figma prototype",
-    ],
-  },
-  {
-    name: "Full-stack development",
-    short: "Develop",
-    icon: RiCodeSSlashLine,
-    tagline: "Writing clean, scalable, high-performance code.",
-    desc: "We build pixel-accurate front-end components with React and dependable back-end services, with a focus on clean code, database design, modular architecture and fast load times.",
-    deliverables: [
-      "Responsive front-end implementation",
-      "API and database integration",
-      "CMS setup and custom fields",
-      "Staging environment deployment",
-    ],
-  },
-  {
-    name: "Testing and QA",
-    short: "QA",
-    icon: RiShieldCheckLine,
-    tagline: "Multi-device testing, security checks and speed optimisation.",
-    desc: "Thorough testing across browsers, screen sizes and operating systems, plus speed audits, SEO checks, form verification and security sweeps.",
-    deliverables: [
-      "Cross-browser and device QA",
-      "Speed optimisation",
-      "SEO and metadata validation",
-      "Security and SSL verification",
-    ],
-  },
-  {
-    name: "Launch",
-    short: "Launch",
-    icon: RiRocketLine,
-    tagline: "A planned, carefully managed launch.",
-    desc: "We take care of DNS and SSL activation, live data migration, analytics connection and CMS handoff training, so your team feels confident from day one.",
-    deliverables: [
-      "Production server deployment",
-      "DNS migration and SSL activation",
-      "Google Analytics 4 and Search Console",
-      "CMS video walkthrough and training",
-    ],
-  },
-  {
-    name: "Growth and support",
-    short: "Growth",
-    icon: RiLifebuoyLine,
-    tagline: "Ongoing maintenance and conversion optimisation.",
-    desc: "We stay in your corner. Through monthly maintenance and retainer agreements we monitor performance, apply security updates and ship iterative improvements.",
-    deliverables: [
-      "Uptime and performance monitoring",
-      "Regular security updates and backups",
-      "Monthly feature enhancements",
-      "Retainer-based technical support",
-    ],
-  },
-];
+// The seven phases: copy lives in src/data/siteCopy.js (shared with the crawlable copy); icons stay here, in order.
+const PHASE_ICONS = [RiCompass3Line, RiRouteLine, RiLayoutMasonryLine, RiCodeSSlashLine, RiShieldCheckLine, RiRocketLine, RiLifebuoyLine];
+export const PHASES = PROCESS_PHASES.map((p, i) => ({ ...p, icon: PHASE_ICONS[i] }));
 
 // A smooth path through one point per phase (Catmull-Rom -> cubic Bezier), in a 1000 x 200 box.
 // The same points position the stops in the hero, so labels sit exactly on the line.

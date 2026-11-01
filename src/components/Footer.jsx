@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useCms } from "../context/CmsContext";
 import { useLogos } from "../context/ThemeContext";
+import { SERVICE_PAGES } from "../data/servicePages";
 import { FaInstagram, FaLinkedinIn, FaFacebookF, FaXTwitter } from "react-icons/fa6";
 import { EASE, VIEWPORT } from "../animations/variants";
 import "../styles/footer.scss";
@@ -14,6 +15,8 @@ const quickLinks = [
   { name: "Pricing", path: "/pricing" },
   { name: "Portfolio", path: "/portfolio" },
   { name: "Process", path: "/process" },
+  { name: "Industries", path: "/industries" },
+  { name: "Blog", path: "/blog" },
   { name: "Brochure", path: "/brochure" },
   { name: "Company Profile", path: "/company-profile" },
   { name: "Contact", path: "/contact" },
@@ -25,7 +28,7 @@ const col = {
 };
 
 const Footer = () => {
-  const { companyInfo, services } = useCms();
+  const { companyInfo } = useCms();
   const logos = useLogos();
   const socials = [
     { label: "Instagram", Icon: FaInstagram, href: companyInfo?.socials?.instagram || "https://www.instagram.com/pixiedigitalcreatives/" },
@@ -67,8 +70,8 @@ const Footer = () => {
           <motion.div className="footer-col" variants={col} custom={2}>
             <h4 className="footer-col-title">Services</h4>
             <ul className="footer-links">
-              {services.slice(0, 6).map((s) => (
-                <li key={s.id || s.title}><Link to={s.link || "/services"}>{s.title}</Link></li>
+              {SERVICE_PAGES.map((s) => (
+                <li key={s.slug}><Link to={`/services/${s.slug}`}>{s.name}</Link></li>
               ))}
             </ul>
           </motion.div>

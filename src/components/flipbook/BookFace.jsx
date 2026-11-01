@@ -283,7 +283,7 @@ const ProfileContactPage = ({ page, number }) => {
   const { companyInfo } = useCms();
   const website = page.website || companyInfo?.website || "pixiedigitalcreatives.com";
   const email = page.email || companyInfo?.email || "info@pixiedigitalcreatives.com";
-  const phone = page.phone || companyInfo?.phone || "+91 97089 76946";
+  const phone = page.phone || companyInfo?.phone || "+91 96086 84177";
 
   return (
     <div className="fb-cards fb-pcontact">

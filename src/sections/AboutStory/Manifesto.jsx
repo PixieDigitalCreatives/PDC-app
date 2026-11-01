@@ -5,13 +5,11 @@ import { useIsDesktop, usePrefersReducedMotion } from "../../animations/hooks";
 import CountUp from "../../components/motion/CountUp";
 import Reveal from "../../components/motion/Reveal";
 import ScrollWords from "../../components/motion/ScrollWords";
+import { MANIFESTO } from "../../data/siteCopy";
 import { Stagger, StaggerItem } from "../../components/motion/Stagger";
 import SilkWaves from "../Story/SilkWaves";
 
-const TEXT =
-  "Pixie Digital Creatives started with a simple idea: design and engineering should be planned together, so what looks good also works properly and keeps the business growing.";
-const ACCENT = ["planned", "together"];
-const SUB = "We care about how a site looks and how it performs in equal measure.";
+const { text: TEXT, accent: ACCENT, sub: SUB } = MANIFESTO;
 
 const NUM = /^(\D*)(\d+(?:[.,]\d+)?)(.*)$/;
 

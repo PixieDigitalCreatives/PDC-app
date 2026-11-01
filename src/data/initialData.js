@@ -175,7 +175,7 @@ export const defaultCompanyInfo = {
   tagline: "Creative. Strategic. Impactful.",
   description: "We help businesses turn ideas into premium digital experiences through thoughtful design, modern development, and custom digital solutions.",
   email: "info@pixiedigitalcreatives.com",
-  phone: "+91 97089 76946, +91 88253 10738",
+  phone: "+91 96086 84177",
   website: "pixiedigitalcreatives.com",
   services: "Website Development • App Development • CRM • Social Media • SEO • Ads",
   digitalPresence: "Serving businesses through digital-first solutions",

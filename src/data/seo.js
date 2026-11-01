@@ -1,19 +1,23 @@
 // SEO for every page, in one place. Used in the browser (title and tags while moving between
 // pages, see components/RouteSeo.jsx) and at build time by scripts/prerender-seo.mjs, which writes a
-// static head, structured data and a crawlable copy of each page's intro, plus the sitemap.
+// static head, structured data and a crawlable copy of each page, plus the sitemap and llms.txt.
+// Main pages are listed here; service, industry and blog pages are generated from their data files.
 //
 // Target keywords: website development, website, premium website, application development,
 // digital agency, social media handling. Every line here must stay true to what the page says:
 // `kicker` is the small keyword line inside each page's H1, `h1` the slogan after it, and `lead` the
 // intro under it; the heroes import `kicker` and `lead`, so the page and its crawlable copy match.
 import { defaultServices, defaultCompanyInfo } from "./initialData.js";
+import { SERVICE_PAGES } from "./servicePages.js";
+import { INDUSTRIES } from "./industries.js";
+import { POSTS } from "./blog.js";
 
 export const SITE_URL = "https://www.pixiedigitalcreatives.com";
 export const SITE_NAME = "Pixie Digital Creatives";
 export const OG_IMAGE = "/brand/og-image.png";
 export const LOGO = "/brand/favicon-192.png";
 
-export const PAGES = [
+const MAIN_PAGES = [
   {
     path: "/",
     title: "Website & App Development Agency | Pixie Digital Creatives",
@@ -127,9 +131,55 @@ export const NOT_FOUND = {
   noindex: true,
 };
 
+// Content pages generated from their data files. `kind` tells the build step which template to use;
+// `parent` adds the middle breadcrumb (Home > Services > Website Development).
+const SERVICES_CRUMB = { name: "Services", path: "/services" };
+const INDUSTRIES_CRUMB = { name: "Industries", path: "/industries" };
+const BLOG_CRUMB = { name: "Blog", path: "/blog" };
+
+const CONTENT_PAGES = [
+  ...SERVICE_PAGES.map((s) => ({
+    path: `/services/${s.slug}`, kind: "service", slug: s.slug, title: s.title, description: s.description,
+    kicker: s.kicker, h1: s.h1, lead: s.lead, crumb: s.name, parent: SERVICES_CRUMB,
+  })),
+  {
+    path: "/industries", kind: "industries", title: "Industries We Build For | Pixie Digital Creatives",
+    description: "Website and app development for restaurants and cafés, e-commerce brands, fitness businesses and creators, each backed by real Pixie Digital Creatives projects.",
+    kicker: "Industries", h1: "Built for the way your industry works.",
+    lead: "Every industry needs something different from its website. These are the industries we have designed and built for, with the real projects behind them.",
+    crumb: "Industries",
+  },
+  ...INDUSTRIES.map((i) => ({
+    path: `/industries/${i.slug}`, kind: "industry", slug: i.slug, title: i.title, description: i.description,
+    kicker: i.kicker, h1: i.h1, lead: i.lead, crumb: i.name, parent: INDUSTRIES_CRUMB,
+  })),
+  {
+    path: "/blog", kind: "blog", title: "Blog: Websites, SEO & AI Search Guides | Pixie Digital Creatives",
+    description: "Practical guides on website development, SEO, AEO and GEO from Pixie Digital Creatives: comparisons, checklists and how-to articles for growing businesses.",
+    kicker: "Blog", h1: "Guides for building and growing online.",
+    lead: "Practical articles on website development, SEO, AEO and GEO: what they are, how they compare and what to do first.",
+    crumb: "Blog",
+  },
+  ...POSTS.map((p) => ({
+    path: `/blog/${p.slug}`, kind: "post", slug: p.slug, description: p.description,
+    // brand suffix only when it still fits in a search result
+    title: `${p.title} | Pixie Digital Creatives`.length <= 65 ? `${p.title} | Pixie Digital Creatives` : p.title,
+    kicker: p.kicker, h1: p.title, lead: p.lead, crumb: p.title, parent: BLOG_CRUMB,
+  })),
+];
+
+export const PAGES = [...MAIN_PAGES, ...CONTENT_PAGES];
+
+// Case studies (/work/<slug>) come from the CMS, so their page sets its own tags (see useSeo).
+export const DYNAMIC = { dynamic: true };
+
 const normalize = (pathname) => (pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname) || "/";
 
-export const seoPage = (pathname) => PAGES.find((p) => p.path === normalize(pathname)) || NOT_FOUND;
+export const seoPage = (pathname) => {
+  const path = normalize(pathname);
+  if (path.startsWith("/work/")) return DYNAMIC;
+  return PAGES.find((p) => p.path === path) || NOT_FOUND;
+};
 
 export const absoluteUrl = (path) => `${SITE_URL}${path}`;
 

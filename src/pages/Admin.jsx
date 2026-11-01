@@ -1068,7 +1068,7 @@ const Admin = () => {
                       type="text"
                       value={company.phone || ""}
                       onChange={(e) => editCompany({ phone: e.target.value })}
-                      placeholder="+91 97089 76946, +91 88253 10738"
+                      placeholder="+91 96086 84177"
                     />
                   </div>
                   <div className="form-group">

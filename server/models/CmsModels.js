@@ -39,7 +39,7 @@ const companySchema = new mongoose.Schema({
   name: { type: String, default: "Pixie Digital Creatives" },
   shortName: { type: String, default: "PDC" },
   email: { type: String, default: "info@pixiedigitalcreatives.com" },
-  phone: { type: String, default: "+91 97089 76946, +91 88253 10738" },
+  phone: { type: String, default: "+91 96086 84177" },
   address: { type: String, default: "Digital Studio Worldwide & Remote" },
   website: { type: String, default: "pixiedigitalcreatives.com" },
   tagline: { type: String, default: "Creative. Strategic. Impactful." },

@@ -27,7 +27,7 @@ const ContactPage = () => {
 
   const budgetOptions = getBudgetRanges();
 
-  const rawPhone = companyInfo?.phone || "+91 97089 76946, +91 88253 10738";
+  const rawPhone = companyInfo?.phone || "+91 96086 84177";
   const phoneList = rawPhone.split(",").map((p) => p.trim()).filter(Boolean);
   const rawWebsite = companyInfo?.website || "pixiedigitalcreatives.com";
   const websiteUrl = rawWebsite.startsWith("http") ? rawWebsite : `https://${rawWebsite}`;

@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { projectSlug } from "../data/projects";
 import { useCms } from "../context/CmsContext";
 import { RiCloseLine, RiExternalLinkLine, RiCalendarLine, RiBuildingLine } from "react-icons/ri";
 import { HiOutlineArrowUpRight } from "react-icons/hi2";
@@ -111,6 +113,14 @@ const ProjectDetailModal = () => {
           )}
 
           <div className="modal-cta-box">
+            <Link
+              to={`/work/${projectSlug(project.title)}`}
+              className="btn-secondary"
+              onClick={() => setSelectedProjectModal(null)}
+            >
+              <span>READ THE CASE STUDY</span>
+              <HiOutlineArrowUpRight />
+            </Link>
             <p>Want to build a project with similar high standards?</p>
             <button
               onClick={() => {

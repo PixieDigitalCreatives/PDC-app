@@ -15,6 +15,12 @@ const ContactPage = lazy(() => import("./pages/ContactPage"));
 const BookViewPage = lazy(() => import("./pages/BookViewPage"));
 const Admin = lazy(() => import("./pages/Admin"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const ServiceDetailPage = lazy(() => import("./pages/ServiceDetailPage"));
+const IndustryPage = lazy(() => import("./pages/IndustryPage"));
+const IndustriesPage = lazy(() => import("./pages/IndustryPage").then((m) => ({ default: m.IndustriesPage })));
+const BlogIndexPage = lazy(() => import("./pages/BlogPage").then((m) => ({ default: m.BlogIndexPage })));
+const BlogPostPage = lazy(() => import("./pages/BlogPage").then((m) => ({ default: m.BlogPostPage })));
+const CaseStudyPage = lazy(() => import("./pages/CaseStudyPage"));
 import Cursor from "./components/cursor/Cursor";
 import SmoothScroll from "./components/motion/SmoothScroll";
 import ScrollAnimationManager from "./components/ScrollAnimationManager";
@@ -63,6 +69,12 @@ const AnimatedRoutes = () => {
       <Routes location={displayLocation}>
         <Route path="/" element={<Home />} />
         <Route path="/services" element={<ServicesPage />} />
+        <Route path="/services/:slug" element={<ServiceDetailPage />} />
+        <Route path="/industries" element={<IndustriesPage />} />
+        <Route path="/industries/:slug" element={<IndustryPage />} />
+        <Route path="/blog" element={<BlogIndexPage />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/work/:slug" element={<CaseStudyPage />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/about" element={<AboutPage />} />

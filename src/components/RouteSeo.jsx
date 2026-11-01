@@ -28,19 +28,31 @@ const setCanonical = (href) => {
   el.setAttribute("href", href);
 };
 
+// page: { path, title, description, noindex? }
+export const applySeo = (page) => {
+  const url = page.path ? absoluteUrl(page.path) : null;
+  document.title = page.title;
+  setMeta("name", "description", page.description);
+  setMeta("name", "robots", page.noindex ? "noindex, follow" : "index, follow, max-image-preview:large");
+  setCanonical(page.noindex ? null : url);
+  setMeta("property", "og:title", page.title);
+  setMeta("property", "og:description", page.description);
+  if (url) setMeta("property", "og:url", url);
+  setMeta("name", "twitter:title", page.title);
+  setMeta("name", "twitter:description", page.description);
+};
+
+// For pages whose tags depend on data loaded at runtime (case studies from the CMS).
+export const useSeo = (page) => {
+  useEffect(() => {
+    if (page) applySeo(page);
+  }, [page?.path, page?.title, page?.description, page?.noindex]); // eslint-disable-line react-hooks/exhaustive-deps
+};
+
 const RouteSeo = ({ pathname }) => {
   useEffect(() => {
     const page = seoPage(pathname);
-    const url = page.path ? absoluteUrl(page.path) : null;
-    document.title = page.title;
-    setMeta("name", "description", page.description);
-    setMeta("name", "robots", page.noindex ? "noindex, follow" : "index, follow, max-image-preview:large");
-    setCanonical(page.noindex ? null : url);
-    setMeta("property", "og:title", page.title);
-    setMeta("property", "og:description", page.description);
-    if (url) setMeta("property", "og:url", url);
-    setMeta("name", "twitter:title", page.title);
-    setMeta("name", "twitter:description", page.description);
+    if (!page.dynamic) applySeo(page);
   }, [pathname]);
 
   return null;

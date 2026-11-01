@@ -279,7 +279,7 @@ export const BOOKS = {
         channels: [
           { label: "Website", value: "pixiedigitalcreatives.com", href: "https://pixiedigitalcreatives.com" },
           { label: "Enquiries", value: "info@pixiedigitalcreatives.com", href: "mailto:info@pixiedigitalcreatives.com" },
-          { label: "Direct Call", value: "+91 97089 76946 / +91 88253 10738", href: "tel:+919708976946" },
+          { label: "Direct Call", value: "+91 96086 84177", href: "tel:+919608684177" },
         ],
         steps: [
           { title: "Initial Conversation", text: "Reach out via our form or call to discuss your vision, timeline, and requirements." },

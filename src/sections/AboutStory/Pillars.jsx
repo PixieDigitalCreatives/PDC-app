@@ -5,29 +5,11 @@ import { useIsDesktop, usePrefersReducedMotion } from "../../animations/hooks";
 import { EASE } from "../../animations/variants";
 import MaskText from "../../components/motion/MaskText";
 import Reveal from "../../components/motion/Reveal";
+import { PILLARS_COPY } from "../../data/siteCopy";
 
-const PILLARS = [
-  {
-    icon: RiCompass3Line,
-    title: "Strategy first",
-    desc: "We begin with the core business objective and user psychology before writing a single line of code or placing a pixel.",
-  },
-  {
-    icon: RiLightbulbFlashLine,
-    title: "Creative with purpose",
-    desc: "Every visual decision, typeface and micro-interaction serves usability, brand clarity and how the business is perceived.",
-  },
-  {
-    icon: RiCpuLine,
-    title: "Built to scale",
-    desc: "We engineer systems designed to handle growing traffic, expanding catalogues and growing team operations.",
-  },
-  {
-    icon: RiInfinityLine,
-    title: "Long-term partnership",
-    desc: "We don't disappear on launch day. We act as your long-term technical and creative partner as the business grows.",
-  },
-];
+// Text lives in src/data/siteCopy.js (shared with the crawlable copy); icons stay here, in order.
+const PILLAR_ICONS = [RiCompass3Line, RiLightbulbFlashLine, RiCpuLine, RiInfinityLine];
+const PILLARS = PILLARS_COPY.map((p, i) => ({ ...p, icon: PILLAR_ICONS[i] }));
 
 const AUTO_MS = 6500;
 const pad = (n) => String(n + 1).padStart(2, "0");

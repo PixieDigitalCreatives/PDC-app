@@ -13,6 +13,7 @@ import { genImage } from "../../data/images";
 import { SERVICE_ICONS } from "../Story/icons";
 import { pad } from "./data";
 import { pricingForService } from "../../data/pricing";
+import { servicePathFor } from "../../data/servicePages";
 import { useCms } from "../../context/CmsContext";
 
 // Phones / tablets: the card rises into place when it enters the viewport.
@@ -142,6 +143,11 @@ const ServiceCard = ({ service, n, total, flip, mode, onActive, openContact }) =
               <span>Discuss this service</span>
               <HiArrowRight />
             </button>
+            {servicePathFor(service.visual) && (
+              <Link to={servicePathFor(service.visual)} className="sv-body__price">
+                Learn more
+              </Link>
+            )}
             {pricing && (
               <Link to={`/pricing#price-${pricing.slug}`} className="sv-body__price">
                 See pricing
