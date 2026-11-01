@@ -38,6 +38,12 @@
   --wave-3: #c98bb0;
   --glass: rgba(255, 250, 246, 0.8);
   --grain-opacity: 0.03;
+  // Home hero stage light (sections/Story/HeroAtmosphere.jsx)
+  --hero-ray: rgba(122, 31, 108, 0.1);
+  --hero-dust: #b0487f;
+  --hero-flare: rgba(176, 72, 127, 0.55);
+  --hero-flare-core: #c0689a;
+  --hero-vignette: rgba(90, 17, 80, 0.1);
 }
 
 [data-theme='dark'] {
@@ -70,6 +76,11 @@
   --wave-3: #f0cfae;
   --glass: rgba(35, 2, 32, 0.74);
   --grain-opacity: 0.06;
+  --hero-ray: rgba(251, 239, 227, 0.09);
+  --hero-dust: #fbefe3;
+  --hero-flare: rgba(240, 207, 174, 0.8);
+  --hero-flare-core: #fffaf4;
+  --hero-vignette: rgba(12, 0, 10, 0.6);
 }
 
 :root {

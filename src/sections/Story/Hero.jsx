@@ -10,6 +10,7 @@ import Magnetic from "../../components/buttons/Magnetic";
 import MaskText from "../../components/motion/MaskText";
 import SilkWaves from "./SilkWaves";
 import ChromeLogo from "./ChromeLogo";
+import { StageLight, Dust } from "./HeroAtmosphere";
 import { seoPage } from "../../data/seo";
 
 // Keyword line and intro text are shared with the page's SEO copy (src/data/seo.js).
@@ -17,7 +18,8 @@ const SEO = seoPage("/");
 
 const NOTES = ["Ideas", "Design", "Develop", "Grow"];
 
-// Chapter 0 — the promise. Everything enters after the preloader, then parallaxes apart on scroll.
+// Chapter 0 — the promise. Everything enters after the preloader like an opening shot (light flare,
+// stage light, focus pull on the headline), then the camera pushes in toward the logo on scroll.
 const Hero = () => {
   const ref = useRef(null);
   const ready = useReady();
@@ -30,8 +32,11 @@ const Hero = () => {
   const { scrollYProgress: p } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const copyY = useTransform(p, [0, 1], ["0%", "-26%"]);
   const copyO = useTransform(p, [0, 0.6], [1, 0]);
-  const logoY = useTransform(p, [0, 1], ["0%", "30%"]);
-  const logoS = useTransform(p, [0, 1], [1, 0.8]);
+  // Scrolling away reads as a camera push-in: the logo grows toward the viewer and fades out.
+  const logoY = useTransform(p, [0, 1], ["0%", "14%"]);
+  const logoS = useTransform(p, [0, 1], [1, 1.3]);
+  const logoO = useTransform(p, [0.15, 0.75], [1, 0]);
+  const vignetteO = useTransform(p, [0, 0.8], [0.85, 1]);
   const waveY = useTransform(p, [0, 1], ["0%", "-16%"]);
   const glowY = useTransform(p, [0, 1], ["0%", "30%"]);
 
@@ -63,12 +68,14 @@ const Hero = () => {
       <motion.div className="st-hero__waves" style={reduce ? undefined : { y: waveY }} aria-hidden="true">
         {ready && <SilkWaves lines={desktop ? 16 : 9} delay={0.5} />}
       </motion.div>
+      <motion.div className="st-hero__vignette" style={reduce ? undefined : { opacity: vignetteO }} aria-hidden="true" />
+      <Dust mx={mx} my={my} desktop={desktop} reduce={reduce} ready={ready} />
 
       <div className="st-hero__inner">
         <motion.div className="st-hero__copy" style={reduce ? undefined : { y: copyY, opacity: copyO }}>
           <MaskText
             as="h1"
-            className="st-hero__title"
+            className={`st-hero__title${ready && !reduce ? " is-live" : ""}`}
             onReady
             delay={2}
             lines={[
@@ -117,7 +124,8 @@ const Hero = () => {
           )}
         </motion.div>
 
-        <motion.div className="st-hero__visual" style={reduce ? undefined : { y: logoY, scale: logoS }}>
+        <motion.div className="st-hero__visual" style={reduce ? undefined : { y: logoY, scale: logoS, opacity: logoO }}>
+          <StageLight ready={ready} reduce={reduce} />
           <ChromeLogo ready={ready} />
           <div className="st-notes" aria-hidden="true">
             {NOTES.map((n, i) => (
@@ -140,6 +148,7 @@ const Hero = () => {
           </div>
         </motion.div>
       </div>
+      <Dust front mx={mx} my={my} desktop={desktop} reduce={reduce} ready={ready} />
 
       <motion.button type="button" className="st-scroll" onClick={() => scrollToTarget("#journey")} {...enter(1.5)}>
         <span>Scroll to explore</span>
