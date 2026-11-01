@@ -21,6 +21,7 @@ const IndustriesPage = lazy(() => import("./pages/IndustryPage").then((m) => ({ 
 const BlogIndexPage = lazy(() => import("./pages/BlogPage").then((m) => ({ default: m.BlogIndexPage })));
 const BlogPostPage = lazy(() => import("./pages/BlogPage").then((m) => ({ default: m.BlogPostPage })));
 const CaseStudyPage = lazy(() => import("./pages/CaseStudyPage"));
+const FaqPage = lazy(() => import("./pages/FaqPage"));
 import Cursor from "./components/cursor/Cursor";
 import SmoothScroll from "./components/motion/SmoothScroll";
 import ScrollAnimationManager from "./components/ScrollAnimationManager";
@@ -81,6 +82,7 @@ const AnimatedRoutes = () => {
         <Route path="/process" element={<ProcessPage />} />
         <Route path="/brochure" element={<BookViewPage key="brochure" bookId="brochure" />} />
         <Route path="/company-profile" element={<BookViewPage key="company-profile" bookId="companyProfile" />} />
+        <Route path="/faq" element={<FaqPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<NotFoundPage />} />

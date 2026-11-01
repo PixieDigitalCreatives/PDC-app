@@ -1,6 +1,7 @@
 {
   "buildCommand": "npm run build",
   "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/api/:path*",
@@ -11,7 +12,7 @@
       "destination": "https://pdc-app-vm0t.onrender.com/uploads/:path*"
     },
     {
-      "source": "/(.*)",
+      "source": "/work/:slug",
       "destination": "/"
     }
   ]

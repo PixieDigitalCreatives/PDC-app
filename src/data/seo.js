@@ -160,6 +160,13 @@ const CONTENT_PAGES = [
     lead: "Practical articles on website development, SEO, AEO and GEO: what they are, how they compare and what to do first.",
     crumb: "Blog",
   },
+  {
+    path: "/faq", kind: "faq", title: "Frequently Asked Questions | Pixie Digital Creatives",
+    description: "Answers about Pixie Digital Creatives: who we are, who founded the studio, where we work, our services, industries, previous work, prices and how to start.",
+    kicker: "Frequently asked questions", h1: "Questions about working with us.",
+    lead: "Short, straight answers about who we are, how we work and how to start a project. Questions about a single service are answered on that service's page.",
+    crumb: "FAQ",
+  },
   ...POSTS.map((p) => ({
     path: `/blog/${p.slug}`, kind: "post", slug: p.slug, description: p.description,
     // brand suffix only when it still fits in a search result

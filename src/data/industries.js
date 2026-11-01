@@ -1,11 +1,13 @@
 // Industry landing pages (/industries/<slug>), each backed by real portfolio projects (matched by
 // title in the CMS). The "needs" are general, honest observations about what such businesses need from
-// a website; no invented results or client claims.
+// a website; no invented results or client claims. `who` names the businesses inside sentences and
+// question headings ("What do restaurants and cafés need from a website?").
 
 export const INDUSTRIES = [
   {
     slug: "restaurants-cafes",
     name: "Restaurants & Cafés",
+    who: "restaurants and cafés",
     title: "Restaurant & Café Website Development | Pixie Digital Creatives",
     description:
       "Premium restaurant and café websites: menus, atmosphere and mobile-first design, plus social media content that brings guests in. By Pixie Digital Creatives.",
@@ -30,6 +32,7 @@ export const INDUSTRIES = [
   {
     slug: "ecommerce",
     name: "E-commerce & D2C Brands",
+    who: "e-commerce and D2C brands",
     title: "E-commerce Website Development | Pixie Digital Creatives",
     description:
       "E-commerce website and app development for online stores and D2C brands: product discovery, premium storytelling and mobile shopping. Pixie Digital Creatives.",
@@ -54,6 +57,7 @@ export const INDUSTRIES = [
   {
     slug: "fitness-wellness",
     name: "Fitness & Wellness",
+    who: "gyms and fitness brands",
     title: "Websites for Gyms & Fitness Brands | Pixie Digital Creatives",
     description:
       "Premium websites for gyms, fitness studios and wellness brands: bold design, programmes and memberships, and booking apps, by Pixie Digital Creatives.",
@@ -78,6 +82,7 @@ export const INDUSTRIES = [
   {
     slug: "creators-authors",
     name: "Creators, Authors & Artists",
+    who: "creators, authors and artists",
     title: "Websites for Authors & Creators | Pixie Digital Creatives",
     description:
       "Editorial websites for authors, poets, artists and creators: biographies, works, books and creative journeys, beautifully presented by Pixie Digital Creatives.",

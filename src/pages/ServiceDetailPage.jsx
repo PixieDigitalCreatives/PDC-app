@@ -2,25 +2,32 @@ import React from "react";
 import { Link, useParams } from "react-router-dom";
 import { useCms } from "../context/CmsContext";
 import { servicePage } from "../data/servicePages";
+import { industryPage } from "../data/industries";
 import { POSTS } from "../data/blog";
 import { PROCESS_PHASES } from "../data/siteCopy";
 import { priceText } from "../data/pricing";
 import CtaBand from "../sections/Story/CtaBand";
 import Reveal from "../components/motion/Reveal";
-import { ContentShell, ContentHero, Section, CardGrid, QaList } from "../components/content/ContentKit";
+import { ContentShell, ContentHero, Section, CardGrid, Checklist, Steps, QaList } from "../components/content/ContentKit";
 import NotFoundPage from "./NotFoundPage";
 
-// One page per main service (/services/<slug>), from src/data/servicePages.js. Plans and prices
-// come from the live pricing (Admin → Pricing & Plans), the process steps from siteCopy.js.
+// One page per main service (/services/<slug>), from src/data/servicePages.js. Headings are the
+// questions people ask, each answered right below. Plans and prices come from the live pricing
+// (Admin → Pricing & Plans); website and app pages show the studio's 7-step process from siteCopy.js.
 const ServiceDetailPage = () => {
   const { slug } = useParams();
   const { pricing, setIsContactModalOpen } = useCms();
   const page = servicePage(slug);
   if (!page) return <NotFoundPage />;
 
+  const { term } = page;
   const category = (pricing?.categories || []).find((c) => c.slug === page.pricingSlug);
   const related = page.related.map(servicePage).filter(Boolean);
   const guides = POSTS.filter((p) => p.services.includes(page.slug));
+  const industries = page.industries
+    .map((u) => ({ ...u, industry: industryPage(u.slug) }))
+    .filter((u) => u.industry);
+  const steps = page.steps || PROCESS_PHASES.map((p) => ({ name: p.name, text: p.tagline }));
 
   return (
     <ContentShell>
@@ -38,16 +45,39 @@ const ServiceDetailPage = () => {
         </Link>
       </ContentHero>
 
-      <Section id="what" eyebrow={page.name} title={`What is ${page.name}?`}>
+      <Section id="what" eyebrow={page.name} title={`What is ${term}?`}>
         <Reveal as="p" className="cp-summary">{page.summary}</Reveal>
       </Section>
 
-      <Section id="included" eyebrow="What's included" title={`What our ${page.name} service includes`}>
+      <Section id="who" eyebrow="Who it's for" title={`Who is ${term} for?`}>
+        <Checklist items={page.audience} />
+      </Section>
+
+      <Section id="benefits" eyebrow="Benefits" title={`What are the benefits of ${term}?`}>
+        <CardGrid items={page.benefits} />
+      </Section>
+
+      <Section id="included" eyebrow="What's included" title={`What does our ${term} service include?`}>
         <CardGrid items={page.includes} />
       </Section>
 
+      {industries.length > 0 && (
+        <Section id="industries" eyebrow="By industry" title={`How is ${term} used in different industries?`}>
+          <CardGrid
+            items={industries.map(({ industry, text }) => ({
+              title: industry.name,
+              text,
+              to: `/industries/${industry.slug}`,
+              meta: "Industry",
+              linkLabel: `More for ${industry.name}`,
+            }))}
+            columns={2}
+          />
+        </Section>
+      )}
+
       {category && (
-        <Section id="plans" eyebrow="Plans" title={category.title} intro={page.plansIntro}>
+        <Section id="plans" eyebrow={category.title} title={`How much does ${term} cost?`} intro={page.plansIntro}>
           <ul className="cp-plans">
             {category.plans.map((plan) => (
               <li className="cp-plan glass-panel" key={plan.name}>
@@ -63,19 +93,18 @@ const ServiceDetailPage = () => {
         </Section>
       )}
 
-      <Section id="process" eyebrow="How we work" title="Seven clear steps, from first call to launch">
-        <ol className="cp-steps">
-          {PROCESS_PHASES.map((phase) => (
-            <li key={phase.name} className="glass-panel">
-              {phase.name}
-              <span>{phase.tagline}</span>
-            </li>
-          ))}
-        </ol>
-        <Link to="/process" className="cp-more">See our full process →</Link>
+      <Section
+        id="process"
+        eyebrow="How we work"
+        title={page.steps ? `How does our ${term} service work?` : `How does a ${term} project work?`}
+      >
+        <Steps items={steps} />
+        {!page.steps && <Link to="/process" className="cp-more">See our full process →</Link>}
+        <h3 className="cp-subhead">What you receive</h3>
+        <Checklist items={page.deliverables} />
       </Section>
 
-      <Section id="faq" eyebrow="Questions" title={`${page.name}: common questions`}>
+      <Section id="faq" eyebrow="Questions" title={`${page.name}: frequently asked questions`}>
         <QaList items={page.faqs} />
       </Section>
 

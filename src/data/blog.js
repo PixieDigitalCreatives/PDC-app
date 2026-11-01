@@ -1,6 +1,9 @@
-// Blog (/blog, /blog/<slug>): educational articles that explain, compare and guide. General knowledge
-// and the studio's own process only: no invented statistics, studies, clients or guarantees.
-// Section shape: { h2, p: [paragraphs], list?: [items], ordered?: bool, table?: { head: [], rows: [[]] } }
+// Blog (/blog, /blog/<slug>): educational articles that explain, compare and guide. General knowledge,
+// the studio's own process and its own published prices only: no invented statistics, studies, clients
+// or guarantees. Each article opens with a short answer, for readers and for answer engines.
+// Section shape: { h2, p: [paragraphs], list?: [items], ordered?: bool, table?: { head: [], rows: [[]] },
+//   price?: "<pricing category slug>" }. `price` shows that category's live prices (Admin → Pricing &
+//   Plans) as a sentence and a table, right under the heading.
 import { PROCESS_PHASES } from "./siteCopy.js";
 
 const AUTHOR = "Pixie Digital Creatives";
@@ -132,6 +135,12 @@ export const POSTS = [
     services: ["website-development"],
     sections: [
       {
+        h2: "The short answer",
+        p: [
+          "Choose WordPress if your team will edit content often and the features you need are common ones, such as forms, a blog or galleries. Choose a custom website if the design, the interactions or the features are specific to your business. Both can be premium; the right choice depends on how you will use the site.",
+        ],
+      },
+      {
         h2: "WordPress and custom websites compared",
         table: {
           head: ["", "WordPress", "Custom website"],
@@ -201,6 +210,180 @@ export const POSTS = [
           "Two or three websites you like, and why.",
           "The content you already have: text, photos, videos, logo.",
           "A budget range and any fixed dates (such as a launch event).",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "website-cost-in-india",
+    title: "How Much Does a Website Cost in India? 2026 Price Guide",
+    description:
+      "Website and app development costs in India for 2026: our current INR prices by type, what affects the cost, ongoing costs and how to get an accurate quote.",
+    date: "2026-11-01",
+    author: AUTHOR,
+    kicker: "Pricing guide",
+    lead:
+      "The honest answer is that it depends on what the website has to do. A basic business website and a custom e-commerce platform are different projects, with different prices. This guide uses our own current prices in Indian rupees (INR) to show the ranges, then explains what moves a quote up or down.",
+    services: ["website-development", "app-development"],
+    sections: [
+      {
+        h2: "The short answer",
+        price: "website",
+        p: [
+          "The type of website matters most: how many pages it has, whether your team needs to edit it, whether it sells online and how much custom functionality it needs.",
+        ],
+      },
+      {
+        h2: "What affects the cost of a website?",
+        list: [
+          "Pages and templates: a five-page site and a fifty-page site are different projects.",
+          "Custom design or a theme: a design made for your brand takes more time than adapting a ready-made theme.",
+          "Content management: a CMS with fields for your content lets your team edit the site, and needs setting up.",
+          "E-commerce: products, payments, shipping and order management add work.",
+          "Custom features and integrations: bookings, customer accounts, CRMs or other business systems.",
+          "Animation and interaction: storytelling, motion and 3D take extra design and development time.",
+          "Content: whether the text, photos and videos already exist or still have to be created.",
+        ],
+      },
+      {
+        h2: "How much does an app cost in India?",
+        price: "apps",
+        p: [
+          "Apps usually cost more than websites because they need a back end, a database and testing on many devices. Starting with an MVP (a first version with only the core features) keeps the first budget smaller.",
+        ],
+      },
+      {
+        h2: "Ongoing costs to plan for",
+        p: ["The build is not the only cost. Ask any agency whether these are included in a quote:"],
+        list: [
+          "Domain name renewal",
+          "Hosting, plus a database for apps and platforms",
+          "Maintenance: security updates, backups and fixes",
+          "Paid plugins, themes or third-party services the site uses",
+          "New content, features and marketing after launch",
+        ],
+      },
+      {
+        h2: "Why do quotes for the same website differ so much?",
+        p: [
+          "Two quotes for 'a website' can describe very different work. One may adapt a ready-made theme with your logo; another may include research, a custom design, a CMS, search setup and training. Compare what each quote includes, not only the price.",
+        ],
+      },
+      {
+        h2: "How to get an accurate quote",
+        ordered: true,
+        list: [
+          "Write down what the website should achieve: enquiries, sales or bookings.",
+          "List the pages and features you need now, and the ones that can wait.",
+          "Note the content you already have: text, photos, videos and logo.",
+          "Share two or three websites you like, and why.",
+          "Give a budget range, so the proposal can be shaped to fit it.",
+        ],
+      },
+      {
+        h2: "A note on these prices",
+        p: [
+          "The prices in this guide are Pixie Digital Creatives' current prices in INR, taken from our pricing page; they are not a survey of the market. Every project is scoped with you before you receive a final quote. If you are outside India, you can ask for a quote in your currency.",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "improve-online-visibility-small-business",
+    title: "How Can a Small Business Improve Its Online Visibility?",
+    description:
+      "A practical checklist for small businesses: Google Business Profile, a clear website, service pages, answers to customer questions, reviews and AI search.",
+    date: "2026-11-01",
+    author: AUTHOR,
+    kicker: "Online visibility guide",
+    lead:
+      "Online visibility means being easy to find, and easy to understand, wherever customers look: Google Search and Maps, social media and now AI tools such as ChatGPT and Gemini. For a small business, most of it comes down to a few basics, done well and kept up to date.",
+    services: ["seo", "geo", "social-media-marketing"],
+    sections: [
+      {
+        h2: "The short answer",
+        ordered: true,
+        list: [
+          "Set up and complete your Google Business Profile.",
+          "Make sure your website says what you do, where you work and how to contact you, and works well on phones.",
+          "Give each service its own page.",
+          "Answer the questions customers ask before they buy.",
+          "Use the same business name, phone, email and address (if you show one) everywhere.",
+          "Ask happy customers for genuine reviews.",
+          "Post regularly on the one or two social platforms your customers use.",
+          "Make your website readable by AI search tools.",
+        ],
+      },
+      {
+        h2: "1. Set up your Google Business Profile",
+        p: [
+          "A Google Business Profile is what appears in Google Maps and in the business panel when people search for your name or for something like 'bakery near me'. It is free. Choose the right category, add your opening hours, services, photos and website, and keep it up to date. Businesses without a shop or office can set a service area instead of showing an address. Bing has an equivalent called Bing Places.",
+        ],
+      },
+      {
+        h2: "2. Make your website answer the basics",
+        p: [
+          "Within a few seconds, a visitor should know what you do, who it is for, where you work and how to get in touch. Most people will check on a phone, so the site needs to be fast and easy to read on a small screen.",
+        ],
+        list: [
+          "A headline that says what you do",
+          "Your services, with starting prices if you can share them",
+          "Contact details on every page",
+          "Page titles and descriptions that match what people search for",
+        ],
+      },
+      {
+        h2: "3. Give each service its own page",
+        p: [
+          "One page that lists everything you do rarely ranks for any of it. A page per service, explaining what it is, who it is for, what is included and what it costs, gives search engines and AI tools a clear answer to point to.",
+        ],
+      },
+      {
+        h2: "4. Answer the questions customers ask",
+        p: [
+          "Write down the questions you hear on calls and in messages: price, timing, process, what is included. Answer each one in plain language on the most relevant page, with the short answer first. This is the core of answer engine optimisation (AEO).",
+        ],
+      },
+      {
+        h2: "5. Keep your business details identical everywhere",
+        p: [
+          "Search engines and AI tools compare what different sources say about you. Use exactly the same business name, phone number, email, website and address (if you show one) on your website, your Google Business Profile, your social profiles and directory listings.",
+        ],
+      },
+      {
+        h2: "6. Collect genuine reviews",
+        p: [
+          "Reviews help people decide and help search engines judge a business. Ask customers after a good experience, and reply to reviews, including critical ones. Never buy reviews or write them yourself: it breaks Google's policies and damages trust.",
+        ],
+      },
+      {
+        h2: "7. Be active where your customers are",
+        p: [
+          "You don't need every platform. Pick the one or two your customers actually use, post consistently and link back to your website. A content calendar makes this manageable.",
+        ],
+      },
+      {
+        h2: "8. Make your website readable by AI search tools",
+        p: [
+          "AI tools such as ChatGPT Search, Perplexity and Google's AI Overviews write answers from pages they can read. Make sure your main content is in the HTML rather than only loaded by JavaScript, allow AI search crawlers in robots.txt and describe the business with structured data. This is generative engine optimisation (GEO). Nobody can guarantee that an AI tool will mention you, but these steps remove the obstacles.",
+        ],
+      },
+      {
+        h2: "How do you know it's working?",
+        list: [
+          "Google Search Console: the searches you appear for, with clicks and impressions",
+          "Google Business Profile performance: calls, website clicks and direction requests",
+          "Analytics: where visitors come from, including AI tools such as chatgpt.com and perplexity.ai",
+          "A monthly check: ask AI tools the questions your customers ask and note whether you appear",
+        ],
+      },
+      {
+        h2: "What to avoid",
+        list: [
+          "Fake reviews and invented statistics or awards",
+          "Stuffing pages with keywords",
+          "Different names or phone numbers on different sites",
+          "Buying links from link farms",
         ],
       },
     ],

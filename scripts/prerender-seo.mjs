@@ -2,20 +2,21 @@
 // the page's own head (title, description, canonical, social tags), structured data (JSON-LD) and the
 // page's real content as semantic HTML, so search engines and AI crawlers that don't run JavaScript
 // (OAI-SearchBot, PerplexityBot, ClaudeBot, link previews) read the same words visitors see. React
-// replaces that copy as soon as the app starts. Also writes sitemap.xml and llms.txt.
+// replaces that copy as soon as the app starts. Also writes 404.html, sitemap.xml and llms.txt.
 //
 // Sources: src/data/* for pages and copy; the live CMS (projects, team, stats, pricing) fetched at
 // build time. If the CMS can't be reached, the build still succeeds without the CMS-based parts.
 import { mkdirSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { PAGES, SITE_URL, SITE_NAME, OG_IMAGE, LOGO, absoluteUrl } from "../src/data/seo.js";
+import { PAGES, NOT_FOUND, SITE_URL, SITE_NAME, OG_IMAGE, LOGO, absoluteUrl } from "../src/data/seo.js";
 import { BRAND, SAME_AS } from "../src/data/brand.js";
 import { JOURNEY_CHAPTERS, PILLARS_COPY, MANIFESTO, PROCESS_PHASES } from "../src/data/siteCopy.js";
 import { SERVICE_PAGES, servicePage, servicePathFor } from "../src/data/servicePages.js";
 import { INDUSTRIES, industryPage } from "../src/data/industries.js";
 import { POSTS, blogPost, readingMinutes, postWords } from "../src/data/blog.js";
-import { DEFAULT_PRICING, priceText } from "../src/data/pricing.js";
+import { DEFAULT_PRICING, categoryRange, priceText } from "../src/data/pricing.js";
+import { companyFaqs } from "../src/data/faq.js";
 import { defaultServices } from "../src/data/initialData.js";
 import { CHAPTER_BLURB } from "../src/sections/ServicesStory/data.js";
 import { caseStudyMeta, projectServiceSlug, projectSlug, projectStatus } from "../src/data/projects.js";
@@ -51,14 +52,16 @@ const esc = (s) =>
 const a = (href, text) => `<a href="${esc(href)}">${esc(text)}</a>`;
 const ul = (items, ordered = false) => (items.length ? `<${ordered ? "ol" : "ul"}>${items.map((i) => `<li>${i}</li>`).join("")}</${ordered ? "ol" : "ul"}>` : "");
 const section = (title, body) => `<section><h2>${esc(title)}</h2>${body}</section>`;
-const qa = (faqs) => faqs.map((f) => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>`).join("");
+const qa = (faqs) =>
+  faqs.map((f) => `<h3>${esc(f.q)}</h3><p>${esc(f.a)}</p>${f.links?.length ? `<p>${f.links.map((l) => a(l.to, l.label)).join(" · ")}</p>` : ""}`).join("");
+const checklist = (items) => ul(items.map(esc));
 const h1 = (page) => `<h1>${page.kicker ? `<span class="h1-kicker">${esc(page.kicker)}</span> ` : ""}${esc(page.h1)}</h1>`;
 
 const SERVICE_LINKS = SERVICE_PAGES.map((s) => ({ path: `/services/${s.slug}`, name: s.name }));
 const NAV = [
   { path: "/", name: "Home" }, { path: "/services", name: "Services" }, { path: "/pricing", name: "Pricing" },
   { path: "/portfolio", name: "Portfolio" }, { path: "/industries", name: "Industries" }, { path: "/process", name: "Process" },
-  { path: "/about", name: "About" }, { path: "/blog", name: "Blog" }, { path: "/contact", name: "Contact" },
+  { path: "/about", name: "About" }, { path: "/blog", name: "Blog" }, { path: "/faq", name: "FAQ" }, { path: "/contact", name: "Contact" },
 ];
 
 const chrome = (main) =>
@@ -138,17 +141,28 @@ const MAIN_CONTENT = {
   "/admin": (page) => h1(page) + `<p>${esc(page.lead)}</p>`,
 };
 
+// Same sections and question headings as pages/ServiceDetailPage.jsx.
 const serviceContent = (page) => {
   const s = servicePage(page.slug);
+  const { term } = s;
   const cat = pricing.find((c) => c.slug === s.pricingSlug);
   const guides = POSTS.filter((p) => p.services.includes(s.slug));
+  const uses = s.industries.map((u) => ({ ...u, industry: industryPage(u.slug) })).filter((u) => u.industry);
+  const steps = s.steps || PROCESS_PHASES.map((p) => ({ name: p.name, text: p.tagline }));
+  const cards = (items) => items.map((i) => `<h3>${esc(i.title)}</h3><p>${esc(i.text)}</p>`).join("");
   return (
     h1(page) + `<p>${esc(s.lead)}</p>` +
-    section(`What is ${s.name}?`, `<p>${esc(s.summary)}</p>`) +
-    section(`What our ${s.name} service includes`, s.includes.map((i) => `<h3>${esc(i.title)}</h3><p>${esc(i.text)}</p>`).join("")) +
-    (cat ? section(cat.title, `<p>${esc(s.plansIntro)}</p>${planLines(cat)}${cat.note ? `<p>${esc(cat.note)}</p>` : ""}<p>${a(`/pricing#price-${cat.slug}`, "See full pricing")}</p>`) : "") +
-    section("How we work", ul(PROCESS_PHASES.map((p) => `<strong>${esc(p.name)}</strong>: ${esc(p.tagline)}`), true) + `<p>${a("/process", "See our full process")}</p>`) +
-    section(`${s.name}: common questions`, qa(s.faqs)) +
+    section(`What is ${term}?`, `<p>${esc(s.summary)}</p>`) +
+    section(`Who is ${term} for?`, checklist(s.audience)) +
+    section(`What are the benefits of ${term}?`, cards(s.benefits)) +
+    section(`What does our ${term} service include?`, cards(s.includes)) +
+    (uses.length ? section(`How is ${term} used in different industries?`, uses.map((u) => `<h3>${a(`/industries/${u.industry.slug}`, u.industry.name)}</h3><p>${esc(u.text)}</p>`).join("")) : "") +
+    (cat ? section(`How much does ${term} cost?`, `<p>${esc(s.plansIntro)}</p>${planLines(cat)}${cat.note ? `<p>${esc(cat.note)}</p>` : ""}<p>${a(`/pricing#price-${cat.slug}`, "See full pricing")}</p>`) : "") +
+    section(s.steps ? `How does our ${term} service work?` : `How does a ${term} project work?`,
+      ul(steps.map((p) => `<strong>${esc(p.name)}</strong>: ${esc(p.text)}`), true) +
+      (s.steps ? "" : `<p>${a("/process", "See our full process")}</p>`) +
+      `<h3>What you receive</h3>${checklist(s.deliverables)}`) +
+    section(`${s.name}: frequently asked questions`, qa(s.faqs)) +
     section("Related services and guides", ul([
       ...s.related.map(servicePage).filter(Boolean).map((r) => a(`/services/${r.slug}`, r.name)),
       ...guides.map((g) => a(`/blog/${g.slug}`, g.title)),
@@ -161,10 +175,25 @@ const industryContent = (page) => {
   const work = ind.projects.map((t) => projects.find((p) => p.title === t)).filter(Boolean);
   return (
     h1(page) + `<p>${esc(ind.lead)}</p>` +
-    section(`What ${ind.name.toLowerCase()} need from a website`, ind.needs.map((n) => `<h3>${esc(n.title)}</h3><p>${esc(n.text)}</p>`).join("")) +
-    (work.length ? section(`Projects for ${ind.name.toLowerCase()}`, work.map(projectLine).join("")) : "") +
-    section("How we help", ul(ind.services.map(servicePage).filter(Boolean).map((s) => `${a(`/services/${s.slug}`, s.name)}: ${esc(s.description)}`))) +
-    section("Common questions", qa(ind.faqs))
+    section(`What do ${ind.who} need from a website?`, ind.needs.map((n) => `<h3>${esc(n.title)}</h3><p>${esc(n.text)}</p>`).join("")) +
+    (work.length ? section(`Which projects have we built for ${ind.who}?`, work.map(projectLine).join("")) : "") +
+    section(`How can we help ${ind.who}?`, ul(ind.services.map(servicePage).filter(Boolean).map((s) => `${a(`/services/${s.slug}`, s.name)}: ${esc(s.description)}`))) +
+    section(`Questions from ${ind.who}`, qa(ind.faqs))
+  );
+};
+
+// A pricing category as a sentence and a table (same as PriceTable in pages/BlogPage.jsx). Without the
+// CMS the build can't be sure of the prices, so it lists the plan types and points to the pricing page.
+const priceBlock = (slug) => {
+  const cat = pricing.find((c) => c.slug === slug);
+  if (!cat) return "";
+  const range = showPrices && categoryRange(cat);
+  const head = showPrices ? ["Type", "Price (INR)", "Best for"] : ["Type", "Best for"];
+  const rows = cat.plans.map((pl) => [pl.name, ...(showPrices ? [priceText(pl)] : []), [pl.fit?.replace(/\.$/, ""), ...(pl.details || [])].filter(Boolean).join(" · ")]);
+  return (
+    (range ? `<p>At ${esc(SITE_NAME)}, ${esc(cat.title.toLowerCase())} currently costs from ${esc(range.from)} to ${esc(range.to)}, depending on the type of project:</p>` : "") +
+    `<table><thead><tr>${head.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => (i ? `<td>${esc(c)}</td>` : `<th scope="row">${esc(c)}</th>`)).join("")}</tr>`).join("")}</tbody></table>` +
+    `<p>${a(`/pricing#price-${cat.slug}`, `See all current ${cat.title.toLowerCase()} prices`)}</p>`
   );
 };
 
@@ -172,6 +201,7 @@ const postContent = (page) => {
   const p = blogPost(page.slug);
   const body = p.sections.map((s) =>
     `<h2>${esc(s.h2)}</h2>` +
+    (s.price ? priceBlock(s.price) : "") +
     (s.p || []).map((t) => `<p>${esc(t)}</p>`).join("") +
     (s.table ? `<table><thead><tr>${s.table.head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${s.table.rows.map((r) => `<tr>${r.map((c, i) => (i ? `<td>${esc(c)}</td>` : `<th>${esc(c)}</th>`)).join("")}</tr>`).join("")}</tbody></table>` : "") +
     (s.list ? `${s.listLabel ? `<p>${esc(s.listLabel)}</p>` : ""}${ul(s.list.map(esc), s.ordered)}` : "")
@@ -199,12 +229,41 @@ const caseContent = (project) => {
   );
 };
 
+const faqs = companyFaqs({ team, projects });
+const faqContent = (page) =>
+  h1(page) + `<p>${esc(page.lead)}</p>` +
+  section("Questions about Pixie Digital Creatives", qa(faqs)) +
+  section("Questions about a specific service", ul(SERVICE_PAGES.map((s) => `${a(`/services/${s.slug}#faq`, `${s.name} questions`)}: ${s.faqs.length} questions answered, including "${esc(s.faqs[0].q)}"`)));
+
+const notFoundContent = () =>
+  `<h1>Page not found</h1><p>${esc(NOT_FOUND.description)}</p>` +
+  section("Where to go next", ul(NAV.map((n) => a(n.path, n.name))));
+
 const listContent = (page, items) => h1(page) + `<p>${esc(page.lead)}</p>` + section(page.crumb, ul(items));
 
 // ---- Structured data ------------------------------------------------------------------------------
 const ORG_ID = `${SITE_URL}/#organization`;
 const SITE_ID = `${SITE_URL}/#website`;
 const founders = team.filter((t) => /founder/i.test(t.role || ""));
+const personId = (t) => `${SITE_URL}/about#${projectSlug(t.name)}`;
+// Placeholder links such as "https://x.com" point at a homepage, not a profile (as on the About page).
+const isProfile = (url) => {
+  try { return new URL(url).pathname.replace(/\/+$/, "").length > 0; } catch { return false; }
+};
+// The team as shown on /about (name, role, bio, photo, profiles).
+const person = (t) => {
+  const sameAs = [t.linkedin, t.twitter, t.github].filter((u) => u && isProfile(u));
+  return {
+    "@type": "Person",
+    "@id": personId(t),
+    name: t.name,
+    jobTitle: t.role,
+    ...(t.bio && { description: t.bio.trim() }),
+    ...(t.image && { image: t.image }),
+    ...(sameAs.length && { sameAs }),
+    worksFor: { "@id": ORG_ID },
+  };
+};
 
 const organization = (withServices) => ({
   "@type": "Organization",
@@ -228,7 +287,7 @@ const organization = (withServices) => ({
     availableLanguage: BRAND.languages,
   },
   sameAs: SAME_AS,
-  ...(founders.length && { founder: founders.map((f) => ({ "@type": "Person", name: f.name, jobTitle: f.role })) }),
+  ...(founders.length && { founder: founders.map((f) => ({ "@type": "Person", "@id": personId(f), name: f.name, jobTitle: f.role })) }),
   knowsAbout: ["Website development", "Premium website design", "Application development", "Social media marketing",
     "Social media handling", "Model and influencer marketing", "Search engine optimisation", "Answer engine optimisation",
     "Generative engine optimisation"],
@@ -253,7 +312,12 @@ const breadcrumb = (page, url) => {
   return { "@type": "BreadcrumbList", "@id": `${url}#breadcrumb`, itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, ...it })) };
 };
 
-const PAGE_TYPES = { "/about": "AboutPage", "/contact": "ContactPage", "/portfolio": "CollectionPage", "/blog": "CollectionPage", "/industries": "CollectionPage" };
+const PAGE_TYPES = { "/about": "AboutPage", "/contact": "ContactPage", "/portfolio": "CollectionPage", "/blog": "CollectionPage", "/industries": "CollectionPage", "/faq": "FAQPage" };
+
+// Visible questions and answers as schema.org Questions. Google no longer shows FAQ rich results
+// (May 2026) but still reads the markup to understand the page; other engines use it too.
+const questions = (items) =>
+  items.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } }));
 
 const structuredData = (page, extra = {}) => {
   const url = absoluteUrl(page.path);
@@ -273,6 +337,13 @@ const structuredData = (page, extra = {}) => {
   graph.push(pageNode);
   if (extra.mainEntity) graph.push(extra.mainEntity);
   if (extra.itemList) pageNode.mainEntity = { "@type": "ItemList", itemListElement: extra.itemList.map((u, i) => ({ "@type": "ListItem", position: i + 1, url: u })) };
+  // Q&A: the FAQ page is itself an FAQPage; on other pages the Q&A is one part of the page.
+  if (extra.faqs?.length && pageNode["@type"] === "FAQPage") pageNode.mainEntity = questions(extra.faqs);
+  else if (extra.faqs?.length) {
+    graph.push({ "@type": "FAQPage", "@id": `${url}#faq`, url, name: `${page.crumb}: frequently asked questions`, isPartOf: { "@id": `${url}#webpage` }, mainEntity: questions(extra.faqs) });
+    pageNode.hasPart = { "@id": `${url}#faq` };
+  }
+  if (extra.people?.length) graph.push(...extra.people);
   if (page.crumb) graph.push(breadcrumb(page, url));
   return JSON.stringify({ "@context": "https://schema.org", "@graph": graph }).replace(/</g, "\\u003c");
 };
@@ -394,14 +465,18 @@ const ensureDir = (p) => mkdirSync(path.dirname(path.join(dist, `${p.slice(1)}.h
 
 for (const page of PAGES) {
   if (page.path !== "/") ensureDir(page.path);
-  if (page.kind === "service") write(page, serviceContent(page), structuredData(page, { mainEntity: serviceEntity(page) }));
-  else if (page.kind === "industry") write(page, industryContent(page), structuredData(page));
+  if (page.kind === "service") write(page, serviceContent(page), structuredData(page, { mainEntity: serviceEntity(page), faqs: servicePage(page.slug).faqs }));
+  else if (page.kind === "industry") write(page, industryContent(page), structuredData(page, { faqs: industryPage(page.slug).faqs }));
+  else if (page.kind === "faq") write(page, faqContent(page), structuredData(page, { faqs }));
   else if (page.kind === "industries") write(page, listContent(page, INDUSTRIES.map((i) => `${a(`/industries/${i.slug}`, i.name)}: ${esc(i.lead)}`)), structuredData(page, { itemList: INDUSTRIES.map((i) => absoluteUrl(`/industries/${i.slug}`)) }));
   else if (page.kind === "blog") write(page, listContent(page, POSTS.map((p) => `${a(`/blog/${p.slug}`, p.title)}: ${esc(p.description)}`)), structuredData(page, { itemList: POSTS.map((p) => absoluteUrl(`/blog/${p.slug}`)) }));
   else if (page.kind === "post") write(page, postContent(page), structuredData(page, { mainEntity: postEntity(page) }));
   else if (page.noindex) write(page, MAIN_CONTENT[page.path](page), null);
   else {
-    const extra = page.path === "/portfolio" && projects.length ? { itemList: projects.map((p) => absoluteUrl(`/work/${projectSlug(p.title)}`)) } : {};
+    const extra =
+      page.path === "/portfolio" && projects.length ? { itemList: projects.map((p) => absoluteUrl(`/work/${projectSlug(p.title)}`)) }
+      : page.path === "/about" && team.length ? { people: team.map(person) }
+      : {};
     write(page, MAIN_CONTENT[page.path](page), structuredData(page, extra));
   }
 }
@@ -414,6 +489,10 @@ for (const page of casePages) {
   ensureDir(page.path);
   write(page, caseContent(page.project), structuredData(page, { mainEntity: caseEntity(page.project, absoluteUrl(page.path)) }));
 }
+
+// Served by Vercel with a real 404 status for any URL that has no file (see vercel.json); the app then
+// shows its 404 page. Not in the sitemap.
+write({ ...NOT_FOUND, path: "/404" }, notFoundContent(), null);
 
 // ---- Sitemap and llms.txt ---------------------------------------------------------------------------
 const indexable = [...PAGES.filter((p) => !p.noindex), ...casePages];
@@ -449,6 +528,7 @@ const llms = [
   `- ${md("/about", "About")}: who we are, how we work and the founders.`,
   `- ${md("/process", "Process")}: the seven steps of every project, from discovery to launch and support.`,
   `- ${md("/pricing", "Pricing")}: current starting prices in INR for every service.`,
+  `- ${md("/faq", "FAQ")}: who we are, the founders, where we work and how to start a project.`,
   `- ${md("/contact", "Contact")}: start a project or ask a question.`,
   "",
 ].join("\n");

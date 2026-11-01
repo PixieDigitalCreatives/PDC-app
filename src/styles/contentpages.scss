@@ -76,6 +76,7 @@
 // ---- Sections -----------------------------------------------------------------------------------
 .cp-section {
   padding: clamp(3rem, 7vw, 6rem) 0;
+  scroll-margin-top: 110px; // clears the fixed navbar when a link jumps to a section (#faq)
 
   & + & { padding-top: 0; }
   &__head { max-width: 760px; margin-bottom: clamp(1.75rem, 3.5vw, 2.75rem); }
@@ -192,6 +193,43 @@
   }
 }
 
+// Tick list (who a service is for, what you receive)
+.cp-checklist {
+  display: grid;
+  gap: 0.8rem 2.25rem;
+  max-width: 980px;
+  list-style: none;
+  padding: 0;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+
+  li {
+    position: relative;
+    padding-left: 1.9rem;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: $white-72;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0.15rem;
+      top: 0.45em;
+      width: 0.85rem;
+      height: 0.45rem;
+      border-left: 2px solid $accent;
+      border-bottom: 2px solid $accent;
+      rotate: -45deg;
+    }
+  }
+}
+.cp-subhead {
+  font-family: $font-display;
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  font-weight: 600;
+  color: $white;
+  margin: clamp(2rem, 4vw, 2.75rem) 0 1rem;
+}
+
 // ---- Q&A ----------------------------------------------------------------------------------------
 .cp-qa {
   display: grid;
@@ -220,6 +258,14 @@
       line-height: 1.7;
       color: $white-72;
       max-width: 75ch;
+    }
+    .cp-qa__links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem 1.25rem;
+      margin-top: -0.5rem;
+      a { @include meta; font-size: 0.7rem; color: $accent; text-decoration: none; }
+      a:hover, a:focus-visible { text-decoration: underline; }
     }
     &[open] .cp-qa__icon { rotate: 45deg; }
   }
@@ -256,6 +302,8 @@
   ul, ol { padding-left: 1.3rem; margin: 0 0 1.3rem; display: grid; gap: 0.45rem; }
   li::marker { color: $accent; }
   .cp-article__label { font-weight: 600; color: $white; margin-bottom: 0.5rem; }
+  .cp-article__answer { color: $white; font-weight: 500; }
+  a { color: $accent; text-underline-offset: 3px; }
 }
 .cp-table-wrap { overflow-x: auto; margin: 0 0 1.5rem; border-radius: 14px; border: 1px solid $white-12; }
 .cp-table {

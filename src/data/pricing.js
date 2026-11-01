@@ -280,6 +280,18 @@ export const categoryFrom = (category) => {
   return prices.length ? inr(Math.min(...prices)) : null;
 };
 
+// Lowest and highest confirmed price of a category ({ from: "₹12,000", to: "₹3,00,000+" }), for the
+// short answers in the price guide. null when nothing in the category is confirmed.
+export const categoryRange = (category) => {
+  const plans = (category?.plans || []).filter(isConfirmed);
+  if (!plans.length) return null;
+  const top = plans.reduce(
+    (best, p) => ((p.price.to || p.price.from) >= best.amount ? { amount: p.price.to || p.price.from, plus: Boolean(p.price.plus) } : best),
+    { amount: 0, plus: false }
+  );
+  return { from: inr(Math.min(...plans.map((p) => p.price.from))), to: `${inr(top.amount)}${top.plus ? "+" : ""}` };
+};
+
 // The pricing category for a service on /services (by its `visual` key), if it has one.
 export const pricingForService = (categories, visual) =>
   (categories || []).find((c) => (c.services || []).includes(visual)) || null;

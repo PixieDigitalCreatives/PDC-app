@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
 import ContactModal from "../ContactModal";
@@ -7,20 +7,44 @@ import ProjectDetailModal from "../ProjectDetailModal";
 import ScrollProgress from "../motion/ScrollProgress";
 import MaskText from "../motion/MaskText";
 import Reveal from "../motion/Reveal";
+import { scrollToTarget } from "../../animations/lenis";
+import { useReady } from "../../animations/ReadyContext";
 import "../../sections/Story/story.scss";
 import "../../styles/contentpages.scss";
 
+// Arriving with a section in the URL (/services/seo#faq): go to that section once the page is in
+// (after the preloader on a fresh visit), as the pricing page does.
+const useHashJump = () => {
+  const { hash } = useLocation();
+  const ready = useReady();
+  useEffect(() => {
+    if (!ready) return undefined;
+    let target = null;
+    try {
+      target = hash && document.querySelector(hash);
+    } catch {
+      // not a valid selector (hand-typed hash): stay at the top
+    }
+    if (!target) return undefined;
+    const t = setTimeout(() => scrollToTarget(target), 900);
+    return () => clearTimeout(t);
+  }, [hash, ready]);
+};
+
 // Page frame shared with the other pages: navbar, main landmark, footer and the site's modals.
-export const ContentShell = ({ children }) => (
-  <div className="cp-page">
-    <Navbar />
-    <ScrollProgress />
-    <main id="main">{children}</main>
-    <Footer />
-    <ContactModal />
-    <ProjectDetailModal />
-  </div>
-);
+export const ContentShell = ({ children }) => {
+  useHashJump();
+  return (
+    <div className="cp-page">
+      <Navbar />
+      <ScrollProgress />
+      <main id="main">{children}</main>
+      <Footer />
+      <ContactModal />
+      <ProjectDetailModal />
+    </div>
+  );
+};
 
 // Building blocks for the content pages (service, industry, blog and case-study pages). One look,
 // taken from the existing design system: the inner-page glows, the H1 keyword line, glass panels
@@ -91,7 +115,27 @@ export const CardGrid = ({ items, columns = 3 }) => (
   </ul>
 );
 
+// A short list with tick marks: who a service is for, what a client receives.
+export const Checklist = ({ items }) => (
+  <Reveal as="ul" className="cp-checklist">
+    {items.map((t) => <li key={t}>{t}</li>)}
+  </Reveal>
+);
+
+// Numbered steps: [{ name, text }].
+export const Steps = ({ items }) => (
+  <ol className="cp-steps">
+    {items.map((s) => (
+      <li key={s.name} className="glass-panel">
+        {s.name}
+        <span>{s.text}</span>
+      </li>
+    ))}
+  </ol>
+);
+
 // Questions and answers as native disclosure widgets: readable by everyone, the first one open.
+// items: [{ q, a, links?: [{ to, label }] }]
 export const QaList = ({ items }) => (
   <div className="cp-qa">
     {items.map((f, i) => (
@@ -101,6 +145,11 @@ export const QaList = ({ items }) => (
           <span className="cp-qa__icon" aria-hidden="true" />
         </summary>
         <p>{f.a}</p>
+        {f.links?.length > 0 && (
+          <p className="cp-qa__links">
+            {f.links.map((l) => <Link key={l.to} to={l.to}>{l.label} →</Link>)}
+          </p>
+        )}
       </details>
     ))}
   </div>

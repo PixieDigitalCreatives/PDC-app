@@ -52,19 +52,19 @@ const IndustryPage = () => {
         </button>
       </ContentHero>
 
-      <Section id="needs" eyebrow={page.name} title={`What ${page.name.toLowerCase()} need from a website`}>
+      <Section id="needs" eyebrow={page.name} title={`What do ${page.who} need from a website?`}>
         <CardGrid items={page.needs} columns={2} />
       </Section>
 
-      <Section id="work" eyebrow="Our work" title={`Projects for ${page.name.toLowerCase()}`}>
+      <Section id="work" eyebrow="Our work" title={`Which projects have we built for ${page.who}?`}>
         <CardGrid items={projects} columns={2} />
       </Section>
 
-      <Section id="services" eyebrow="Services" title="How we help">
+      <Section id="services" eyebrow="Services" title={`How can we help ${page.who}?`}>
         <CardGrid items={services.map((s) => ({ title: s.name, text: s.description, to: `/services/${s.slug}`, meta: "Service" }))} />
       </Section>
 
-      <Section id="faq" eyebrow="Questions" title="Common questions">
+      <Section id="faq" eyebrow="Questions" title={`Questions from ${page.who}`}>
         <QaList items={page.faqs} />
       </Section>
 

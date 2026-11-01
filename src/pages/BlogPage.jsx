@@ -1,6 +1,8 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { useCms } from "../context/CmsContext";
 import { POSTS, blogPost, readingMinutes } from "../data/blog";
+import { categoryRange, priceText } from "../data/pricing";
 import { servicePage } from "../data/servicePages";
 import { seoPage } from "../data/seo";
 import CtaBand from "../sections/Story/CtaBand";
@@ -34,11 +36,44 @@ export const BlogIndexPage = () => {
   );
 };
 
-const ArticleSection = ({ s }) => {
+// Live prices of one pricing category (Admin → Pricing & Plans): the range as a sentence, then a table.
+const PriceTable = ({ category }) => {
+  const range = categoryRange(category);
+  return (
+    <>
+      {range && (
+        <p className="cp-article__answer">
+          At Pixie Digital Creatives, {category.title.toLowerCase()} currently costs from {range.from} to {range.to}, depending on the type of project:
+        </p>
+      )}
+      <div className="cp-table-wrap">
+        <table className="cp-table">
+          <thead>
+            <tr><th scope="col">Type</th><th scope="col">Price (INR)</th><th scope="col">Best for</th></tr>
+          </thead>
+          <tbody>
+            {category.plans.map((plan) => (
+              <tr key={plan.name}>
+                <th scope="row">{plan.name}</th>
+                <td>{priceText(plan)}</td>
+                <td>{[plan.fit?.replace(/\.$/, ""), ...(plan.details || [])].filter(Boolean).join(" · ")}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p><Link to={`/pricing#price-${category.slug}`}>See all current {category.title.toLowerCase()} prices →</Link></p>
+    </>
+  );
+};
+
+const ArticleSection = ({ s, categories }) => {
   const List = s.ordered ? "ol" : "ul";
+  const category = s.price && categories.find((c) => c.slug === s.price);
   return (
     <>
       <h2>{s.h2}</h2>
+      {category && <PriceTable category={category} />}
       {(s.p || []).map((t) => <p key={t.slice(0, 40)}>{t}</p>)}
       {s.table && (
         <div className="cp-table-wrap">
@@ -68,6 +103,7 @@ const ArticleSection = ({ s }) => {
 
 export const BlogPostPage = () => {
   const { slug } = useParams();
+  const { pricing } = useCms();
   const post = blogPost(slug);
   if (!post) return <NotFoundPage />;
 
@@ -93,7 +129,7 @@ export const BlogPostPage = () => {
       <section className="cp-section" aria-label="Article">
         <div className="container-custom">
           <Reveal as="article" className="cp-article">
-            {post.sections.map((s) => <ArticleSection key={s.h2} s={s} />)}
+            {post.sections.map((s) => <ArticleSection key={s.h2} s={s} categories={pricing?.categories || []} />)}
           </Reveal>
         </div>
       </section>
